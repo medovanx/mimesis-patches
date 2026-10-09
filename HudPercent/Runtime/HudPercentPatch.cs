@@ -22,7 +22,7 @@ namespace HudPercent
             get => PlayerPrefs.GetInt("medovanx.HudPercent.Enabled", 1) == 1;
             set { PlayerPrefs.SetInt("medovanx.HudPercent.Enabled", value ? 1 : 0); PlayerPrefs.Save(); }
         }
-        const float Gap = 12f;
+        const float Gap = 24f;
 
         [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGame.OnHpChanged))]
         static void Health(UIPrefab_InGame __instance, long curr, long maxHP) =>
@@ -72,7 +72,13 @@ namespace HudPercent
             label.color = color;
             label.raycastTarget = false;
             var s = bar.lossyScale.x;
-            if (s > 0.01f && hud.transform.lossyScale.x > 0.01f) rt.localScale = Vector3.one * (hud.transform.lossyScale.x / s);
+            if (s > 0.01f && hud.transform.lossyScale.x > 0.01f)
+            {
+                // Undo the bar's own scale for both the text size and the gap, so every bar gets the same spacing.
+                float k = hud.transform.lossyScale.x / s;
+                rt.localScale = Vector3.one * k;
+                rt.anchoredPosition = new Vector2(Gap * k, 0f);
+            }
             return label;
         }
     }

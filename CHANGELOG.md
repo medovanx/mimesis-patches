@@ -2,6 +2,12 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.2.4
+- Stack counts / durability % follow their slot when fewer than 4 slots are shown.
+
+## HudPercent 1.1.2
+- Same gap after both bars (radiation % no longer touches its bar).
+
 ## Inventory 1.2.3
 - The slot count is set only in Patches → Inventory (removed from the lobby menu).
 

@@ -111,6 +111,26 @@ namespace Inventory
             copy.gameObject.SetActive(false);
         }
 
+        // Stack counts sit at fixed positions, but the slot row re-centres when slots are hidden; remember each
+        // label's horizontal offset from its slot so it can follow the slot.
+        static readonly Dictionary<TMP_Text, float> LabelOffset = new Dictionary<TMP_Text, float>();
+
+        [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_Inventory), nameof(UIPrefab_Inventory.UpdateSlot))]
+        static void AlignLabels(UIPrefab_Inventory __instance)
+        {
+            var slots = __instance.inventorySlots;
+            if (slots.Count == 0) return;
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)slots[0].frame.transform.parent.parent);
+            foreach (var slot in slots)
+            {
+                if (slot.stackCount == null || slot.frame == null) continue;
+                var label = slot.stackCount.transform;
+                var slotT = slot.frame.transform.parent;
+                if (!LabelOffset.ContainsKey(slot.stackCount)) continue;
+                label.position = new Vector3(slotT.position.x + LabelOffset[slot.stackCount], label.position.y, label.position.z);
+            }
+        }
+
         [HarmonyPrefix, HarmonyPatch(typeof(UIPrefab_Inventory), nameof(UIPrefab_Inventory.UpdateSlot))]
         static void ShowSlots(UIPrefab_Inventory __instance)
         {
@@ -120,6 +140,11 @@ namespace Inventory
             var second = slots[0].frame.transform.parent.parent.parent.Find(SecondRow);
             if (second != null) second.gameObject.SetActive(count > PerRow);
             MoveStaminaBar(slots[0].frame.transform.parent.parent as RectTransform, second as RectTransform, count > PerRow);
+            // First time, with all slots in their original places: record label offsets.
+            foreach (var slot in slots)
+                if (slot.stackCount != null && slot.frame != null && !LabelOffset.ContainsKey(slot.stackCount))
+                    LabelOffset[slot.stackCount] = slot.stackCount.transform.position.x - slot.frame.transform.parent.position.x;
+
             for (int i = 0; i < slots.Count; i++)
             {
                 // A slot's stack count isn't under its InvenSlot object, so toggle both.
