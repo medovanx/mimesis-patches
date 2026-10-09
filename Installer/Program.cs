@@ -25,7 +25,7 @@ var patches = new List<(string Name, string About, string Runtime, Action<string
     ("Minimap", "Minimap (layout + you)", "MinimapRuntime.dll", dll => PatcherCore.Run(new[] { "install", dll }, "MIMESIS Minimap Patcher", "Minimap.Plugin", "MinimapRuntime.dll")),
     ("HostOptions", "Host: infinite stamina, starting money", "HostOptionsRuntime.dll", dll => PatcherCore.Run(new[] { "install", dll }, "MIMESIS HostOptions Patcher", "HostOptions.Plugin", "HostOptionsRuntime.dll")),
     ("HudPercent", "Health / radiation % on the HUD", "HudPercentRuntime.dll", dll => PatcherCore.Run(new[] { "install", dll }, "MIMESIS HudPercent Patcher", "HudPercent.Plugin", "HudPercentRuntime.dll")),
-    ("Inventory", "Host sets 4-8 slots (all players need it)", "InventoryRuntime.dll", dll => PatcherCore.Run(new[] { "install", dll }, "MIMESIS Inventory Patcher", "Inventory.Plugin", "InventoryRuntime.dll")),
+    ("Inventory", "Host sets 1-8 slots (all players need it)", "InventoryRuntime.dll", dll => PatcherCore.Run(new[] { "install", dll }, "MIMESIS Inventory Patcher", "Inventory.Plugin", "InventoryRuntime.dll")),
 };
 
 try
@@ -46,7 +46,7 @@ try
         bool[] selected = Enumerable.Repeat(true, patches.Count).ToArray();
         string mode = args.Length > 0 ? args[0].ToLowerInvariant() : Checklist(version, patches.Select(p => (p.Name, p.About, File.Exists(Path.Combine(managed, p.Runtime)))).ToList(), selected);
 
-        Console.Clear();
+        Clear();
         Header(version);
         if (mode == "uninstall")
         {
@@ -83,6 +83,9 @@ Console.WriteLine();
 Console.WriteLine("Press any key to close.");
 try { Console.ReadKey(true); } catch (InvalidOperationException) { }
 
+// Clear fails without a real console window (e.g. output redirected); that's fine to skip.
+static void Clear() { try { Console.Clear(); } catch (IOException) { } }
+
 static void Header(string version)
 {
     Console.WriteLine($"MIMESIS Patches Installer v{version}");
@@ -100,7 +103,7 @@ static string Checklist(string version, List<(string Name, string About, bool In
     {
         while (true)
         {
-            Console.Clear();
+            Clear();
             Header(version);
             Console.WriteLine("Choose the patches to install or update:\n");
             for (int i = 0; i < items.Count; i++)

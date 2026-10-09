@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.1.0
+- Slot count goes down to 1 (range 1-8); slot buttons in the Patches window are a 2 × 4 grid.
+
 ## Installer 1.1.0
 - Checklist to pick which patches to install (arrow keys + Space).
 
@@ -9,7 +12,7 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - One exe that installs/updates or removes all patches.
 
 ## Inventory 1.0.0
-- Host-set inventory size (4-8 slots), 2 × 4 grid HUD, shared with players through the Steam lobby. Every player needs it.
+- Host-set inventory size (1-8 slots), 2 × 4 grid HUD, shared with players through the Steam lobby. Every player needs it.
 
 ## HudPercent 1.1.1
 - Radiation % now sits next to its bar.

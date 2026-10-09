@@ -1,4 +1,4 @@
-// MIMESIS Inventory - host-set inventory size (4-8 slots), shown as a 2 x 4 grid
+// MIMESIS Inventory - host-set inventory size (1-8 slots); more than 4 shows as a 2 x 4 grid
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
 // The slot count lives in three places, so every player needs this patch:
@@ -26,7 +26,7 @@ namespace Inventory
     [HarmonyPatch]
     static class InventoryPatch
     {
-        public const int Min = 4, Max = 8, PerRow = 4;
+        public const int Min = 1, Max = 8, PerRow = 4, Default = 4;
         const string PrefKey = "medovanx.Inventory.Slots";
         const string LobbyKey = "medovanx.invslots";
         const string LobbyRow = "MedovanxInventorySlots";
@@ -34,7 +34,7 @@ namespace Inventory
         /// <summary>The host's setting (used when you host).</summary>
         public static int HostSlots
         {
-            get => Mathf.Clamp(PlayerPrefs.GetInt(PrefKey, Min), Min, Max);
+            get => Mathf.Clamp(PlayerPrefs.GetInt(PrefKey, Default), Min, Max);
             set { PlayerPrefs.SetInt(PrefKey, Mathf.Clamp(value, Min, Max)); PlayerPrefs.Save(); Publish(); }
         }
 
@@ -47,8 +47,8 @@ namespace Inventory
             get
             {
                 if (IsHost || Lobby == CSteamID.Nil) return HostSlots;
-                try { return int.TryParse(SteamMatchmaking.GetLobbyData(Lobby, LobbyKey), out var n) ? Mathf.Clamp(n, Min, Max) : Min; }
-                catch { return Min; }
+                try { return int.TryParse(SteamMatchmaking.GetLobbyData(Lobby, LobbyKey), out var n) ? Mathf.Clamp(n, Min, Max) : Default; }
+                catch { return Default; }
             }
         }
 
@@ -160,7 +160,7 @@ namespace Inventory
                 var line = row.Find("RoomName");
                 var label = line != null ? line.GetComponentsInChildren<TMP_Text>(true)
                     .FirstOrDefault(t => t.GetComponentInParent<TMP_InputField>() == null && t.GetComponentInParent<Button>() == null) : null;
-                if (label != null) label.text = "INVENTORY SLOTS (4-8):";
+                if (label != null) label.text = "INVENTORY SLOTS (1-8):";
                 foreach (var b in row.GetComponentsInChildren<Button>(true)) b.gameObject.SetActive(false);
                 var input = row.GetComponentInChildren<TMP_InputField>(true);
                 input.onValueChanged.RemoveAllListeners();
@@ -170,7 +170,7 @@ namespace Inventory
                 input.characterLimit = 1;
                 input.onEndEdit.AddListener(text =>
                 {
-                    HostSlots = int.TryParse(text, out var v) ? v : Min;
+                    HostSlots = int.TryParse(text, out var v) ? v : Default;
                     input.SetTextWithoutNotify(HostSlots.ToString());
                     Debug.Log($"[Inventory] Host set {HostSlots} slots (applies when characters spawn: next level or lobby reload)");
                 });
