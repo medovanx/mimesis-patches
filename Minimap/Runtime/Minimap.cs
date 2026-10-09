@@ -65,7 +65,8 @@ namespace Minimap
         const float DotSize = 7f;
         static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
 
-        const int GraphicSize = 256;           // render texture resolution for the graphic view
+        const int GraphicSize = 400;           // render texture resolution for the graphic view (covers GraphicMargin x the visible area)
+        const float GraphicMargin = 1.6f;      // rendered area vs visible area, so the image can slide smoothly between renders
         const float GraphicInterval = 0.15f;   // seconds between graphic renders (FPS cost)
         const float CameraAboveFeet = 2.2f;    // below typical ceilings, so indoor rooms stay visible
 
@@ -85,6 +86,7 @@ namespace Minimap
         Camera _cam;
         RenderTexture _rt;
         float _nextRender, _nextActorScan;
+        Vector3 _renderedAt;
         // Cached once a second: what's in the scene, by minimap category.
         readonly List<(Transform t, Color color, bool shown)> _things = new List<(Transform, Color, bool)>();
         readonly List<Renderer> _hiddenRenderers = new List<Renderer>();
@@ -131,10 +133,22 @@ namespace Minimap
             Dots(pos);
             _graphic.enabled = graphic;
             _map.enabled = !graphic || CurrentReveal == Reveal.Explored;   // in graphic mode the map is only the fog overlay
-            if (graphic && Time.unscaledTime >= _nextRender)
+            if (graphic)
             {
-                _nextRender = Time.unscaledTime + GraphicInterval;
-                RenderGraphic(pos);
+                // Each render covers GraphicMargin x the visible area, centred where you were; between renders the
+                // image just slides with you every frame. Re-render on the timer, or early near the rendered edge.
+                var offset = new Vector2(pos.x - _renderedAt.x, pos.z - _renderedAt.z);
+                float slack = ViewMeters * (GraphicMargin - 1f) / 2f;
+                if (Time.unscaledTime >= _nextRender || offset.magnitude > slack * 0.8f)
+                {
+                    _nextRender = Time.unscaledTime + GraphicInterval;
+                    RenderGraphic(pos);
+                    _renderedAt = pos;
+                    offset = Vector2.zero;
+                }
+                float coverage = ViewMeters * GraphicMargin;
+                var size = Vector2.one / GraphicMargin;
+                _graphic.uvRect = new Rect(new Vector2(0.5f, 0.5f) + offset / coverage - size / 2f, size);
             }
 
             // Keep the player in the centre; the arrow shows where you face (north-up map).
@@ -353,7 +367,7 @@ namespace Minimap
                 urp.renderShadows = false;
                 _graphic.texture = _rt;
             }
-            _cam.orthographicSize = ViewMeters / 2f;
+            _cam.orthographicSize = ViewMeters * GraphicMargin / 2f;
             _cam.transform.SetPositionAndRotation(pos + Vector3.up * CameraAboveFeet, Quaternion.Euler(90f, 0f, 0f));
 
             var hidden = new List<Renderer>(_hiddenRenderers.Count);

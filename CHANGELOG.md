@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Minimap 1.2.2
+- Graphic style scrolls smoothly: each render covers a larger area and the image slides with you between renders.
+
 ## Minimap 1.2.1
 - Graphic style: the level is lit evenly for the minimap render only (dark rooms no longer show black); the game's own view is unchanged.
 
