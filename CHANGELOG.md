@@ -2,6 +2,12 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Minimap 1.1.0
+- Settings window: click the Minimap chip on the main menu to choose Reveal (Explored / Full map) and Style (Plain / Graphic).
+- Graphic style: real top-down view from a camera above your head, with all players, mimics and monsters hidden from it.
+- Moved to the bottom-left corner; works in the tram/lobby too (A* graph fallback).
+- Main menu chips are hidden outside the main menu (all patches).
+
 ## SpectatorCam 1.0.0
 - Free camera for dead players (F / R3), within 8 m of the spectated player and never through walls.
 

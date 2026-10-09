@@ -19,11 +19,9 @@ namespace Minimap
             try
             {
                 Minimap.Create();
-                // The chip shows the map mode; clicking it switches Explored <-> Whole.
-                MimesisPatches.PatchChip.Register("Minimap", version,
-                    status: () => Minimap.CurrentMode == Minimap.Mode.Whole ? "Whole map" : "Explored only",
-                    onClick: () => Minimap.CurrentMode = Minimap.CurrentMode == Minimap.Mode.Whole ? Minimap.Mode.Explored : Minimap.Mode.Whole);
-                Debug.Log($"[Minimap] v{version.ToString(3)}: loaded (mode: {Minimap.CurrentMode})");
+                // The chip shows the current settings; clicking it opens the settings window.
+                MimesisPatches.PatchChip.Register("Minimap", version, status: () => Minimap.Summary, onClick: SettingsWindow.Open);
+                Debug.Log($"[Minimap] v{version.ToString(3)}: loaded ({Minimap.Summary})");
             }
             catch (Exception e)
             {

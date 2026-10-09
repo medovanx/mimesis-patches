@@ -1,8 +1,8 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.0.4**
+**Version 1.1.0**
 
-A floor-plan minimap in the bottom-left corner with your position and facing.
+A minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
@@ -12,18 +12,24 @@ By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 Each player installs it for themselves. In game, **M** shows or hides the minimap.
 
-## Modes
-Click the **Minimap** chip on the main menu to switch (the chip shows the current mode; it's remembered):
-- **Explored only** (default): the floor appears as you walk near it.
-- **Whole map**: the full floor plan of the level from the start.
+## Settings
+Click the **Minimap** chip on the main menu to open the settings window. The chip shows the current choice, and it's remembered between sessions.
+
+| Setting | Options |
+|---|---|
+| Reveal | **Explored** (default): the map appears as you walk near it. **Full map**: everything from the start. |
+| Style | **Plain** (default): a clean floor plan. **Graphic**: a real top-down view of the level. |
+
+The two combine: Graphic + Explored shows the real view with unvisited areas darkened.
 
 ## What it shows (and doesn't)
-- The map is drawn from the level's walkable floor (the NavMesh the game builds at level load), so it contains **only the layout and your own arrow**. No teammates, mimics, monsters or items, so a "teammate" can still be a mimic.
-- Only the floor you're on is drawn; other floors appear faint.
-- Hidden while you're dead, in menus, or outside a level.
+Only **the level and your own arrow**. No teammates, mimics or monsters, so a "teammate" can still be a mimic.
+- **Plain** is drawn from the level's walkable floor (the Unity NavMesh in levels, the A* pathfinding graph in the tram/lobby), which never contains actors. Only the floor you're on is drawn; other floors appear faint.
+- **Graphic** renders the level with an extra camera just above your head looking down. Every player, mimic and monster is switched off for that camera's render only, so they never appear on it. It renders at 256 px about 7 times a second to keep the FPS cost low.
+- Hidden while you're dead, in menus, or outside a game scene.
 
 ## Files installed
 - `MIMESIS_Data/Managed/MinimapRuntime.dll`, `0Harmony.dll`
 - `Assembly-CSharp.dll`: one `Minimap.Plugin.Init()` call at the start of `Hub.Awake` (original kept as `.bak`)
 
-Settings (view size, reveal radius, floor tolerance) are constants at the top of `Runtime/Minimap.cs`.
+Tuning values (view size, reveal radius, graphic resolution and rate) are constants at the top of `Runtime/Minimap.cs`.

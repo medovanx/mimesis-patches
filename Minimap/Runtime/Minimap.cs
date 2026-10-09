@@ -4,10 +4,11 @@
 // The map is drawn from the level's NavMesh (the walkable floor the game builds on every client at level
 // load), so it never contains players, mimics or monsters: only the layout and your own arrow.
 // Floors are separated by height, so only the floor you're on is shown.
-// Modes (switch by clicking the Minimap chip on the main menu, saved between sessions):
-//   Explored - floor appears as you walk near it (default)
-//   Whole    - the full floor plan from the start
-// M toggles the minimap on/off in game.
+// Settings (click the Minimap chip on the main menu to open the settings window; saved between sessions):
+//   Reveal: Explored - the map appears as you walk near it (default) | Full - the whole map from the start
+//   Style:  Plain    - floor plan drawn from the NavMesh (default)   | Graphic - real top-down view
+// Graphic renders the level with an extra camera above your head. Players, mimics and monsters are hidden
+// from that camera while it renders, so it still shows only the level. M toggles the minimap in game.
 
 using System;
 using System.Collections.Generic;
@@ -16,20 +17,30 @@ using Mimic.Actors;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace Minimap
 {
     sealed class Minimap : MonoBehaviour
     {
-        public enum Mode { Explored, Whole }
-        const string ModeKey = "medovanx.Minimap.Mode";
+        public enum Reveal { Explored, Full }
+        public enum Style { Plain, Graphic }
+        const string RevealKey = "medovanx.Minimap.Mode", StyleKey = "medovanx.Minimap.Style";
 
-        public static Mode CurrentMode
+        public static Reveal CurrentReveal
         {
-            get => (Mode)PlayerPrefs.GetInt(ModeKey, (int)Mode.Explored);
-            set { PlayerPrefs.SetInt(ModeKey, (int)value); PlayerPrefs.Save(); }
+            get => (Reveal)PlayerPrefs.GetInt(RevealKey, (int)Reveal.Explored);
+            set { PlayerPrefs.SetInt(RevealKey, (int)value); PlayerPrefs.Save(); }
         }
+
+        public static Style CurrentStyle
+        {
+            get => (Style)PlayerPrefs.GetInt(StyleKey, (int)Style.Plain);
+            set { PlayerPrefs.SetInt(StyleKey, (int)value); PlayerPrefs.Save(); }
+        }
+
+        public static string Summary => (CurrentReveal == Reveal.Full ? "Full" : "Explored") + " · " + CurrentStyle;
 
         const int MaxTexSize = 512;          // map texture resolution (longest side)
         const float ViewMeters = 50f;        // width of the area shown around you
@@ -41,6 +52,11 @@ namespace Minimap
         static readonly Color32 Empty = new Color32(0, 0, 0, 0);
         static readonly Color32 Floor = new Color32(200, 200, 190, 220);
         static readonly Color32 OtherFloor = new Color32(200, 200, 190, 45);
+        static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
+
+        const int GraphicSize = 256;           // render texture resolution for the graphic view
+        const float GraphicInterval = 0.15f;   // seconds between graphic renders (FPS cost)
+        const float CameraAboveFeet = 2.2f;    // below typical ceilings, so indoor rooms stay visible
 
         // Up to two floor heights per pixel (NaN = none), plus what has been explored on each.
         float[] _h0, _h1;
@@ -54,7 +70,11 @@ namespace Minimap
         float _nextBuildLog;
 
         Canvas _canvas;
-        RawImage _map;
+        RawImage _map, _graphic;
+        Camera _cam;
+        RenderTexture _rt;
+        float _nextRender, _nextActorScan;
+        readonly List<Renderer> _actorRenderers = new List<Renderer>();
         RectTransform _arrow;
         bool _visible = true;
         float _nextDraw;
@@ -84,11 +104,19 @@ namespace Minimap
             if (!show) return;
 
             var pos = me.transform.position;
-            if (CurrentMode == Mode.Explored) Reveal(pos);
+            bool graphic = CurrentStyle == Style.Graphic;
+            if (CurrentReveal == Reveal.Explored) RevealAround(pos);
             if (Time.unscaledTime >= _nextDraw)
             {
                 _nextDraw = Time.unscaledTime + 0.2f;
-                Draw(pos.y);
+                Draw(pos.y, graphic);
+            }
+            _graphic.enabled = graphic;
+            _map.enabled = !graphic || CurrentReveal == Reveal.Explored;   // in graphic mode the map is only the fog overlay
+            if (graphic && Time.unscaledTime >= _nextRender)
+            {
+                _nextRender = Time.unscaledTime + GraphicInterval;
+                RenderGraphic(pos);
             }
 
             // Keep the player in the centre; the arrow shows where you face (north-up map).
@@ -202,7 +230,7 @@ namespace Minimap
             }
         }
 
-        void Reveal(Vector3 pos)
+        void RevealAround(Vector3 pos)
         {
             int cx = Mathf.RoundToInt((pos.x - _origin.x) / _metersPerPixel);
             int cy = Mathf.RoundToInt((pos.z - _origin.y) / _metersPerPixel);
@@ -217,11 +245,17 @@ namespace Minimap
             }
         }
 
-        void Draw(float myY)
+        void Draw(float myY, bool graphic)
         {
-            bool whole = CurrentMode == Mode.Whole;
+            bool whole = CurrentReveal == Reveal.Full;
             for (int i = 0; i < _pixels.Length; i++)
             {
+                if (graphic)
+                {
+                    // Fog overlay over the camera view: dark where nothing has been explored yet.
+                    _pixels[i] = _seen0[i] || _seen1[i] ? Empty : Unexplored;
+                    continue;
+                }
                 bool on0 = !float.IsNaN(_h0[i]) && (whole || _seen0[i]);
                 bool on1 = !float.IsNaN(_h1[i]) && (whole || _seen1[i]);
                 if ((on0 && Mathf.Abs(_h0[i] - myY) < FloorTolerance) || (on1 && Mathf.Abs(_h1[i] - myY) < FloorTolerance)) _pixels[i] = Floor;
@@ -253,6 +287,14 @@ namespace Minimap
             bg.color = new Color(0f, 0f, 0f, 0.55f);
             bg.raycastTarget = false;
 
+            _graphic = new GameObject("Graphic", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
+            var gRt = _graphic.rectTransform;
+            gRt.SetParent(frame, false);
+            gRt.anchorMin = Vector2.zero; gRt.anchorMax = Vector2.one;
+            gRt.offsetMin = gRt.offsetMax = Vector2.zero;
+            _graphic.raycastTarget = false;
+            _graphic.enabled = false;
+
             _map = new GameObject("Map", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
             var mapRt = _map.rectTransform;
             mapRt.SetParent(frame, false);
@@ -267,6 +309,45 @@ namespace Minimap
             arrowImg.texture = ArrowTexture();
             arrowImg.raycastTarget = false;
             _canvas.enabled = false;
+        }
+
+        // Graphic style: an orthographic camera just above your head looking straight down (north-up, same
+        // scale as the plain map). Actors are switched off for the duration of this camera render only.
+        void RenderGraphic(Vector3 pos)
+        {
+            if (_cam == null)
+            {
+                _rt = new RenderTexture(GraphicSize, GraphicSize, 16, RenderTextureFormat.ARGB32);
+                _cam = new GameObject("MinimapCamera").AddComponent<Camera>();
+                _cam.transform.SetParent(transform, false);
+                _cam.enabled = false;   // rendered manually, a few times per second
+                _cam.orthographic = true;
+                _cam.nearClipPlane = 0.05f;
+                _cam.farClipPlane = 40f;
+                _cam.clearFlags = CameraClearFlags.SolidColor;
+                _cam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+                _cam.cullingMask &= ~(1 << LayerMask.NameToLayer("UI"));
+                _cam.targetTexture = _rt;
+                var urp = _cam.GetUniversalAdditionalCameraData();
+                urp.renderPostProcessing = false;
+                urp.renderShadows = false;
+                _graphic.texture = _rt;
+            }
+            _cam.orthographicSize = ViewMeters / 2f;
+            _cam.transform.SetPositionAndRotation(pos + Vector3.up * CameraAboveFeet, Quaternion.Euler(90f, 0f, 0f));
+
+            if (Time.unscaledTime >= _nextActorScan)
+            {
+                _nextActorScan = Time.unscaledTime + 1f;
+                _actorRenderers.Clear();
+                foreach (var actor in FindObjectsByType<ProtoActor>(FindObjectsSortMode.None))
+                    _actorRenderers.AddRange(actor.GetComponentsInChildren<Renderer>(true));
+            }
+            var hidden = new List<Renderer>(_actorRenderers.Count);
+            foreach (var r in _actorRenderers)
+                if (r != null && !r.forceRenderingOff) { r.forceRenderingOff = true; hidden.Add(r); }
+            try { _cam.Render(); }
+            finally { foreach (var r in hidden) if (r != null) r.forceRenderingOff = false; }
         }
 
         // A small upward-pointing triangle (rotated to your facing).
