@@ -1,12 +1,12 @@
 # MIMESIS Patches Installer
 
-**Version 1.2.0**
+**Version 2.0.0**
 
 One exe that installs, updates or removes **every patch** at once.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Always up to date
-On launch the installer checks GitHub. If a newer installer has been released, it downloads it next to itself (`MimesisPatchesInstaller-vX.Y.Z.exe`), opens it and closes; the new one carries the newest version of every patch. So you can share this one exe and friends always get the latest patches. Offline, it just installs what it has.
+The installer contains no patch files. It downloads each checked patch's files from that patch's **latest GitHub release**, so the exe you share always installs the newest patches. If the install logic itself was updated, it first downloads and opens the newest installer (`MimesisPatchesInstaller-vX.Y.Z.exe` next to it). It needs an internet connection.
 
 ## Use
 1. Close the game.
@@ -23,4 +23,4 @@ On launch the installer checks GitHub. If a newer installer has been released, i
 Afterwards, click **Patches** on the main menu to turn individual patches on/off and change their settings.
 
 ## Build
-Build every patch's `Runtime` first (`dotnet build -c Release`), then `dotnet publish -c Release` here. It compiles in `Common/PatcherCore.cs` and the BiggerLobby/PSController `Setup.cs`, and embeds all runtime DLLs, Harmony and the PS icons.
+`dotnet publish -c Release` here. It compiles in `Common/PatcherCore.cs` and the BiggerLobby/PSController `Setup.cs` (the install logic) and downloads everything else. Each patch release must therefore include its runtime DLL plus `0Harmony.dll` (PSController: `PSIcons.zip` instead).

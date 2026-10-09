@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.2.0</Version>
+    <Version>2.0.0</Version>
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>disable</Nullable>
     <AssemblyName>MimesisPatchesInstaller</AssemblyName>
     <Authors>Mohamed Darwesh</Authors><Company>Mohamed Darwesh</Company><Product>MIMESIS Patches Installer</Product><Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
@@ -8,20 +8,10 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Each patch's install logic, compiled in. -->
+    <!-- Only the install logic is compiled in; every patch file is downloaded from GitHub releases. -->
     <Compile Include="..\Common\PatcherCore.cs" Link="Common\%(Filename)%(Extension)" />
     <Compile Include="..\BiggerLobby\Patcher\Setup.cs" Link="BiggerLobby\Setup.cs" />
     <Compile Include="..\PSController\Patcher\Setup.cs" Link="PSController\Setup.cs" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <!-- Every runtime DLL, Harmony and the PS icons, with the same resource names the single patchers use. -->
-    <EmbeddedResource Include="..\BiggerLobby\Runtime\bin\Release\net472\BiggerLobbyRuntime.dll" LogicalName="BiggerLobbyRuntime.dll" />
-    <EmbeddedResource Include="..\PSController\Runtime\bin\Release\netstandard2.1\PSControllerRuntime.dll" LogicalName="PSControllerRuntime.dll" />
-    <EmbeddedResource Include="..\PSController\Icons\*.png" LogicalName="icons/%(Filename)%(Extension)" />
-    <EmbeddedResource Include="..\SpectatorCam\Runtime\bin\Release\net472\SpectatorCamRuntime.dll" LogicalName="SpectatorCamRuntime.dll" />
-    <EmbeddedResource Include="..\Minimap\Runtime\bin\Release\net472\MinimapRuntime.dll" LogicalName="MinimapRuntime.dll" />
-    <EmbeddedResource Include="..\HostOptions\Runtime\bin\Release\net472\HostOptionsRuntime.dll" LogicalName="HostOptionsRuntime.dll" />
-    <EmbeddedResource Include="..\HudPercent\Runtime\bin\Release\net472\HudPercentRuntime.dll" LogicalName="HudPercentRuntime.dll" />
-    <EmbeddedResource Include="..\Inventory\Runtime\bin\Release\net472\InventoryRuntime.dll" LogicalName="InventoryRuntime.dll" />
-    <EmbeddedResource Include="..\BiggerLobby\Runtime\bin\Release\net472\0Harmony.dll" LogicalName="0Harmony.dll" />
   </ItemGroup>
 </Project>

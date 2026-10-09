@@ -2,6 +2,10 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 2.0.0
+- Contains no patches: downloads each checked patch's files from its latest GitHub release.
+- Checklist shows each patch's latest released version.
+
 ## Installer 1.2.0
 - Downloads and opens the newest installer from GitHub on launch, so a shared copy always installs the latest patches.
 - Key hints in brackets.

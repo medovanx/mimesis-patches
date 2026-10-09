@@ -128,7 +128,10 @@ namespace MimesisPatches
             }
         }
 
-        static Stream Resource(string name) => System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream(name)
+        /// <summary>Set by the all-in-one installer to read patch files it downloaded instead of embedded ones.</summary>
+        public static Func<string, Stream> ResourceOverride;
+
+        static Stream Resource(string name) => ResourceOverride?.Invoke(name) ?? System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream(name)
             ?? throw new InvalidOperationException("Missing embedded resource " + name);
 
         public static void Success(string msg)

@@ -131,7 +131,10 @@ static class Setup
         Console.WriteLine($"Original file backed up to: {bak}");
     }
 
-    internal static Stream Resource(string name) => System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(name)
+    /// <summary>Set by the all-in-one installer to read downloaded files instead of embedded ones.</summary>
+    public static System.Func<string, Stream> ResourceOverride;
+
+    internal static Stream Resource(string name) => ResourceOverride?.Invoke(name) ?? System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(name)
         ?? throw new InvalidOperationException("Missing embedded resource " + name);
 
     internal static void Fail(string msg)

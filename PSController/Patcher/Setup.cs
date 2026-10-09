@@ -124,7 +124,7 @@ static class Setup
             using (var s = Resource("PSControllerRuntime.dll")) using (var f = File.Create(runtimeDll)) s.CopyTo(f);
             Directory.CreateDirectory(iconsDir);
             int n = 0;
-            foreach (var name in Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.StartsWith("icons/")))
+            foreach (var name in (ResourceNamesOverride?.Invoke() ?? Assembly.GetExecutingAssembly().GetManifestResourceNames()).Where(x => x.StartsWith("icons/")))
             {
                 using var s = Resource(name);
                 using var f = File.Create(Path.Combine(iconsDir, name.Substring("icons/".Length)));
@@ -155,7 +155,11 @@ static class Setup
         }
     }
 
-    internal static Stream Resource(string name) => Assembly.GetExecutingAssembly().GetManifestResourceStream(name)
+    /// <summary>Set by the all-in-one installer to read downloaded files instead of embedded ones.</summary>
+    public static Func<string, Stream> ResourceOverride;
+    public static Func<string[]> ResourceNamesOverride;
+
+    internal static Stream Resource(string name) => ResourceOverride?.Invoke(name) ?? Assembly.GetExecutingAssembly().GetManifestResourceStream(name)
         ?? throw new InvalidOperationException("Missing embedded resource " + name);
 
     internal static void Save(AssemblyDefinition asm, string dll)
