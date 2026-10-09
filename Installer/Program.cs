@@ -34,7 +34,8 @@ var patches = new List<(string Name, string About, string[] Files, Action<string
     ("LateJoin", "Join a game in progress (all players need it)", new[] { "LateJoinRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "LateJoin")),
 };
 
-using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+// Long timeout: patch files and the installer itself can be slow to download on some connections.
+using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
 http.DefaultRequestHeaders.UserAgent.ParseAdd("mimesis-patches-installer");
 
 try

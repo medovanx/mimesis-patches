@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 2.1.1
+- 3x smaller (12 MB instead of 38 MB) and a 30-minute download timeout, so it works on slow connections.
+
 ## Installer 2.1.0
 - Lists the LateJoin patch.
 
