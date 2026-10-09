@@ -30,7 +30,17 @@ namespace HudPercent
 
         [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGame.OnContaChanged))]
         static void Radiation(UIPrefab_InGame __instance, long curr, long maxContaVal) =>
-            Set(__instance, __instance.oxyGauge != null ? __instance.oxyGauge.transform as RectTransform : null, curr, maxContaVal, new Color(0.55f, 0.9f, 0.3f));
+            Set(__instance, __instance.oxyGauge != null ? WidestImage(__instance.oxyGauge.transform) : null, curr, maxContaVal, new Color(0.55f, 0.9f, 0.3f));
+
+        // The radiation gauge's own rect is small (around its icon); the bar is its widest image.
+        static RectTransform WidestImage(Transform gauge)
+        {
+            RectTransform best = null;
+            foreach (var img in gauge.GetComponentsInChildren<UnityEngine.UI.Image>(true))
+                if (best == null || img.rectTransform.rect.width * img.rectTransform.lossyScale.x > best.rect.width * best.lossyScale.x)
+                    best = img.rectTransform;
+            return best != null ? best : gauge as RectTransform;
+        }
 
         static void Set(UIPrefab_InGame hud, RectTransform bar, long curr, long max, Color color)
         {
