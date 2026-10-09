@@ -2,11 +2,14 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Minimap 1.3.2
+- Legend lists only enabled categories (no "You"); hidden when none are enabled.
+
 ## Minimap 1.3.1
 - Bigger dots on the map (12 px instead of 7).
 
-## Stamina 1.0.0
-- Host-only "Infinite Stamina" checkbox in the lobby menu. Stamina runs on the host, so other players don't need the patch.
+## HostOptions 1.0.0
+- Host-only lobby options under "Use Entry Password": **Infinite Stamina** and **Starting money**. Both run on the host, so other players don't need the patch.
 
 ## Minimap 1.3.0
 - Colour legend under the map: You, plus Players / Monsters / Items when enabled.

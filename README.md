@@ -9,8 +9,8 @@ No mod loader is needed. Each patch is a standalone exe that edits `MIMESIS_Data
 | [BiggerLobby](BiggerLobby/) | 1.2.0 | 10-player lobbies, with UI for 10 and difficulty that scales with player count |
 | [PSController](PSController/) | 1.2.0 | Replaces Xbox button icons with PlayStation icons |
 | [SpectatorCam](SpectatorCam/) | 1.0.0 | Free spectator camera, limited to the area around the player you're watching |
-| [Minimap](Minimap/) | 1.3.1 | Minimap: explored or full map, plain or graphic, optional players/monsters/items |
-| [Stamina](Stamina/) | 1.0.0 | Host toggle for infinite stamina in the lobby (only the host needs it) |
+| [Minimap](Minimap/) | 1.3.2 | Minimap: explored or full map, plain or graphic, optional players/monsters/items |
+| [HostOptions](HostOptions/) | 1.0.0 | Host lobby options: infinite stamina, starting money (only the host needs it) |
 
 Each patch has its own folder and README. `Common/` holds code shared by all of them (main menu chip + update check, patcher core). Build with the .NET 10 SDK; the `.csproj` files expect the game at `O:\Games\MIMESIS v0.3.1`, so change the paths there if yours is elsewhere.
 

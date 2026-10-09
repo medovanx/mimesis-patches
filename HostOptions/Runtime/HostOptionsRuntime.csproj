@@ -3,7 +3,7 @@
     <Version>1.0.0</Version>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>StaminaRuntime</AssemblyName>
+    <AssemblyName>HostOptionsRuntime</AssemblyName>
     <Authors>Mohamed Darwesh</Authors>
     <Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
     <Managed>O:\Games\MIMESIS v0.3.1\MIMESIS_Data\Managed</Managed>

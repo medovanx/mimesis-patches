@@ -1,6 +1,6 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.3.1**
+**Version 1.3.2**
 
 A minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -21,7 +21,7 @@ Click the **Minimap** chip on the main menu to open the settings window. The chi
 | Style | **Plain** (default): a clean floor plan. **Graphic**: a real top-down view of the level. |
 | Show | **Players** / **Monsters** / **Items**, each on or off (all off by default). Enabled ones appear as dots: players blue, monsters red, items yellow; in Graphic their models are visible too. |
 
-A legend under the map lists the colours in use: **You** (orange arrow) and each enabled category.
+A legend under the map lists the colour of each enabled category (hidden when none are enabled).
 
 The settings combine: Graphic + Explored shows the real view with unvisited areas darkened.
 

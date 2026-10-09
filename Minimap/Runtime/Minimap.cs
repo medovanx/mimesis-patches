@@ -64,7 +64,6 @@ namespace Minimap
         static readonly Color ItemDot = new Color(1f, 0.85f, 0.2f, 1f);
         const float DotSize = 12f;
         const float LegendHeight = 26f;
-        static readonly Color YouColor = new Color(1f, 0.77f, 0.25f, 1f);
         static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
 
         const int GraphicSize = 400;           // render texture resolution for the graphic view (covers GraphicMargin x the visible area)
@@ -462,7 +461,7 @@ namespace Minimap
             _arrow.SetAsLastSibling();
         }
 
-        // "You" plus each enabled category, with its colour, in one row under the map.
+        // Each enabled category with its colour, in one row under the map.
         void Legend()
         {
             var key = $"{ShowPlayers}{ShowMonsters}{ShowItems}";
@@ -506,10 +505,14 @@ namespace Minimap
                 text.raycastTarget = false;
                 text.gameObject.AddComponent<LayoutElement>().preferredWidth = text.GetPreferredValues(label).x + 6f;
             }
-            Entry("You", YouColor);
             if (ShowPlayers) Entry("Players", PlayerDot);
             if (ShowMonsters) Entry("Monsters", MonsterDot);
             if (ShowItems) Entry("Items", ItemDot);
+
+            // Nothing enabled: no legend, and the map sits back down in the corner.
+            bool any = ShowPlayers || ShowMonsters || ShowItems;
+            _legend.gameObject.SetActive(any);
+            _frame.anchoredPosition = new Vector2(24f, 24f + (any ? LegendHeight : 0f));
         }
 
         static Texture2D DotTexture()
