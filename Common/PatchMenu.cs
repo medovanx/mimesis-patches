@@ -205,7 +205,7 @@ namespace MimesisPatches
             title.rectTransform.pivot = new Vector2(0f, 1f);
             title.rectTransform.offsetMin = new Vector2(28f, -64f);
             title.rectTransform.offsetMax = new Vector2(-80f, -16f);
-            var close = PatchUi.Button(panel, _font, "✕", Close, 44f, 44f);
+            var close = PatchUi.Button(panel, _font, "X", Close, 44f, 44f);   // plain X: the game font has no ✕ glyph
             Destroy(close.GetComponent<LayoutElement>());
             var crt = (RectTransform)close.transform;
             crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(1f, 1f);
@@ -282,11 +282,10 @@ namespace MimesisPatches
                 try { s = status(); } catch { }
                 if (!string.IsNullOrEmpty(s)) PatchUi.Label(_content, _font, s, 18f, PatchUi.Dim, 26f);
             }
-            var row = PatchUi.Row(_content, 44f);
             if (HasUpdate(e))
-                PatchUi.Button(row, _font, $"Update to {Latest(e).ToString(3)}", () => Application.OpenURL($"{RepoUrl}/releases/tag/{name}-v{Latest(e).ToString(3)}"), 220f)
+                PatchUi.Button(PatchUi.Row(_content, 44f), _font, $"Update to {Latest(e).ToString(3)}",
+                    () => Application.OpenURL($"{RepoUrl}/releases/tag/{name}-v{Latest(e).ToString(3)}"), 220f)
                     .GetComponent<Image>().color = UpdateColor;
-            PatchUi.Button(row, _font, "Open on GitHub", () => Application.OpenURL($"{RepoUrl}/tree/main/{name}"), 220f);
 
             if (e["build"] is Action<RectTransform, TMP_FontAsset> build)
             {
