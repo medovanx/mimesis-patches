@@ -1,6 +1,6 @@
 # MIMESIS Patches Installer
 
-**Version 2.1.1**
+**Version 2.2.0**
 
 One exe that installs, updates or removes **every patch** at once.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).

@@ -104,6 +104,19 @@ try
             }
             PatcherCore.Success("Done. Open the game and click \"Patches\" on the main menu to configure them.");
         }
+        else if (mode.StartsWith("uninstall:"))
+        {
+            var name = mode.Substring("uninstall:".Length);
+            var p = patches.First(x => x.Name == name);
+            var path = Path.Combine(managed, p.Files[0]);
+            if (File.Exists(path)) File.Delete(path);
+            if (name == "PSController")
+            {
+                var icons = Path.Combine(Path.GetDirectoryName(managed), "PSIcons");
+                if (Directory.Exists(icons)) Directory.Delete(icons, true);
+            }
+            PatcherCore.Success($"SUCCESS! {name} removed. (Assembly-CSharp.dll was left as is; its hook is now unused.)");
+        }
         else Console.WriteLine("Nothing changed.");
     }
 }
@@ -198,29 +211,34 @@ static void Header(string version)
     Console.WriteLine();
 }
 
-// Arrow keys + Space checklist. Returns "install", "uninstall" or "quit".
+// Arrow keys + Space checklist. Returns "install", "uninstall", "uninstall:<Name>" or "quit".
 static string Checklist(string version, List<(string Name, string About, string State, bool Available)> items, bool[] selected)
 {
     if (Console.IsInputRedirected) return "install";
     int cursor = 0;
+    int nameWidth = items.Max(i => i.Name.Length) + 2;
+    int aboutWidth = items.Max(i => i.About.Length) + 2;
     Console.CursorVisible = false;
+    Console.Clear();   // once, so the buffer is sized correctly; every later redraw only repositions the cursor
     try
     {
         while (true)
         {
-            Clear();
+            // Redraw in place (no Console.Clear) so the window doesn't flash on every key press.
+            Console.SetCursorPosition(0, 0);
             Header(version);
-            Console.WriteLine("Choose the patches to install or update (downloaded from GitHub):\n");
+            Console.WriteLine("Choose the patches to install or update (downloaded from GitHub):" + Pad("", 20) + "\n");
             for (int i = 0; i < items.Count; i++)
             {
                 Console.ForegroundColor = !items[i].Available ? ConsoleColor.DarkGray : i == cursor ? ConsoleColor.Yellow : ConsoleColor.Gray;
-                Console.Write($"{(i == cursor ? ">" : " ")} [{(selected[i] ? "x" : " ")}] {items[i].Name,-14}{items[i].About,-44}");
+                Console.Write($"{(i == cursor ? ">" : " ")} [{(selected[i] ? "x" : " ")}] {Pad(items[i].Name, nameWidth)}{Pad(items[i].About, aboutWidth)}");
                 Console.ForegroundColor = items[i].State.Contains("installed") ? ConsoleColor.DarkGreen : ConsoleColor.DarkGray;
-                Console.WriteLine(items[i].State);
+                Console.WriteLine(Pad(items[i].State, 24));
             }
             Console.ResetColor();
-            Console.WriteLine("\n[Up/Down] move   [Space] toggle   [A] all/none   [Enter] install selected   [U] uninstall all   [Esc] quit");
-            Console.WriteLine("Unchecked patches are skipped (left as they are if already installed).");
+            Console.WriteLine("\n[\u2191/\u2193] move   [Space] toggle   [A] all/none   [Enter] install selected                    ");
+            Console.WriteLine("[U] uninstall all   [Delete] uninstall selected patch only   [Esc] quit                  ");
+            Console.WriteLine("Unchecked patches are skipped (left as they are if already installed).                   ");
 
             switch (Console.ReadKey(true).Key)
             {
@@ -233,11 +251,14 @@ static string Checklist(string version, List<(string Name, string About, string 
                     break;
                 case ConsoleKey.Enter: return selected.Any(s => s) ? "install" : "quit";
                 case ConsoleKey.U: return "uninstall";
+                case ConsoleKey.Delete: case ConsoleKey.Backspace: return $"uninstall:{items[cursor].Name}";
                 case ConsoleKey.Escape: return "quit";
             }
         }
     }
     finally { Console.CursorVisible = true; }
 }
+
+static string Pad(string s, int width) => s.Length >= width ? s : s + new string(' ', width - s.Length);
 
 record Release(Version Version, Dictionary<string, string> Assets);

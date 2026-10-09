@@ -205,12 +205,25 @@ namespace MimesisPatches
             title.rectTransform.pivot = new Vector2(0f, 1f);
             title.rectTransform.offsetMin = new Vector2(28f, -64f);
             title.rectTransform.offsetMax = new Vector2(-80f, -16f);
-            var close = PatchUi.Button(panel, _font, "X", Close, 44f, 44f);   // plain X: the game font has no ✕ glyph
-            Destroy(close.GetComponent<LayoutElement>());
-            var crt = (RectTransform)close.transform;
-            crt.anchorMin = crt.anchorMax = crt.pivot = new Vector2(1f, 1f);
-            crt.anchoredPosition = new Vector2(-16f, -16f);
-            crt.sizeDelta = new Vector2(44f, 44f);
+            // Drawn as two crossed bars (the game font has no ✕ glyph) instead of a plain "X" letter.
+            var close = PatchUi.Box(panel, "Close", PatchUi.Off);
+            close.anchorMin = close.anchorMax = close.pivot = new Vector2(1f, 1f);
+            close.anchoredPosition = new Vector2(-16f, -16f);
+            close.sizeDelta = new Vector2(44f, 44f);
+            close.GetComponent<Image>().color = PatchUi.Off;
+            var closeButton = close.gameObject.AddComponent<Button>();
+            closeButton.targetGraphic = close.GetComponent<Image>();
+            closeButton.onClick.AddListener(Close);
+            Hover(close.gameObject);
+            foreach (var angle in new[] { 45f, -45f })
+            {
+                var bar = PatchUi.Box(close, "Bar", PatchUi.Text);
+                bar.sizeDelta = new Vector2(22f, 3f);
+                bar.anchorMin = bar.anchorMax = bar.pivot = new Vector2(0.5f, 0.5f);
+                bar.anchoredPosition = Vector2.zero;
+                bar.localRotation = Quaternion.Euler(0f, 0f, angle);
+                bar.GetComponent<Image>().raycastTarget = false;
+            }
 
             // Author footer along the bottom; clicking it opens the repo.
             var footer = PatchUi.Label(panel, _font,

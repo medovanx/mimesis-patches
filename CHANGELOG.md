@@ -2,6 +2,11 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 2.2.0
+- Checklist: [Delete]/[Backspace] uninstalls just the selected patch, without touching the others.
+- The checklist redraws in place instead of clearing the screen on every key press, so it no longer flickers.
+- Close button in the Patches window is drawn as a true ✕ (two crossed bars) instead of the letter "X".
+
 ## Installer 2.1.1
 - 3x smaller (12 MB instead of 38 MB) and a 30-minute download timeout, so it works on slow connections.
 
