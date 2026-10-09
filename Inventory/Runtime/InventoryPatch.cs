@@ -90,6 +90,7 @@ namespace Inventory
         {
             var slots = __instance.inventorySlots;
             if (slots.Count != PerRow) return;
+            AttachLabels(slots);
             var row = (RectTransform)slots[0].frame.transform.parent.parent;   // inventoryFrame
             var copy = (RectTransform)UnityEngine.Object.Instantiate(row.gameObject, row.parent, false).transform;
             copy.name = SecondRow;
@@ -109,26 +110,24 @@ namespace Inventory
                 });
             }
             copy.gameObject.SetActive(false);
+            AttachLabels(slots);
         }
 
-        // Stack counts sit at fixed positions, but the slot row re-centres when slots are hidden. In the game's
-        // layout each label is LabelOffset units (row space) right of its slot's centre: slots at -300 + 200 i,
-        // labels at -235 + 200 i. Re-apply that after every update.
+        // Stack counts live in a separate group at fixed x positions, while the slots are placed by a layout
+        // group that re-centres them when some are hidden. Moving each label into its own slot (at the same
+        // offset the game uses: 65 units right of the slot's centre) keeps it on its slot in every layout.
         const float LabelOffset = 65f;
 
-        [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_Inventory), nameof(UIPrefab_Inventory.UpdateSlot))]
-        static void AlignLabels(UIPrefab_Inventory __instance)
+        static void AttachLabels(List<UIPrefab_Inventory.Slot> slots)
         {
-            var slots = __instance.inventorySlots;
-            if (slots.Count == 0) return;
-            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)slots[0].frame.transform.parent.parent);
             foreach (var slot in slots)
             {
                 if (slot.stackCount == null || slot.frame == null) continue;
-                var label = slot.stackCount.transform;
-                var slotT = slot.frame.transform.parent;
-                float dx = slotT.parent.TransformVector(new Vector3(LabelOffset, 0f, 0f)).x;
-                label.position = new Vector3(slotT.position.x + dx, label.position.y, label.position.z);
+                var label = slot.stackCount.rectTransform;
+                label.SetParent(slot.frame.transform.parent, false);
+                label.anchorMin = label.anchorMax = new Vector2(0.5f, 0.5f);
+                label.anchoredPosition = new Vector2(LabelOffset, 0f);
+                label.SetAsLastSibling();
             }
         }
 
