@@ -114,12 +114,28 @@ static void Run(string[] args)
         }
     }
 
+    // Startup hook (main menu chip): PSController.Plugin.Init() at the start of Hub.Awake.
+    var awake = module.GetType("Hub").Methods.First(m => m.Name == "Awake" && !m.HasParameters);
+    var hook = awake.Body.Instructions.FirstOrDefault(x => x.Operand is MethodReference h && h.DeclaringType.FullName == "PSController.Plugin");
+    bool hookChanged = false;
+    if (install && hook == null)
+    {
+        var init = module.ImportReference(rt.MainModule.GetType("PSController.Plugin").Methods.First(m => m.Name == "Init"));
+        awake.Body.GetILProcessor().InsertBefore(awake.Body.Instructions[0], Instruction.Create(OpCodes.Call, init));
+        hookChanged = true;
+    }
+    else if (!install && hook != null)
+    {
+        awake.Body.Instructions.Remove(hook);
+        hookChanged = true;
+    }
+
     if (!install)
     {
         var reference = module.AssemblyReferences.FirstOrDefault(a => a.Name == "PSControllerRuntime");
         if (reference != null) module.AssemblyReferences.Remove(reference);
     }
-    if ((install && !patched) || (!install && patched) || redirected > 0) Save(asm, dll);
+    if ((install && !patched) || (!install && patched) || redirected > 0 || hookChanged) Save(asm, dll);
 
     if (install)
     {

@@ -123,7 +123,7 @@ static void Run(string[] args)
 
     // Start the UI patches (BiggerLobbyRuntime.dll, via Harmony) from Hub.Awake.
     var awake = module.GetType("Hub").Methods.First(m => m.Name == "Awake" && !m.HasParameters);
-    bool hooked = awake.Body.Instructions[0].Operand is MethodReference h && h.DeclaringType.FullName == "BiggerLobby.Plugin";
+    bool hooked = awake.Body.Instructions.Any(x => x.Operand is MethodReference h && h.DeclaringType.FullName == "BiggerLobby.Plugin");
     if (!hooked)
     {
         using var rt = AssemblyDefinition.ReadAssembly(Resource("BiggerLobbyRuntime.dll"), new ReaderParameters { AssemblyResolver = resolver });
