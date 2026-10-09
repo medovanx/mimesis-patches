@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 1.1.0
+- Checklist to pick which patches to install (arrow keys + Space).
+
 ## Installer 1.0.0
 - One exe that installs/updates or removes all patches.
 

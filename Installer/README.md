@@ -1,6 +1,6 @@
 # MIMESIS Patches Installer
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 One exe that installs, updates or removes **every patch** at once.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -8,7 +8,10 @@ By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 ## Use
 1. Close the game.
 2. Put `MimesisPatchesInstaller.exe` next to `MIMESIS.exe` and run it.
-3. Press Enter (or `i`) to install/update all, or `u` to uninstall all.
+3. A checklist opens with every patch checked (already-installed ones are marked):
+   - **Up/Down** move, **Space** check/uncheck, **A** all/none
+   - **Enter** installs/updates the checked patches; unchecked ones are skipped (left as they are if already installed)
+   - **U** uninstalls everything, **Esc** quits
 
 - **Install/update** runs each patch's own install step (the same code as the single patchers), so running it again after a new release updates everything.
 - **Uninstall** restores the original `Assembly-CSharp.dll` from the backup and deletes every patch file.

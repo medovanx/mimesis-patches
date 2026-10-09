@@ -5,7 +5,7 @@ Patches for MIMESIS (EA 0.3.1) by Mohamed Darwesh ([@medovanx](https://github.co
 No mod loader is needed. Each patch is a standalone exe that edits `MIMESIS_Data/Managed/Assembly-CSharp.dll` directly with Mono.Cecil. Patches can be combined in any order. A **Patches** chip in the bottom-left of the main menu opens a window listing every installed patch (left) with its options (right): turn patches on/off and change their settings. It turns orange when an update is available, and each patch page links to its new release. The first run backs up the original as `Assembly-CSharp.dll.bak`.
 
 ## Install everything at once
-Download **`MimesisPatchesInstaller.exe`** from the [Releases page](https://github.com/medovanx/mimesis-patches/releases), put it next to `MIMESIS.exe`, and run it: Enter installs/updates every patch, `u` removes them all. See [Installer](Installer/). Each patch also has its own single installer if you only want some.
+Download **`MimesisPatchesInstaller.exe`** from the [Releases page](https://github.com/medovanx/mimesis-patches/releases), put it next to `MIMESIS.exe`, and run it: pick the patches in the checklist (all checked by default), Enter installs/updates them, `U` removes everything. See [Installer](Installer/). Each patch also has its own single installer if you only want some.
 
 ## Patches
 
