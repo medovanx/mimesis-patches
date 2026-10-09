@@ -1,6 +1,6 @@
 # Inventory (InventoryPatcher)
 
-**Version 1.2.1**
+**Version 1.2.2**
 
 Lets the host set the inventory size to **1-8 slots**. More than 4 shows as a **2 × 4 grid** (slots 1-4 on the bottom row, 5-8 above).
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).

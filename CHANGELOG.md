@@ -2,7 +2,7 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
-## Inventory 1.2.1
+## Inventory 1.2.2
 - The stamina bar moves above the second slot row.
 
 ## Inventory 1.2.0

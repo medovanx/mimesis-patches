@@ -133,30 +133,15 @@ namespace Inventory
         }
 
         // The stamina bar sits just above the slot row; with a second row it would end up between the rows, so it
-        // moves up by the distance between the two rows (and back when there's only one row).
-        static RectTransform _stamina;
-        static Vector2 _staminaPos;
-        static bool _staminaMoved;
-
+        // moves up by the distance between the two rows. Its Animator rewrites its position, so the offset is
+        // re-applied every frame after animation (StaminaOffset.LateUpdate).
         static void MoveStaminaBar(RectTransform row, RectTransform second, bool twoRows)
         {
-            if (_stamina == null)
-            {
-                var hud = UnityEngine.Object.FindAnyObjectByType<UIPrefab_InGame>();
-                _stamina = hud != null && hud.staminaGauge != null ? hud.staminaGauge.transform as RectTransform : null;
-                if (_stamina == null) return;
-                _staminaPos = _stamina.anchoredPosition;
-                _staminaMoved = false;
-            }
-            if (twoRows == _staminaMoved || row == null || second == null) return;
-            if (twoRows)
-            {
-                var worldUp = second.position - row.position;   // one row height, in world units
-                var local = _stamina.parent.InverseTransformVector(worldUp);
-                _stamina.anchoredPosition = _staminaPos + new Vector2(0f, local.y);
-            }
-            else _stamina.anchoredPosition = _staminaPos;
-            _staminaMoved = twoRows;
+            var hud = UnityEngine.Object.FindAnyObjectByType<UIPrefab_InGame>();
+            var bar = hud != null && hud.staminaGauge != null ? hud.staminaGauge.transform as RectTransform : null;
+            if (bar == null || row == null || second == null) return;
+            var mover = bar.GetComponent<StaminaOffset>() ?? bar.gameObject.AddComponent<StaminaOffset>();
+            mover.Offset = twoRows ? (Vector2)bar.parent.InverseTransformVector(second.position - row.position) : Vector2.zero;
         }
 
         // ---------------- Host: lobby menu row ----------------
@@ -199,6 +184,24 @@ namespace Inventory
             }
             row.gameObject.SetActive(IsHost);
             row.GetComponentInChildren<TMP_InputField>(true)?.SetTextWithoutNotify(HostSlots.ToString());
+        }
+    }
+
+    // Keeps the stamina bar shifted by Offset, on top of whatever position its Animator (or layout) gives it.
+    sealed class StaminaOffset : MonoBehaviour
+    {
+        public Vector2 Offset;
+        Vector2 _applied, _base;
+        bool _has;
+
+        void LateUpdate()
+        {
+            var rt = (RectTransform)transform;
+            // If something else moved it since our last write, that's the new base position.
+            if (!_has || rt.anchoredPosition != _base + _applied) { _base = rt.anchoredPosition; _has = true; }
+            if (rt.anchoredPosition == _base + _applied && _applied == Offset) return;
+            rt.anchoredPosition = _base + Offset;
+            _applied = Offset;
         }
     }
 }
