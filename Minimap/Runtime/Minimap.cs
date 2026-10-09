@@ -62,7 +62,7 @@ namespace Minimap
         static readonly Color PlayerDot = new Color(0.3f, 0.65f, 1f, 1f);
         static readonly Color MonsterDot = new Color(1f, 0.25f, 0.2f, 1f);
         static readonly Color ItemDot = new Color(1f, 0.85f, 0.2f, 1f);
-        const float DotSize = 7f;
+        const float DotSize = 12f;
         const float LegendHeight = 26f;
         static readonly Color YouColor = new Color(1f, 0.77f, 0.25f, 1f);
         static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
@@ -496,7 +496,7 @@ namespace Minimap
                 dot.color = color;
                 dot.raycastTarget = false;
                 var el = dot.gameObject.AddComponent<LayoutElement>();
-                el.preferredWidth = el.preferredHeight = DotSize + 1f;
+                el.preferredWidth = el.preferredHeight = 10f;
                 var text = new GameObject("Label", typeof(RectTransform)).AddComponent<TMPro.TextMeshProUGUI>();
                 text.transform.SetParent(_legend, false);
                 if (font != null) text.font = font;

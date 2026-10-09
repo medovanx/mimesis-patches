@@ -1,6 +1,6 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.3.0**
+**Version 1.3.1**
 
 A minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
