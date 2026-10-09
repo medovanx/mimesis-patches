@@ -111,7 +111,16 @@ namespace Inventory
             var slots = __instance.inventorySlots;
             if (slots.Count == 0) return;
             var row = (RectTransform)slots[0].frame.transform.parent.parent;
-            for (int i = 0; i < slots.Count; i++) slots[i].frame.transform.parent.gameObject.SetActive(i < count);
+            for (int i = 0; i < slots.Count; i++)
+            {
+                // A slot's widgets aren't all under its InvenSlot object (the stack count isn't), so toggle each.
+                bool on = i < count;
+                var slot = slots[i];
+                slot.frame.transform.parent.gameObject.SetActive(on);
+                if (slot.stackCount != null) slot.stackCount.gameObject.SetActive(on);
+                if (slot.image != null) slot.image.gameObject.SetActive(on);
+                if (!on && slot.waitEvent != null) slot.waitEvent.gameObject.SetActive(false);
+            }
             if (row.GetComponent<GridLayoutGroup>() == null && count <= PerRow) return;   // vanilla layout for 4
 
             var slotSize = ((RectTransform)slots[0].frame.transform.parent).sizeDelta;

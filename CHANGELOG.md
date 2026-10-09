@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.1.1
+- Fixed: with fewer than 4 slots, the hidden slots still showed their stack counts.
+
 ## Installer 2.0.0
 - Contains no patches: downloads each checked patch's files from its latest GitHub release.
 - Checklist shows each patch's latest released version.
