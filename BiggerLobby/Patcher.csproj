@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><AssemblyName>MorePlayersPatcher</AssemblyName><Authors>Mohamed Darwesh</Authors><Company>Mohamed Darwesh</Company><Product>MIMESIS More Players Patcher</Product><Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright><RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained><PublishSingleFile>true</PublishSingleFile><EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract><TargetFramework>net10.0</TargetFramework><Nullable>disable</Nullable></PropertyGroup>
+  <ItemGroup><PackageReference Include="Mono.Cecil" Version="0.11.6" /></ItemGroup>
+</Project>

@@ -1,0 +1,61 @@
+// MIMESIS PSController - PlayStation button icons
+// Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
+
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+
+namespace PSController
+{
+    // Called from the patched KeyImageData.GetKeyImage(string). Returns a PS icon for gamepad keys, or null to use the game's own.
+    public static class PSIcons
+    {
+        static Dictionary<string, Sprite> _sprites;
+
+        // Game key id -> icon file (several ids share a physical button).
+        static readonly Dictionary<string, string> Files = new Dictionary<string, string>
+        {
+            { "p_a", "cross" }, { "p_south", "cross" },
+            { "p_b", "circle" }, { "p_east", "circle" },
+            { "p_x", "square" }, { "p_west", "square" },
+            { "p_y", "triangle" }, { "p_north", "triangle" },
+            { "p_select", "create" }, { "p_start", "options" },
+            { "p_lb", "l1" }, { "p_rb", "r1" },
+            { "p_lt", "l2" }, { "p_rt", "r2" },
+            { "p_lsb", "l3" }, { "p_rsb", "r3" },
+            { "p_dpad_up", "dpad_up" }, { "p_dpad_down", "dpad_down" },
+            { "p_dpad_left", "dpad_left" }, { "p_dpad_right", "dpad_right" },
+        };
+
+        public static Sprite Get(string keyName)
+        {
+            if (keyName == null || !keyName.StartsWith("p_")) return null;
+            if (_sprites == null) Load();
+            _sprites.TryGetValue(keyName.Trim().ToLowerInvariant(), out var s);
+            return s;
+        }
+
+        static void Load()
+        {
+            _sprites = new Dictionary<string, Sprite>();
+            var dir = Path.Combine(Application.dataPath, "PSIcons");
+            var byFile = new Dictionary<string, Sprite>();
+            foreach (var kv in Files)
+            {
+                if (!byFile.TryGetValue(kv.Value, out var sprite))
+                {
+                    var path = Path.Combine(dir, kv.Value + ".png");
+                    if (!File.Exists(path)) continue;
+                    var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                    tex.LoadImage(File.ReadAllBytes(path));
+                    tex.filterMode = FilterMode.Bilinear;
+                    sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+                    sprite.name = "PS_" + kv.Value;
+                    byFile[kv.Value] = sprite;
+                }
+                _sprites[kv.Key] = sprite;
+            }
+            Debug.Log($"[PSController] Loaded {byFile.Count} PlayStation icons from {dir}");
+        }
+    }
+}
