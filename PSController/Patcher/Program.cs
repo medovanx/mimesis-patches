@@ -10,8 +10,9 @@ using Mono.Cecil.Cil;
 
 // Usage: PSControllerPatcher [install|uninstall] [path to Assembly-CSharp.dll]
 // With no path, looks next to the exe, then in MIMESIS_Data\Managed below it.
-Console.Title = "MIMESIS PSController Patcher";
-Console.WriteLine("MIMESIS PSController Patcher - PlayStation button icons");
+var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+Console.Title = $"MIMESIS PSController Patcher v{version}";
+Console.WriteLine($"MIMESIS PSController Patcher - PlayStation button icons v{version}");
 Console.WriteLine("by Mohamed Darwesh (@medovanx) - github.com/medovanx");
 Console.WriteLine();
 try

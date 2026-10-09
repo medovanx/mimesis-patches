@@ -1,5 +1,7 @@
 # BiggerLobby (MorePlayersPatcher)
 
+**Version 1.0.0**
+
 Lets MIMESIS lobbies hold **10 players** and adapts the UI and difficulty to them.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 

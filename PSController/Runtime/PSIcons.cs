@@ -55,7 +55,7 @@ namespace PSController
                 }
                 _sprites[kv.Key] = sprite;
             }
-            Debug.Log($"[PSController] Loaded {byFile.Count} PlayStation icons from {dir}");
+            Debug.Log($"[PSController] v{typeof(PSIcons).Assembly.GetName().Version.ToString(3)}: loaded {byFile.Count} PlayStation icons from {dir}");
         }
     }
 }

@@ -11,8 +11,9 @@ using Mono.Cecil.Cil;
 // Usage: MorePlayersPatcher [path to Assembly-CSharp.dll]
 // With no path, looks next to the exe, then in MIMESIS_Data\Managed below it.
 // The limit is fixed at 10: the UI patches in BiggerLobbyRuntime are laid out for exactly 10 players.
-Console.Title = "MIMESIS More Players Patcher";
-Console.WriteLine("MIMESIS More Players Patcher");
+var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+Console.Title = $"MIMESIS More Players Patcher v{version}";
+Console.WriteLine($"MIMESIS More Players Patcher v{version}");
 Console.WriteLine("by Mohamed Darwesh (@medovanx) - github.com/medovanx");
 Console.WriteLine();
 try

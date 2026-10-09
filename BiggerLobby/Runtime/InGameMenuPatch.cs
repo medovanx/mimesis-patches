@@ -79,7 +79,8 @@ namespace BiggerLobby
             }
             // The invite button sits outside the layout at a fixed spot that the 10 rows now cover; move it below the panel.
             var invite = parent.Find("InviteRinkCopy") as RectTransform;
-            if (invite != null) invite.anchoredPosition = new Vector2(invite.anchoredPosition.x, -parent.rect.height - 40f);
+            // Centred under the slot backgrounds (rows are centred in the panel, their boxes sit SlotCenterX off-centre).
+            if (invite != null) invite.anchoredPosition = new Vector2(parent.rect.width / 2f + SlotCenterX * RowScale, -parent.rect.height - 40f);
             LayoutRebuilder.ForceRebuildLayoutImmediate(parent);
             LogLayout("after", parent, group);
         }
