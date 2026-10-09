@@ -10,6 +10,9 @@
 // M toggles the minimap on/off in game.
 
 using System;
+using System.Collections.Generic;
+using Pathfinding;
+using Mimic.Actors;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -48,6 +51,7 @@ namespace Minimap
         Texture2D _tex;
         Color32[] _pixels;
         object _builtFor;
+        float _nextBuildLog;
 
         Canvas _canvas;
         RawImage _map;
@@ -69,11 +73,13 @@ namespace Minimap
             var kb = Keyboard.current;
             if (kb != null && kb.mKey.wasPressedThisFrame) _visible = !_visible;
 
-            var scene = Hub.s?.pdata?.main as GamePlayScene;
+            // Any scene with a walkable floor: tram, lobby and levels.
+            var scene = Hub.s != null && Hub.s.pdata != null ? Hub.s.pdata.main : null;
             var me = scene != null ? scene.GetMyAvatar() : null;
             bool show = _visible && me != null && !me.dead && !(Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen);
             if (scene == null) _builtFor = null;
             if (show && _builtFor != scene && !BuildMap(scene)) show = false;
+            Diagnose(scene, me, show);
             _canvas.enabled = show;
             if (!show) return;
 
@@ -92,14 +98,37 @@ namespace Minimap
             _arrow.localEulerAngles = new Vector3(0f, 0f, -me.transform.eulerAngles.y);
         }
 
+        // Logs once per scene why the minimap is hidden, to make "I don't see it" easy to debug.
+        object _diagnosed;
+        void Diagnose(object scene, ProtoActor me, bool show)
+        {
+            if (show || ReferenceEquals(_diagnosed, scene)) return;
+            string why = scene == null ? "no game scene" : me == null ? "no local player yet" : me.dead ? "you are dead"
+                : !_visible ? "hidden with M" : (Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen) ? "menu open"
+                : _builtFor != scene ? "no NavMesh in this scene yet" : null;
+            if (why == null) return;
+            if (why == "no NavMesh in this scene yet") return;   // BuildMap logs that itself
+            if (why == "no game scene" || why == "no local player yet") { if (Time.frameCount % 300 != 0) return; }
+            else _diagnosed = scene;
+            Debug.Log($"[Minimap] Hidden in {scene?.GetType().Name ?? "-"}: {why}");
+        }
+
         bool BuildMap(object scene)
         {
-            var tri = NavMesh.CalculateTriangulation();
-            if (tri.vertices == null || tri.vertices.Length == 0) return false;
+            var (vertices, indices, source) = FloorTriangles();
+            if (vertices.Length == 0)
+            {
+                if (Time.unscaledTime >= _nextBuildLog)
+                {
+                    _nextBuildLog = Time.unscaledTime + 5f;
+                    Debug.Log($"[Minimap] Can't build map in {scene?.GetType().Name}: no NavMesh or A* graph yet (retrying)");
+                }
+                return false;
+            }
 
             var min = new Vector2(float.MaxValue, float.MaxValue);
             var max = new Vector2(float.MinValue, float.MinValue);
-            foreach (var v in tri.vertices)
+            foreach (var v in vertices)
             {
                 min = Vector2.Min(min, new Vector2(v.x, v.z));
                 max = Vector2.Max(max, new Vector2(v.x, v.z));
@@ -114,16 +143,37 @@ namespace Minimap
             _h0 = new float[n]; _h1 = new float[n];
             for (int i = 0; i < n; i++) _h0[i] = _h1[i] = float.NaN;
             _seen0 = new bool[n]; _seen1 = new bool[n];
-            for (int t = 0; t + 2 < tri.indices.Length; t += 3)
-                Rasterize(tri.vertices[tri.indices[t]], tri.vertices[tri.indices[t + 1]], tri.vertices[tri.indices[t + 2]]);
+            for (int t = 0; t + 2 < indices.Length; t += 3)
+                Rasterize(vertices[indices[t]], vertices[indices[t + 1]], vertices[indices[t + 2]]);
 
             if (_tex != null) Destroy(_tex);
             _tex = new Texture2D(_w, _h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
             _pixels = new Color32[n];
             _map.texture = _tex;
             _builtFor = scene;
-            Debug.Log($"[Minimap] Map built: {_w}x{_h} px, {_metersPerPixel:0.00} m/px, {tri.indices.Length / 3} triangles");
+            Debug.Log($"[Minimap] Map built: {_w}x{_h} px, {_metersPerPixel:0.00} m/px, {indices.Length / 3} triangles from {source}");
             return true;
+        }
+
+        // Walkable floor triangles: the Unity NavMesh (levels) or the A* Pathfinding recast graph
+        // (tram/lobby scenes, which have no Unity NavMesh). Neither contains any actors.
+        static (Vector3[] vertices, int[] indices, string source) FloorTriangles()
+        {
+            var tri = NavMesh.CalculateTriangulation();
+            if (tri.vertices != null && tri.vertices.Length > 0) return (tri.vertices, tri.indices, "NavMesh");
+
+            var verts = new List<Vector3>();
+            var data = AstarPath.active != null ? AstarPath.active.data : null;
+            if (data?.graphs != null)
+                foreach (var graph in data.graphs)
+                    graph?.GetNodes(node =>
+                    {
+                        if (node is TriangleMeshNode t && t.Walkable)
+                            for (int i = 0; i < 3; i++) verts.Add((Vector3)t.GetVertex(i));
+                    });
+            var idx = new int[verts.Count];
+            for (int i = 0; i < idx.Length; i++) idx[i] = i;
+            return (verts.ToArray(), idx, "A* graph");
         }
 
         void Rasterize(Vector3 a, Vector3 b, Vector3 c)

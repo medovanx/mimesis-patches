@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>1.0.3</Version>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>MinimapRuntime</AssemblyName>
@@ -12,6 +12,9 @@
     <GameDll Condition="'$(GameDll)' == ''">$(Managed)\Assembly-CSharp.dll</GameDll>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Drawing"><HintPath>$(Managed)\Drawing.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="PackageTools"><HintPath>$(Managed)\PackageTools.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="AstarPathfindingProject"><HintPath>$(Managed)\AstarPathfindingProject.dll</HintPath><Private>false</Private></Reference>
     <!-- Shared code (main menu chip + update check). -->
     <Compile Include="..\..\Common\PatchChip.cs" Link="Common\%(Filename)%(Extension)" />
     <PackageReference Include="Lib.Harmony" Version="2.3.6" />

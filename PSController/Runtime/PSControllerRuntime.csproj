@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.2.0</Version>
+    <Version>1.2.2</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>PSControllerRuntime</AssemblyName>
     <Authors>Mohamed Darwesh</Authors>
@@ -8,6 +8,8 @@
     <Managed>O:\Games\MIMESIS v0.3.1\MIMESIS_Data\Managed</Managed>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+    <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(Managed)\Assembly-CSharp.dll.bak</HintPath><Private>false</Private></Reference>
     <!-- Shared code (main menu chip + update check). -->
     <Compile Include="..\..\Common\PatchChip.cs" Link="Common\%(Filename)%(Extension)" />
     <Reference Include="UnityEngine.UnityWebRequestModule"><HintPath>$(Managed)\UnityEngine.UnityWebRequestModule.dll</HintPath><Private>false</Private></Reference>

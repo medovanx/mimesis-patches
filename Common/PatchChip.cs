@@ -33,6 +33,7 @@ namespace MimesisPatches
         Action _onClick;        // optional action instead of opening the repo
         Version _latest;
         TMP_Text _text;
+        RectTransform _row;
         Image _bg;
 
         /// <param name="status">Extra text shown after the version (refreshed while the menu is open).</param>
@@ -75,14 +76,17 @@ namespace MimesisPatches
                 // Spawned UI prefabs are usually named "<prefab>(Clone)".
                 var menu = GameObject.Find("UIPrefab_MainMenu(Clone)") ?? GameObject.Find("UIPrefab_MainMenu");
                 var version = menu != null ? menu.transform.Find("VersionTextRect/versionText")?.GetComponent<TMP_Text>() : null;
+                if (version == null && _row != null) { _row.gameObject.SetActive(false); _hovered = 0; }   // menu gone: hide
                 if (version != null && version.canvas != null)
                 {
-                    var row = Row(version.canvas.rootCanvas.transform);
+                    var row = _row = Row(version.canvas.rootCanvas.transform);
                     if (_text == null) Build(row, version);
                     _text.text = Label;
                     _bg.color = _latest != null ? UpdateColor : Normal;
-                    row.gameObject.SetActive(menu.activeInHierarchy);
-                    if (!menu.activeInHierarchy) _hovered = 0;
+                    // The main menu object stays active behind game scenes, so also require that no game scene is loaded.
+                    bool onMenu = menu.activeInHierarchy && (Hub.s == null || Hub.s.pdata == null || Hub.s.pdata.main == null);
+                    row.gameObject.SetActive(onMenu);
+                    if (!onMenu) _hovered = 0;
                 }
                 yield return wait;
             }
