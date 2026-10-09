@@ -43,7 +43,7 @@ namespace MimesisPatches
         }
 
         // Usage: <exe> [install|uninstall] [path to Assembly-CSharp.dll]
-        static void Run(string[] args, string title, string plugin, string runtimeDll)
+        public static void Run(string[] args, string title, string plugin, string runtimeDll)
         {
             var here = AppContext.BaseDirectory;
             var dll = args.Length > 1 ? args[1] : new[] {
@@ -131,14 +131,14 @@ namespace MimesisPatches
         static Stream Resource(string name) => System.Reflection.Assembly.GetEntryAssembly().GetManifestResourceStream(name)
             ?? throw new InvalidOperationException("Missing embedded resource " + name);
 
-        static void Success(string msg)
+        public static void Success(string msg)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(msg);
             Console.ResetColor();
         }
 
-        static void Fail(string msg)
+        public static void Fail(string msg)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine();

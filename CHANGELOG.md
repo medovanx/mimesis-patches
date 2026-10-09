@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 1.0.0
+- One exe that installs/updates or removes all patches.
+
 ## Inventory 1.0.0
 - Host-set inventory size (4-8 slots), 2 × 4 grid HUD, shared with players through the Steam lobby. Every player needs it.
 
