@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.2.0
+- Fixed the 5-8 slot layout: slots 1-4 stay exactly as the game draws them, slots 5-8 are a copy of that row placed above.
+
 ## Inventory 1.1.1
 - Fixed: with fewer than 4 slots, the hidden slots still showed their stack counts.
 

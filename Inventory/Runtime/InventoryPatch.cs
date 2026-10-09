@@ -81,19 +81,26 @@ namespace Inventory
 
         // ---------------- Every player: inventory HUD ----------------
 
-        // Clone InvenSlot4 up to 8 slots and lay them out 4 per row (slots 1-4 stay on the bottom row).
+        // The HUD row (inventoryFrame) holds InvenSlot1-4 plus a separate StackCount group with stackCount1-4 at
+        // fixed positions. Rather than re-laying it out, slots 5-8 are a copy of the whole row placed just above.
+        const string SecondRow = "MedovanxInventoryRow2";
+        const float RowGap = 12f;
+
         [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_Inventory), "Awake")]
         static void AddSlots(UIPrefab_Inventory __instance)
         {
             var slots = __instance.inventorySlots;
-            if (slots.Count == 0 || slots.Count >= Max) return;
-            var template = slots[slots.Count - 1].frame.transform.parent;   // InvenSlot4
-            var row = template.parent;                                     // inventoryFrame
-            for (int n = slots.Count + 1; n <= Max; n++)
+            if (slots.Count != PerRow) return;
+            var row = (RectTransform)slots[0].frame.transform.parent.parent;   // inventoryFrame
+            var copy = (RectTransform)UnityEngine.Object.Instantiate(row.gameObject, row.parent, false).transform;
+            copy.name = SecondRow;
+            foreach (var anim in copy.GetComponentsInChildren<Animator>(true)) UnityEngine.Object.Destroy(anim);   // keep it still
+            copy.anchoredPosition = row.anchoredPosition + new Vector2(0f, row.rect.height * row.localScale.y + RowGap);
+
+            for (int i = 1; i <= PerRow; i++)
             {
-                var clone = UnityEngine.Object.Instantiate(template.gameObject, row, false).transform;
-                clone.name = "InvenSlot" + n;
-                T Part<T>(string prefix) where T : Component => clone.GetComponentsInChildren<T>(true).FirstOrDefault(c => c.name.StartsWith(prefix));
+                T Part<T>(string name) where T : Component =>
+                    copy.GetComponentsInChildren<T>(true).FirstOrDefault(c => c.name == name + i);
                 slots.Add(new UIPrefab_Inventory.Slot
                 {
                     frame = Part<Image>("InvenFrame"),
@@ -102,6 +109,7 @@ namespace Inventory
                     waitEvent = Part<Transform>("InvenWaitEvent"),
                 });
             }
+            copy.gameObject.SetActive(false);
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(UIPrefab_Inventory), nameof(UIPrefab_Inventory.UpdateSlot))]
@@ -110,40 +118,17 @@ namespace Inventory
             int count = Hub.s.gameConfig.playerActor.maxGenericInventorySlot;
             var slots = __instance.inventorySlots;
             if (slots.Count == 0) return;
-            var row = (RectTransform)slots[0].frame.transform.parent.parent;
+            var second = slots[0].frame.transform.parent.parent.parent.Find(SecondRow);
+            if (second != null) second.gameObject.SetActive(count > PerRow);
             for (int i = 0; i < slots.Count; i++)
             {
-                // A slot's widgets aren't all under its InvenSlot object (the stack count isn't), so toggle each.
+                // A slot's stack count isn't under its InvenSlot object, so toggle both.
                 bool on = i < count;
                 var slot = slots[i];
-                slot.frame.transform.parent.gameObject.SetActive(on);
+                if (slot.frame != null) slot.frame.transform.parent.gameObject.SetActive(on);
                 if (slot.stackCount != null) slot.stackCount.gameObject.SetActive(on);
-                if (slot.image != null) slot.image.gameObject.SetActive(on);
                 if (!on && slot.waitEvent != null) slot.waitEvent.gameObject.SetActive(false);
             }
-            if (row.GetComponent<GridLayoutGroup>() == null && count <= PerRow) return;   // vanilla layout for 4
-
-            var slotSize = ((RectTransform)slots[0].frame.transform.parent).sizeDelta;
-            var grid = row.GetComponent<GridLayoutGroup>();
-            if (grid == null)
-            {
-                var spacing = row.GetComponent<HorizontalLayoutGroup>()?.spacing ?? 0f;
-                foreach (var g in row.GetComponents<LayoutGroup>()) g.enabled = false;
-                grid = row.gameObject.AddComponent<GridLayoutGroup>();
-                grid.cellSize = slotSize;
-                grid.spacing = new Vector2(spacing, spacing);
-                grid.startCorner = GridLayoutGroup.Corner.LowerLeft;   // slots 1-4 bottom row, 5-8 above
-                grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-                grid.childAlignment = TextAnchor.LowerCenter;
-                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                grid.constraintCount = PerRow;
-                // Grow upwards from the original bottom edge.
-                var bottom = row.anchoredPosition.y - row.rect.height * row.pivot.y * row.localScale.y;
-                row.pivot = new Vector2(row.pivot.x, 0f);
-                row.anchoredPosition = new Vector2(row.anchoredPosition.x, bottom);
-            }
-            int rows = Mathf.CeilToInt(count / (float)PerRow);
-            row.sizeDelta = new Vector2(row.sizeDelta.x, rows * slotSize.y + (rows - 1) * grid.spacing.y);
         }
 
         // ---------------- Host: lobby menu row ----------------
