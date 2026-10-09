@@ -1,9 +1,12 @@
 # MIMESIS Patches Installer
 
-**Version 1.1.0**
+**Version 1.2.0**
 
 One exe that installs, updates or removes **every patch** at once.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
+
+## Always up to date
+On launch the installer checks GitHub. If a newer installer has been released, it downloads it next to itself (`MimesisPatchesInstaller-vX.Y.Z.exe`), opens it and closes; the new one carries the newest version of every patch. So you can share this one exe and friends always get the latest patches. Offline, it just installs what it has.
 
 ## Use
 1. Close the game.

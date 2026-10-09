@@ -2,6 +2,10 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 1.2.0
+- Downloads and opens the newest installer from GitHub on launch, so a shared copy always installs the latest patches.
+- Key hints in brackets.
+
 ## Inventory 1.1.0
 - Slot count goes down to 1 (range 1-8); slot buttons in the Patches window are a 2 × 4 grid.
 

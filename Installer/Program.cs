@@ -16,6 +16,11 @@ using MimesisPatches;
 var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 Console.Title = $"MIMESIS Patches Installer v{version}";
 
+// Self-update: if GitHub has a newer installer (which carries the newest version of every patch), download
+// it next to this one, start it with the same arguments and exit. Offline or no release: carry on.
+if (!args.Contains("--no-update") && SelfUpdate(version, args)) return;
+args = args.Where(a => a != "--no-update").ToArray();
+
 // name, description, runtime DLL, install action
 var patches = new List<(string Name, string About, string Runtime, Action<string> Install)>
 {
@@ -82,6 +87,42 @@ catch (Exception e)
 Console.WriteLine();
 Console.WriteLine("Press any key to close.");
 try { Console.ReadKey(true); } catch (InvalidOperationException) { }
+
+static bool SelfUpdate(string current, string[] args)
+{
+    try
+    {
+        Console.WriteLine("Checking for a newer installer...");
+        using var http = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("mimesis-patches-installer");
+        var json = http.GetStringAsync("https://api.github.com/repos/medovanx/mimesis-patches/releases?per_page=100").Result;
+        Version best = null;
+        string url = null;
+        // Each release's tag and its MimesisPatchesInstaller.exe asset URL (tag comes before assets in the JSON).
+        foreach (System.Text.RegularExpressions.Match release in System.Text.RegularExpressions.Regex.Matches(json,
+            "\"tag_name\"\s*:\s*\"Installer-v(\d+\.\d+\.\d+)\"[\s\S]*?\"browser_download_url\"\s*:\s*\"([^\"]*MimesisPatchesInstaller\.exe)\""))
+        {
+            var v = new Version(release.Groups[1].Value);
+            if (best == null || v > best) { best = v; url = release.Groups[2].Value; }
+        }
+        if (best == null || best <= new Version(current)) { Console.WriteLine("This is the latest version.
+"); return false; }
+
+        Console.WriteLine($"Downloading installer v{best.ToString(3)}...");
+        var target = Path.Combine(AppContext.BaseDirectory, $"MimesisPatchesInstaller-v{best.ToString(3)}.exe");
+        File.WriteAllBytes(target, http.GetByteArrayAsync(url).Result);
+        var start = new System.Diagnostics.ProcessStartInfo(target) { UseShellExecute = true, WorkingDirectory = AppContext.BaseDirectory };
+        foreach (var a in args.Append("--no-update")) start.ArgumentList.Add(a);
+        System.Diagnostics.Process.Start(start);
+        return true;
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Couldn't check for updates ({e.GetBaseException().Message}); installing the patches in this installer.
+");
+        return false;
+    }
+}
 
 // Clear fails without a real console window (e.g. output redirected); that's fine to skip.
 static void Clear() { try { Console.Clear(); } catch (IOException) { } }
