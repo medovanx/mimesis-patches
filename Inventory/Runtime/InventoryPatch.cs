@@ -116,7 +116,7 @@ namespace Inventory
         // Stack counts live in a separate group at fixed x positions, while the slots are placed by a layout
         // group that re-centres them when some are hidden. Moving each label into its own slot (at the same
         // offset the game uses: 65 units right of the slot's centre) keeps it on its slot in every layout.
-        const float LabelOffset = 65f;
+        const float LabelOffset = 65f, LabelBottom = -68f;   // bottom-right of the 200x200 slot
 
         static void AttachLabels(List<UIPrefab_Inventory.Slot> slots)
         {
@@ -126,7 +126,7 @@ namespace Inventory
                 var label = slot.stackCount.rectTransform;
                 label.SetParent(slot.frame.transform.parent, false);
                 label.anchorMin = label.anchorMax = new Vector2(0.5f, 0.5f);
-                label.anchoredPosition = new Vector2(LabelOffset, 0f);
+                label.anchoredPosition = new Vector2(LabelOffset, LabelBottom);
                 label.SetAsLastSibling();
             }
         }

@@ -2,7 +2,7 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
-## Inventory 1.2.6
+## Inventory 1.2.7
 - Stack counts / durability % follow their slot when fewer than 4 slots are shown.
 
 ## HudPercent 1.1.2
