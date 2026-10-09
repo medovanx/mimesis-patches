@@ -3,11 +3,11 @@
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
 ## BiggerLobby 1.1.0
-- Shows a "BiggerLobby v1.1.0" chip on the main menu when installed.
+- Shows a "BiggerLobby v1.1.0" chip in the bottom-left of the main menu; clicking it opens this repo.
 - Lobby list: "Copy invite code" centred under the player slots.
 
 ## PSController 1.1.0
-- Shows a "PSController v1.1.0" chip on the main menu when installed.
+- Shows a "PSController v1.1.0" chip in the bottom-left of the main menu; clicking it opens this repo.
 
 ## BiggerLobby 1.0.0
 - Lobbies hold 10 players (fixed; the Steam lobby and all 4 join checks raised).
