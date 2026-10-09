@@ -63,13 +63,16 @@ namespace HostOptions
         [HarmonyPostfix, HarmonyPatch(typeof(MaintenanceRoom), MethodType.Constructor, typeof(VRoomManager), typeof(long), typeof(IVRoomProperty))]
         static void TrackRoom(MaintenanceRoom __instance) => _room = __instance;
 
-        // Changing the value in the lobby also updates the current funds, but only before the first departure
-        // and while nothing has been spent yet.
+        // Changing the value in the lobby also updates the current funds by the difference (so money already
+        // spent stays spent), but only before the run's first departure.
         static void ApplyNow(int value)
         {
-            if (_room == null || _room._everDeparted || _room.Currency != _lastStart) return;
+            if (_room == null) { Debug.Log("[HostOptions] Starting money saved; no lobby room yet, applies to the next run"); return; }
+            if (_room._everDeparted) { Debug.Log("[HostOptions] Starting money saved; this run already departed, applies to the next run"); return; }
+            int previous = _lastStart >= 0 ? _lastStart : DefaultMoney;
             _lastStart = value;
-            _room.AddCurrency(value - _room.Currency);
+            _room.AddCurrency(value - previous);
+            Debug.Log($"[HostOptions] Funds adjusted by {value - previous} to {_room.Currency}");
         }
 
         // ---------------- Lobby menu controls (host only) ----------------
@@ -84,9 +87,9 @@ namespace HostOptions
             float step = publicRoom.anchoredPosition.y - password.anchoredPosition.y;   // "Allow Public Match" -> "Use Entry Password"
 
             var stamina = menu.Find(StaminaRow) ?? BuildStaminaRow(publicRoom, password.anchoredPosition - new Vector2(0f, step * 0.95f));
-            // The block's "TITLE:" row sits 30 units lower than its checkbox, so offset the money block by
-            // a little less than that to put "STARTING MONEY:" just under "Infinite Stamina".
-            var money = menu.Find(MoneyRow) ?? BuildMoneyRow(publicRoom, ((RectTransform)stamina).anchoredPosition - new Vector2(0f, step * 0.15f));
+            // Same position as the stamina block: its "STARTING MONEY: [field]" row then sits under the checkbox,
+            // like "TITLE:" sits under "Allow Public Match".
+            var money = menu.Find(MoneyRow) ?? BuildMoneyRow(publicRoom, ((RectTransform)stamina).anchoredPosition);
 
             stamina.gameObject.SetActive(IsHost);
             money.gameObject.SetActive(IsHost);
@@ -104,16 +107,12 @@ namespace HostOptions
             return block;
         }
 
-        static TMP_Text BlockLabel(RectTransform block) =>
-            block.GetComponent<TMP_Text>() ?? block.GetComponentsInChildren<TMP_Text>(true)
-                .FirstOrDefault(t => t.GetComponentInParent<Toggle>() == null && t.GetComponentInParent<TMP_InputField>() == null && t.name != "title");
-
         static RectTransform BuildStaminaRow(RectTransform publicRoom, Vector2 position)
         {
             var block = CloneBlock(publicRoom, StaminaRow, position);
-            foreach (var n in new[] { "title", "RoomName" })
-                if (block.Find(n) != null) Object.Destroy(block.Find(n).gameObject);
-            var label = BlockLabel(block);
+            // In the game's block, "title" is the checkbox's label and "RoomName" is the "TITLE: [field]" row.
+            if (block.Find("RoomName") != null) Object.Destroy(block.Find("RoomName").gameObject);
+            var label = block.Find("title")?.GetComponent<TMP_Text>();
             if (label != null) label.text = "Infinite Stamina";
 
             var toggle = block.GetComponentInChildren<Toggle>(true);
@@ -131,12 +130,14 @@ namespace HostOptions
         static RectTransform BuildMoneyRow(RectTransform publicRoom, Vector2 position)
         {
             var block = CloneBlock(publicRoom, MoneyRow, position);
+            // Keep only the "TITLE: [field]" row (RoomName) and relabel it.
             var toggle = block.GetComponentInChildren<Toggle>(true);
             if (toggle != null) Object.Destroy(toggle.gameObject);
-            var label = BlockLabel(block);
-            if (label != null) label.text = "";
-            var title = block.Find("title")?.GetComponent<TMP_Text>();
-            if (title != null) title.text = "STARTING MONEY:";
+            if (block.Find("title") != null) Object.Destroy(block.Find("title").gameObject);
+            var row = block.Find("RoomName");
+            var rowLabel = row != null ? row.GetComponentsInChildren<TMP_Text>(true)
+                .FirstOrDefault(t => t.GetComponentInParent<TMP_InputField>() == null && t.GetComponentInParent<Button>() == null) : null;
+            if (rowLabel != null) rowLabel.text = "STARTING MONEY:";
 
             // The game's "Apply" button next to the room title isn't needed: the amount applies when you finish typing.
             foreach (var b in block.GetComponentsInChildren<Button>(true)) b.gameObject.SetActive(false);

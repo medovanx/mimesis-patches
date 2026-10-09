@@ -8,6 +8,9 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 ## Minimap 1.3.1
 - Bigger dots on the map (12 px instead of 7).
 
+## HostOptions 1.0.2
+- Fixed: patches failed to load (Harmony class split), the stamina checkbox had no label, and changing starting money in the lobby didn't update the funds.
+
 ## HostOptions 1.0.0
 - Host-only lobby options under "Use Entry Password": **Infinite Stamina** and **Starting money**. Both run on the host, so other players don't need the patch.
 
