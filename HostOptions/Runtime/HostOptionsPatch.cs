@@ -53,34 +53,7 @@ namespace HostOptions
         static MaintenanceRoom _room;
         static int _lastStart = -1;
 
-        // Every MaintenanceRoom method (incl. compiler-generated lambdas) that reads C_InitialMoney.
-        static IEnumerable<MethodBase> MoneyMethods()
-        {
-            var field = AccessTools.Field(typeof(Bifrost.ConstEnum.DataConsts), "C_InitialMoney");
-            var types = new[] { typeof(MaintenanceRoom) }.Concat(typeof(MaintenanceRoom).GetNestedTypes(AccessTools.all));
-            foreach (var t in types)
-            foreach (var m in t.GetMethods(AccessTools.allDeclared).Cast<MethodBase>().Concat(t.GetConstructors(AccessTools.allDeclared)))
-            {
-                List<KeyValuePair<OpCode, object>> body;
-                try { body = PatchProcessor.ReadMethodBody(m).ToList(); } catch { continue; }
-                if (body.Any(i => Equals(i.Value, field))) yield return m;
-            }
-        }
-
-        static IEnumerable<MethodBase> TargetMethods() => MoneyMethods();
-
-        [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> UseStartMoney(IEnumerable<CodeInstruction> code)
-        {
-            var field = AccessTools.Field(typeof(Bifrost.ConstEnum.DataConsts), "C_InitialMoney");
-            foreach (var x in code)
-            {
-                yield return x;
-                if (x.LoadsField(field)) yield return CodeInstruction.Call(typeof(HostOptionsPatch), nameof(Starting));
-            }
-        }
-
-        static int Starting(int gameDefault)
+        public static int Starting(int gameDefault)
         {
             var value = StartMoney >= 0 ? StartMoney : gameDefault;
             _lastStart = value;
@@ -185,5 +158,38 @@ namespace HostOptions
             });
             return block;
         }
+    }
+
+    // Harmony doesn't allow TargetMethods() next to per-method annotations, so the money transpiler lives here.
+    [HarmonyPatch]
+    static class StartMoneyPatch
+    {
+        // Every MaintenanceRoom method (incl. compiler-generated lambdas) that reads C_InitialMoney.
+        static IEnumerable<MethodBase> MoneyMethods()
+        {
+            var field = AccessTools.Field(typeof(Bifrost.ConstEnum.DataConsts), "C_InitialMoney");
+            var types = new[] { typeof(MaintenanceRoom) }.Concat(typeof(MaintenanceRoom).GetNestedTypes(AccessTools.all));
+            foreach (var t in types)
+            foreach (var m in t.GetMethods(AccessTools.allDeclared).Cast<MethodBase>().Concat(t.GetConstructors(AccessTools.allDeclared)))
+            {
+                List<KeyValuePair<OpCode, object>> body;
+                try { body = PatchProcessor.ReadMethodBody(m).ToList(); } catch { continue; }
+                if (body.Any(i => Equals(i.Value, field))) yield return m;
+            }
+        }
+
+        static IEnumerable<MethodBase> TargetMethods() => MoneyMethods();
+
+        [HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> UseStartMoney(IEnumerable<CodeInstruction> code)
+        {
+            var field = AccessTools.Field(typeof(Bifrost.ConstEnum.DataConsts), "C_InitialMoney");
+            foreach (var x in code)
+            {
+                yield return x;
+                if (x.LoadsField(field)) yield return CodeInstruction.Call(typeof(HostOptionsPatch), nameof(HostOptionsPatch.Starting));
+            }
+        }
+
     }
 }

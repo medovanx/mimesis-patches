@@ -1,6 +1,6 @@
 # HostOptions (HostOptionsPatcher)
 
-**Version 1.0.0**
+**Version 1.0.1**
 
 Extra lobby options for the host: **infinite stamina** and **starting money**.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
