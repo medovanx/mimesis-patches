@@ -1,6 +1,6 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.1.0**
+**Version 1.2.0**
 
 A minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -19,13 +19,16 @@ Click the **Minimap** chip on the main menu to open the settings window. The chi
 |---|---|
 | Reveal | **Explored** (default): the map appears as you walk near it. **Full map**: everything from the start. |
 | Style | **Plain** (default): a clean floor plan. **Graphic**: a real top-down view of the level. |
+| Show | **Players** / **Monsters** / **Items**, each on or off (all off by default). Enabled ones appear as dots: players blue, monsters red, items yellow; in Graphic their models are visible too. |
 
 The two combine: Graphic + Explored shows the real view with unvisited areas darkened.
 
 ## What it shows (and doesn't)
-Only **the level and your own arrow**. No teammates, mimics or monsters, so a "teammate" can still be a mimic.
+By default only **the level and your own arrow**: no teammates, mimics, monsters or items, so a "teammate" can still be a mimic.
+
+The **Show** options change that. Mimics count as **monsters**, so turning Players on while Monsters stays off lets you tell real players from mimics: a "player" with no dot is a mimic. That's a big change to how the game plays, so it's off unless you choose it.
 - **Plain** is drawn from the level's walkable floor (the Unity NavMesh in levels, the A* pathfinding graph in the tram/lobby), which never contains actors. Only the floor you're on is drawn; other floors appear faint.
-- **Graphic** renders the level with an extra camera just above your head looking down. Every player, mimic and monster is switched off for that camera's render only, so they never appear on it. It renders at 256 px about 7 times a second to keep the FPS cost low.
+- **Graphic** renders the level with an extra camera just above your head looking down. Your own character and every category you haven't enabled are switched off for that camera's render only, so they never appear on it. It renders at 256 px about 7 times a second to keep the FPS cost low.
 - Hidden while you're dead, in menus, or outside a game scene.
 
 ## Files installed

@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Minimap 1.2.0
+- Show options in the settings window: Players / Monsters / Items (off by default). Enabled ones get coloured dots, and models in Graphic style. Mimics count as monsters.
+
 ## Minimap 1.1.0
 - Settings window: click the Minimap chip on the main menu to choose Reveal (Explored / Full map) and Style (Plain / Graphic).
 - Graphic style: real top-down view from a camera above your head, with all players, mimics and monsters hidden from it.

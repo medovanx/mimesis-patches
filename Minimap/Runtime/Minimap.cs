@@ -7,8 +7,9 @@
 // Settings (click the Minimap chip on the main menu to open the settings window; saved between sessions):
 //   Reveal: Explored - the map appears as you walk near it (default) | Full - the whole map from the start
 //   Style:  Plain    - floor plan drawn from the NavMesh (default)   | Graphic - real top-down view
-// Graphic renders the level with an extra camera above your head. Players, mimics and monsters are hidden
-// from that camera while it renders, so it still shows only the level. M toggles the minimap in game.
+//   Show:   Players / Monsters / Items - each off by default. Enabled categories appear as coloured dots
+//           (and as models in Graphic); disabled ones are hidden from the minimap camera while it renders.
+//           Mimics count as monsters. M toggles the minimap in game.
 
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,12 @@ namespace Minimap
             set { PlayerPrefs.SetInt(StyleKey, (int)value); PlayerPrefs.Save(); }
         }
 
+        public static bool ShowPlayers { get => GetBool("Players"); set => SetBool("Players", value); }
+        public static bool ShowMonsters { get => GetBool("Monsters"); set => SetBool("Monsters", value); }
+        public static bool ShowItems { get => GetBool("Items"); set => SetBool("Items", value); }
+        static bool GetBool(string key) => PlayerPrefs.GetInt("medovanx.Minimap.Show" + key, 0) == 1;
+        static void SetBool(string key, bool on) { PlayerPrefs.SetInt("medovanx.Minimap.Show" + key, on ? 1 : 0); PlayerPrefs.Save(); }
+
         public static string Summary => (CurrentReveal == Reveal.Full ? "Full" : "Explored") + " · " + CurrentStyle;
 
         const int MaxTexSize = 512;          // map texture resolution (longest side)
@@ -52,6 +59,10 @@ namespace Minimap
         static readonly Color32 Empty = new Color32(0, 0, 0, 0);
         static readonly Color32 Floor = new Color32(200, 200, 190, 220);
         static readonly Color32 OtherFloor = new Color32(200, 200, 190, 45);
+        static readonly Color PlayerDot = new Color(0.3f, 0.65f, 1f, 1f);
+        static readonly Color MonsterDot = new Color(1f, 0.25f, 0.2f, 1f);
+        static readonly Color ItemDot = new Color(1f, 0.85f, 0.2f, 1f);
+        const float DotSize = 7f;
         static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
 
         const int GraphicSize = 256;           // render texture resolution for the graphic view
@@ -74,7 +85,12 @@ namespace Minimap
         Camera _cam;
         RenderTexture _rt;
         float _nextRender, _nextActorScan;
-        readonly List<Renderer> _actorRenderers = new List<Renderer>();
+        // Cached once a second: what's in the scene, by minimap category.
+        readonly List<(Transform t, Color color, bool shown)> _things = new List<(Transform, Color, bool)>();
+        readonly List<Renderer> _hiddenRenderers = new List<Renderer>();
+        readonly List<RawImage> _dots = new List<RawImage>();
+        RectTransform _frame;
+        Texture2D _dotTex;
         RectTransform _arrow;
         bool _visible = true;
         float _nextDraw;
@@ -111,6 +127,8 @@ namespace Minimap
                 _nextDraw = Time.unscaledTime + 0.2f;
                 Draw(pos.y, graphic);
             }
+            if (Time.unscaledTime >= _nextActorScan) Scan(me);
+            Dots(pos);
             _graphic.enabled = graphic;
             _map.enabled = !graphic || CurrentReveal == Reveal.Explored;   // in graphic mode the map is only the fog overlay
             if (graphic && Time.unscaledTime >= _nextRender)
@@ -283,6 +301,8 @@ namespace Minimap
             frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(0f, 0f);
             frame.anchoredPosition = new Vector2(24f, 24f);
             frame.sizeDelta = new Vector2(ScreenSize, ScreenSize);
+            _frame = frame;
+            _dotTex = DotTexture();
             var bg = frame.GetComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.55f);
             bg.raycastTarget = false;
@@ -336,18 +356,79 @@ namespace Minimap
             _cam.orthographicSize = ViewMeters / 2f;
             _cam.transform.SetPositionAndRotation(pos + Vector3.up * CameraAboveFeet, Quaternion.Euler(90f, 0f, 0f));
 
-            if (Time.unscaledTime >= _nextActorScan)
-            {
-                _nextActorScan = Time.unscaledTime + 1f;
-                _actorRenderers.Clear();
-                foreach (var actor in FindObjectsByType<ProtoActor>(FindObjectsSortMode.None))
-                    _actorRenderers.AddRange(actor.GetComponentsInChildren<Renderer>(true));
-            }
-            var hidden = new List<Renderer>(_actorRenderers.Count);
-            foreach (var r in _actorRenderers)
+            var hidden = new List<Renderer>(_hiddenRenderers.Count);
+            foreach (var r in _hiddenRenderers)
                 if (r != null && !r.forceRenderingOff) { r.forceRenderingOff = true; hidden.Add(r); }
             try { _cam.Render(); }
             finally { foreach (var r in hidden) if (r != null) r.forceRenderingOff = false; }
+        }
+
+        // Sorts everything that moves or can be picked up into players / monsters / items.
+        // Disabled categories (and your own character) are hidden from the graphic camera; enabled ones get dots.
+        void Scan(ProtoActor me)
+        {
+            _nextActorScan = Time.unscaledTime + 1f;
+            _things.Clear();
+            _hiddenRenderers.Clear();
+            foreach (var actor in FindObjectsByType<ProtoActor>(FindObjectsSortMode.None))
+            {
+                if (actor == me) { _hiddenRenderers.AddRange(actor.GetComponentsInChildren<Renderer>(true)); continue; }
+                bool player = actor.ActorType == ReluProtocol.Enum.ActorType.Player && !actor.IsMimic();
+                bool shown = player ? ShowPlayers : ShowMonsters;
+                if (!actor.dead) _things.Add((actor.transform, player ? PlayerDot : MonsterDot, shown));
+                if (!shown) _hiddenRenderers.AddRange(actor.GetComponentsInChildren<Renderer>(true));
+            }
+            foreach (var item in FindObjectsByType<LootingLevelObject>(FindObjectsSortMode.None))
+            {
+                _things.Add((item.transform, ItemDot, ShowItems));
+                if (!ShowItems) _hiddenRenderers.AddRange(item.GetComponentsInChildren<Renderer>(true));
+            }
+        }
+
+        // Coloured dots for enabled categories, on your floor and inside the minimap's view.
+        void Dots(Vector3 me)
+        {
+            int used = 0;
+            float scale = _frame.rect.width / ViewMeters;
+            foreach (var (t, color, shown) in _things)
+            {
+                if (!shown || t == null || !t.gameObject.activeInHierarchy) continue;
+                var d = t.position - me;
+                if (Mathf.Abs(d.y) > FloorTolerance) continue;
+                var p = new Vector2(d.x, d.z) * scale;
+                if (Mathf.Abs(p.x) > _frame.rect.width / 2f || Mathf.Abs(p.y) > _frame.rect.height / 2f) continue;
+                if (used == _dots.Count)
+                {
+                    var dot = new GameObject("Dot", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
+                    dot.rectTransform.SetParent(_frame, false);
+                    dot.rectTransform.sizeDelta = new Vector2(DotSize, DotSize);
+                    dot.texture = _dotTex;
+                    dot.raycastTarget = false;
+                    _dots.Add(dot);
+                }
+                var img = _dots[used++];
+                img.enabled = true;
+                img.color = color;
+                img.rectTransform.anchoredPosition = p;
+            }
+            for (int i = used; i < _dots.Count; i++) _dots[i].enabled = false;
+            _arrow.SetAsLastSibling();
+        }
+
+        static Texture2D DotTexture()
+        {
+            const int s = 16;
+            var tex = new Texture2D(s, s, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear };
+            var px = new Color32[s * s];
+            for (int y = 0; y < s; y++)
+            for (int x = 0; x < s; x++)
+            {
+                float d = new Vector2(x - 7.5f, y - 7.5f).magnitude;
+                px[y * s + x] = d < 6.5f ? new Color32(255, 255, 255, 255) : d < 7.5f ? new Color32(0, 0, 0, 200) : new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(px);
+            tex.Apply(false);
+            return tex;
         }
 
         // A small upward-pointing triangle (rotated to your facing).

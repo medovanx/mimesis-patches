@@ -42,7 +42,7 @@ namespace Minimap
             dimButton.onClick.AddListener(Close);
 
             var panel = Box(canvas.transform, "Panel", Panel);
-            panel.sizeDelta = new Vector2(520f, 290f);
+            panel.sizeDelta = new Vector2(700f, 360f);
             var layout = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(28, 28, 22, 22);
             layout.spacing = 16f;
@@ -56,6 +56,11 @@ namespace Minimap
             Row(panel, font, "Style",
                 ("Plain", () => Minimap.CurrentStyle == Minimap.Style.Plain, () => Minimap.CurrentStyle = Minimap.Style.Plain),
                 ("Graphic", () => Minimap.CurrentStyle == Minimap.Style.Graphic, () => Minimap.CurrentStyle = Minimap.Style.Graphic));
+
+            Row(panel, font, "Show",
+                ("Players", () => Minimap.ShowPlayers, () => Minimap.ShowPlayers = !Minimap.ShowPlayers),
+                ("Monsters", () => Minimap.ShowMonsters, () => Minimap.ShowMonsters = !Minimap.ShowMonsters),
+                ("Items", () => Minimap.ShowItems, () => Minimap.ShowItems = !Minimap.ShowItems));
 
             var close = Button(panel, font, "Close", Close);
             close.GetComponent<LayoutElement>().preferredWidth = 140f;
