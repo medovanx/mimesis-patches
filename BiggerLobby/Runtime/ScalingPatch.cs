@@ -20,7 +20,15 @@ namespace BiggerLobby
     {
         static GameSessionInfo _session;
 
-        static int Players => Mathf.Max(_session?.TotalPlayerSteamIDs.Count ?? 0, 4);
+        /// <summary>Difficulty scaling on/off (Patches window); off = vanilla balance at any player count.</summary>
+        public static bool Enabled
+        {
+            get => PlayerPrefs.GetInt("medovanx.BiggerLobby.Scaling", 1) == 1;
+            set { PlayerPrefs.SetInt("medovanx.BiggerLobby.Scaling", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
+        public static int SessionPlayers => _session?.TotalPlayerSteamIDs.Count ?? 0;
+        static int Players => Enabled ? Mathf.Max(SessionPlayers, 4) : 4;
         static int Extra => Players - 4;
 
         public static float QuotaFactor => Players / 4f;

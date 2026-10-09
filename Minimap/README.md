@@ -1,6 +1,6 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.3.2**
+**Version 1.4.0**
 
 A minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -13,7 +13,7 @@ By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 Each player installs it for themselves. In game, **M** shows or hides the minimap.
 
 ## Settings
-Click the **Minimap** chip on the main menu to open the settings window. The chip shows the current choice, and it's remembered between sessions.
+Open **Patches → Minimap** on the main menu to change these; they're remembered between sessions.
 
 | Setting | Options |
 |---|---|

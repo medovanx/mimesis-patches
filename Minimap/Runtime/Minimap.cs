@@ -47,6 +47,13 @@ namespace Minimap
         static bool GetBool(string key) => PlayerPrefs.GetInt("medovanx.Minimap.Show" + key, 0) == 1;
         static void SetBool(string key, bool on) { PlayerPrefs.SetInt("medovanx.Minimap.Show" + key, on ? 1 : 0); PlayerPrefs.Save(); }
 
+        /// <summary>Minimap shown in game (Patches window); M toggles it for the current session too.</summary>
+        public static bool Visible
+        {
+            get => PlayerPrefs.GetInt("medovanx.Minimap.Visible", 1) == 1;
+            set { PlayerPrefs.SetInt("medovanx.Minimap.Visible", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
         public static string Summary => (CurrentReveal == Reveal.Full ? "Full" : "Explored") + " · " + CurrentStyle;
 
         const int MaxTexSize = 512;          // map texture resolution (longest side)
@@ -116,7 +123,7 @@ namespace Minimap
             // Any scene with a walkable floor: tram, lobby and levels.
             var scene = Hub.s != null && Hub.s.pdata != null ? Hub.s.pdata.main : null;
             var me = scene != null ? scene.GetMyAvatar() : null;
-            bool show = _visible && me != null && !me.dead && !(Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen);
+            bool show = Visible && _visible && me != null && !me.dead && !(Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen);
             if (scene == null) _builtFor = null;
             if (show && _builtFor != scene && !BuildMap(scene)) show = false;
             Diagnose(scene, me, show);

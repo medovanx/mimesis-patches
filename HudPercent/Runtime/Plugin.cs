@@ -20,7 +20,10 @@ namespace HudPercent
             try
             {
                 new Harmony("medovanx.hudpercent").PatchAll(typeof(Plugin).Assembly);
-                MimesisPatches.PatchChip.Register("HudPercent", version);
+                MimesisPatches.PatchMenu.Register("HudPercent", version,
+                    status: () => HudPercentPatch.Enabled ? "Health and radiation % next to the HUD bars" : "Off",
+                    build: (page, font) =>
+                        MimesisPatches.PatchUi.OnOff(page, font, "Percentages", () => HudPercentPatch.Enabled, v => HudPercentPatch.Enabled = v));
                 Debug.Log($"[HudPercent] v{version.ToString(3)}: patches applied");
             }
             catch (Exception e)

@@ -20,7 +20,17 @@ namespace HostOptions
             try
             {
                 new Harmony("medovanx.hostoptions").PatchAll(typeof(Plugin).Assembly);
-                MimesisPatches.PatchChip.Register("HostOptions", version, status: () =>
+                MimesisPatches.PatchMenu.Register("HostOptions", version, build: (page, font) =>
+                {
+                    MimesisPatches.PatchUi.OnOff(page, font, "Infinite stamina", () => HostOptionsPatch.InfiniteStamina, v => HostOptionsPatch.InfiniteStamina = v);
+                    MimesisPatches.PatchUi.Number(page, font, "Starting money",
+                        () => HostOptionsPatch.StartMoney >= 0 ? HostOptionsPatch.StartMoney : HostOptionsPatch.DefaultMoney,
+                        v => { HostOptionsPatch.StartMoney = v == HostOptionsPatch.DefaultMoney ? -1 : v; HostOptionsPatch.ApplyNow(v); },
+                        HostOptionsPatch.DefaultMoney);
+                    MimesisPatches.PatchUi.Label(page, font,
+                        "Host only; also in the lobby menu (Esc). Starting money applies to new runs, and sets the current funds before the first departure.",
+                        20f, MimesisPatches.PatchUi.Dim);
+                }, status: () =>
                     (HostOptionsPatch.InfiniteStamina ? "Infinite stamina" : "Normal stamina") +
                     (HostOptionsPatch.StartMoney >= 0 ? " \u00b7 $" + HostOptionsPatch.StartMoney : ""));
                 Debug.Log($"[HostOptions] v{version.ToString(3)}: patches applied");

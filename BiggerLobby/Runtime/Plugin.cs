@@ -21,7 +21,18 @@ namespace BiggerLobby
             try
             {
                 new Harmony("medovanx.biggerlobby").PatchAll(typeof(Plugin).Assembly);
-                MimesisPatches.PatchChip.Register("BiggerLobby", typeof(Plugin).Assembly.GetName().Version);
+                MimesisPatches.PatchMenu.Register("BiggerLobby", typeof(Plugin).Assembly.GetName().Version,
+                    status: () => $"Lobbies hold {MaxPlayers} players \u00b7 difficulty scaling {(ScalingPatch.Enabled ? "on" : "off")}",
+                    build: (page, font) =>
+                    {
+                        MimesisPatches.PatchUi.OnOff(page, font, "Difficulty scaling", () => ScalingPatch.Enabled, v => ScalingPatch.Enabled = v);
+                        MimesisPatches.PatchUi.Label(page, font,
+                            "Above 4 players (host only):\n" +
+                            "\u2022 Quota \u00d7 players / 4   (10 players: \u00d72.5)\n" +
+                            "\u2022 Shop prices +12.5% per extra player   (\u00d71.75)\n" +
+                            "\u2022 Monster budget +10% per extra player   (\u00d71.6)\n" +
+                            "\u2022 +1 mimic per 3 extra players   (+2)", 20f, MimesisPatches.PatchUi.Dim);
+                    });
                 Debug.Log($"[BiggerLobby] v{typeof(Plugin).Assembly.GetName().Version.ToString(3)}: patches applied ({MaxPlayers} players)");
             }
             catch (Exception e)

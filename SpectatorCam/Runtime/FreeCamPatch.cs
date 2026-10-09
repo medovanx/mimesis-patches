@@ -24,6 +24,13 @@ namespace SpectatorCam
         const float Speed = 3.5f, FastSpeed = 7f;
         const float MouseSensitivity = 0.08f, StickSensitivity = 120f;
 
+        /// <summary>Free camera on/off (Patches window).</summary>
+        public static bool Enabled
+        {
+            get => PlayerPrefs.GetInt("medovanx.SpectatorCam.Enabled", 1) == 1;
+            set { PlayerPrefs.SetInt("medovanx.SpectatorCam.Enabled", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
         static bool _free;
         static float _yaw, _pitch;
         static readonly List<Behaviour> Disabled = new List<Behaviour>();
@@ -34,6 +41,11 @@ namespace SpectatorCam
         static bool Update(CameraManager __instance)
         {
             var cam = __instance.spectatorCamera;
+            if (!Enabled)
+            {
+                if (_free) Exit(cam, __instance.TryGetCurrentSpectatorTarget(out var t) ? t : null);
+                return true;
+            }
             if (cam == null || !__instance.TryGetCurrentSpectatorTarget(out var target) || target == null)
             {
                 if (_free) Exit(cam, null);

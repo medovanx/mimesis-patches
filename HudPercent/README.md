@@ -1,6 +1,6 @@
 # HudPercent (HudPercentPatcher)
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -21,3 +21,6 @@ The HUD (`UIPrefab_InGame`) updates its bars through `OnHpChanged` and `OnContaC
 ## Files installed
 - `MIMESIS_Data/Managed/HudPercentRuntime.dll`, `0Harmony.dll`
 - `Assembly-CSharp.dll`: one `HudPercent.Plugin.Init()` call at the start of `Hub.Awake` (original kept as `.bak`)
+
+## Settings
+Open **Patches → HudPercent** on the main menu to turn it on/off.

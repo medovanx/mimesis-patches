@@ -2,6 +2,10 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## All patches (BiggerLobby 1.3.0, PSController 1.3.0, SpectatorCam 1.1.0, Minimap 1.4.0, HostOptions 1.1.0, HudPercent 1.1.0)
+- One **Patches** chip on the main menu replaces the per-patch chips. It opens a window: installed patches on the left, the selected patch's options on the right, with update links.
+- New options: BiggerLobby difficulty scaling on/off; PSController icons on/off; SpectatorCam, HudPercent and Minimap on/off; HostOptions stamina and starting money; Minimap settings moved here from its own window.
+
 ## Minimap 1.3.2
 - Legend lists only enabled categories (no "You"); hidden when none are enabled.
 

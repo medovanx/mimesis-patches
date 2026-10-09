@@ -41,7 +41,7 @@ namespace HostOptions
         }
 
         static bool IsHost => Hub.s != null && Hub.s.pdata != null && Hub.s.pdata.ClientMode == NetworkClientMode.Host;
-        static int DefaultMoney => Hub.s.dataman.ExcelDataManager.Consts.C_InitialMoney;
+        public static int DefaultMoney => Hub.s.dataman.ExcelDataManager.Consts.C_InitialMoney;
 
         // ---------------- Stamina (server side) ----------------
 
@@ -64,7 +64,7 @@ namespace HostOptions
         static void TrackRoom(MaintenanceRoom __instance) => _room = __instance;
 
         // Changing the value in the lobby also sets the current funds to it, but only before the run's first departure.
-        static void ApplyNow(int value)
+        public static void ApplyNow(int value)
         {
             if (_room == null) { Debug.Log("[HostOptions] Starting money saved; no lobby room yet, applies to the next run"); return; }
             if (_room._everDeparted) { Debug.Log("[HostOptions] Starting money saved; this run already departed, applies to the next run"); return; }

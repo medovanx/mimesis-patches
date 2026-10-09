@@ -1,6 +1,6 @@
 # BiggerLobby (MorePlayersPatcher)
 
-**Version 1.2.0**
+**Version 1.3.0**
 
 Lets MIMESIS lobbies hold **10 players** and adapts the UI and difficulty to them.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -53,3 +53,6 @@ It patches the current `Assembly-CSharp.dll`, so other patches (PSController) ar
 
 ## Build
 Build `Runtime` first (`dotnet build -c Release`), then `dotnet publish -c Release` in `Patcher`.
+
+## Settings
+Open **Patches → BiggerLobby** on the main menu to turn it on/off difficulty scaling.

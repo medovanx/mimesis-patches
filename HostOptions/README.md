@@ -1,6 +1,6 @@
 # HostOptions (HostOptionsPatcher)
 
-**Version 1.0.3**
+**Version 1.1.0**
 
 Extra lobby options for the host: **infinite stamina** and **starting money**.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -14,7 +14,7 @@ By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 - **Infinite Stamina** (checkbox): nobody's stamina drains.
 - **STARTING MONEY** (number field): the funds a run starts with (the game's default is $15). Type a value and press Enter or click away. Empty or invalid resets to the default.
 
-Other players never see these controls and don't need the patch. Settings are saved on the host's PC and shown on the main menu chip (e.g. `HostOptions v1.0.0 · Infinite stamina · $500`).
+Other players never see these controls and don't need the patch. Settings are saved on the host's PC. They can also be changed in **Patches → HostOptions** on the main menu.
 
 ## How it works
 Both are simulated on the host, and every player's game only displays what the host sends:

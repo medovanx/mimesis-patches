@@ -15,6 +15,13 @@ namespace HudPercent
     static class HudPercentPatch
     {
         const string LabelName = "MedovanxPercent";
+
+        /// <summary>Percentages on/off (Patches window).</summary>
+        public static bool Enabled
+        {
+            get => PlayerPrefs.GetInt("medovanx.HudPercent.Enabled", 1) == 1;
+            set { PlayerPrefs.SetInt("medovanx.HudPercent.Enabled", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
         const float Gap = 12f;
 
         [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGame.OnHpChanged))]
@@ -28,7 +35,10 @@ namespace HudPercent
         static void Set(UIPrefab_InGame hud, RectTransform bar, long curr, long max, Color color)
         {
             if (bar == null) return;
-            var label = bar.Find(LabelName)?.GetComponent<TMP_Text>() ?? Create(hud, bar, color);
+            var existing = bar.Find(LabelName);
+            if (!Enabled) { if (existing != null) existing.gameObject.SetActive(false); return; }
+            if (existing != null) existing.gameObject.SetActive(true);
+            var label = existing?.GetComponent<TMP_Text>() ?? Create(hud, bar, color);
             int percent = max <= 0 ? 0 : Mathf.Clamp(Mathf.RoundToInt(100f * curr / max), 0, 100);
             label.text = percent + "%";
         }

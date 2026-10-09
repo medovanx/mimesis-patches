@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>PSControllerRuntime</AssemblyName>
     <Authors>Mohamed Darwesh</Authors>
@@ -11,7 +11,7 @@
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
     <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(Managed)\Assembly-CSharp.dll.bak</HintPath><Private>false</Private></Reference>
     <!-- Shared code (main menu chip + update check). -->
-    <Compile Include="..\..\Common\PatchChip.cs" Link="Common\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Common\PatchMenu.cs;..\..\Common\PatchUi.cs" Link="Common\%(Filename)%(Extension)" />
     <Reference Include="UnityEngine.UnityWebRequestModule"><HintPath>$(Managed)\UnityEngine.UnityWebRequestModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(Managed)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(Managed)\UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>

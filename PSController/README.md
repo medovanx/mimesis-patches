@@ -1,6 +1,6 @@
 # PSController (PSControllerPatcher)
 
-**Version 1.2.0**
+**Version 1.3.0**
 
 Shows PlayStation button icons (✕ ○ □ △, L1/R1/L2/R2, L3/R3) instead of Xbox ones in MIMESIS.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -45,3 +45,6 @@ Uninstall removes both hooks, the DLL and the icons, and keeps other patches lik
 
 ## Build
 Build `Runtime` first (`dotnet build -c Release`), then `dotnet publish -c Release` in `Patcher`.
+
+## Settings
+Open **Patches → PSController** on the main menu to turn it on/off.

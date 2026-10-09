@@ -27,9 +27,16 @@ namespace PSController
             { "p_dpad_left", "dpad_left" }, { "p_dpad_right", "dpad_right" },
         };
 
+        /// <summary>PlayStation icons on/off (Patches window); off = the game's Xbox icons.</summary>
+        public static bool Enabled
+        {
+            get => PlayerPrefs.GetInt("medovanx.PSController.Icons", 1) == 1;
+            set { PlayerPrefs.SetInt("medovanx.PSController.Icons", value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
         public static Sprite Get(string keyName)
         {
-            if (keyName == null || !keyName.StartsWith("p_")) return null;
+            if (!Enabled || keyName == null || !keyName.StartsWith("p_")) return null;
             if (_sprites == null) Load();
             _sprites.TryGetValue(keyName.Trim().ToLowerInvariant(), out var s);
             return s;

@@ -1,6 +1,6 @@
 # SpectatorCam (SpectatorCamPatcher)
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 A free camera for dead players, limited to the area around the player you're spectating.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -35,3 +35,6 @@ Switching to another player (or the game changing your spectate target) returns 
 ## Files installed
 - `MIMESIS_Data/Managed/SpectatorCamRuntime.dll`, `0Harmony.dll`
 - `Assembly-CSharp.dll`: one `SpectatorCam.Plugin.Init()` call at the start of `Hub.Awake` (original kept as `.bak`)
+
+## Settings
+Open **Patches → SpectatorCam** on the main menu to turn it on/off.
