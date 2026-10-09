@@ -359,9 +359,38 @@ namespace Minimap
             var hidden = new List<Renderer>(_hiddenRenderers.Count);
             foreach (var r in _hiddenRenderers)
                 if (r != null && !r.forceRenderingOff) { r.forceRenderingOff = true; hidden.Add(r); }
+            // Unlit rooms would render black, so light the level evenly for this render only: a light shining
+            // straight down, bright flat ambient and no fog. Everything is restored right after, so the game's
+            // own view stays exactly as dark as before.
+            if (_light == null)
+            {
+                _light = new GameObject("MinimapLight").AddComponent<Light>();
+                _light.transform.SetParent(transform, false);
+                _light.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+                _light.type = LightType.Directional;
+                _light.intensity = 1.1f;
+                _light.shadows = LightShadows.None;
+                _light.enabled = false;
+            }
+            var ambientMode = RenderSettings.ambientMode;
+            var ambientLight = RenderSettings.ambientLight;
+            var fog = RenderSettings.fog;
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.55f);
+            RenderSettings.fog = false;
+            _light.enabled = true;
             try { _cam.Render(); }
-            finally { foreach (var r in hidden) if (r != null) r.forceRenderingOff = false; }
+            finally
+            {
+                _light.enabled = false;
+                RenderSettings.ambientMode = ambientMode;
+                RenderSettings.ambientLight = ambientLight;
+                RenderSettings.fog = fog;
+                foreach (var r in hidden) if (r != null) r.forceRenderingOff = false;
+            }
         }
+
+        Light _light;
 
         // Sorts everything that moves or can be picked up into players / monsters / items.
         // Disabled categories (and your own character) are hidden from the graphic camera; enabled ones get dots.

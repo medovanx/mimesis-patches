@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Minimap 1.2.1
+- Graphic style: the level is lit evenly for the minimap render only (dark rooms no longer show black); the game's own view is unchanged.
+
 ## Minimap 1.2.0
 - Show options in the settings window: Players / Monsters / Items (off by default). Enabled ones get coloured dots, and models in Graphic style. Mimics count as monsters.
 
