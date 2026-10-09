@@ -31,6 +31,7 @@ var patches = new List<(string Name, string About, string[] Files, Action<string
     ("HostOptions", "Host: infinite stamina, starting money", new[] { "HostOptionsRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HostOptions")),
     ("HudPercent", "Health / radiation % on the HUD", new[] { "HudPercentRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HudPercent")),
     ("Inventory", "Host sets 1-8 slots (all players need it)", new[] { "InventoryRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Inventory")),
+    ("LateJoin", "Join a game in progress (all players need it)", new[] { "LateJoinRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "LateJoin")),
 };
 
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };

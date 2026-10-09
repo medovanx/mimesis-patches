@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## LateJoin 1.0.0
+- Join a game in progress: late joiners wait, then enter at the tram when the team returns. Host and joiner need it.
+
 ## Inventory 1.2.7
 - Stack counts / durability % follow their slot when fewer than 4 slots are shown.
 

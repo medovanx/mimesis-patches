@@ -17,6 +17,7 @@ Download **`MimesisPatchesInstaller.exe`** from the [Releases page](https://gith
 | [Minimap](Minimap/) | 1.4.0 | Optional | Optional | Minimap: explored or full map, plain or graphic, optional players/monsters/items |
 | [HostOptions](HostOptions/) | 1.1.0 | Yes | No | Host lobby options: infinite stamina, starting money (only the host needs it) |
 | [Inventory](Inventory/) | 1.2.7 | Yes | Yes | Host sets 1-8 inventory slots (2 × 4 grid); every player needs it |
+| [LateJoin](LateJoin/) | 1.0.0 | Yes | Yes | Join a game in progress; late joiners enter at the tram when the team returns |
 | [HudPercent](HudPercent/) | 1.1.2 | Optional | Optional | Health and radiation percentages next to the HUD bars |
 
 **Host / Player**: whether the host and the other players need the patch. *Yes* = required for it to work, *No* = not needed, *Optional* = a personal feature, install it if you want it.
