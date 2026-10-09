@@ -5,7 +5,7 @@
 //   host   InventoryController.Reset builds slots 1..4 (fixed loop)       -> 1..N
 //   client ProtoActor.Inventory sizes its list from gameConfig            -> N
 //   client UIPrefab_Inventory has 4 fixed slot widgets (InvenSlot1-4)     -> cloned up to 8, laid out 4 per row
-// The host picks N (lobby menu or Patches window). It's published in the Steam lobby data, and every
+// The host picks N in the Patches window (main menu). It's published in the Steam lobby data, and every
 // patched player reads it from there before their character's inventory is created.
 // Saves don't record slots (saved items are dropped in the lobby on load), so changing N never loses items.
 
@@ -29,7 +29,6 @@ namespace Inventory
         public const int Min = 1, Max = 8, PerRow = 4, Default = 4;
         const string PrefKey = "medovanx.Inventory.Slots";
         const string LobbyKey = "medovanx.invslots";
-        const string LobbyRow = "MedovanxInventorySlots";
 
         /// <summary>The host's setting (used when you host).</summary>
         public static int HostSlots
@@ -144,47 +143,10 @@ namespace Inventory
             mover.Offset = twoRows ? (Vector2)bar.parent.InverseTransformVector(second.position - row.position) : Vector2.zero;
         }
 
-        // ---------------- Host: lobby menu row ----------------
-
+        // Publish the host's number whenever the lobby/pause menu opens (the setting itself is in the Patches window).
         [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_InGameMenu), "OnEnable")]
-        static void AddLobbyRow(UIPrefab_InGameMenu __instance)
-        {
-            Publish();
-            var publicRoom = __instance.UE_PublicRoom as RectTransform;
-            var password = __instance.UE_RoomPassword as RectTransform;
-            if (publicRoom == null || password == null) return;
-            var row = publicRoom.parent.Find(LobbyRow) as RectTransform;
-            if (row == null)
-            {
-                float step = publicRoom.anchoredPosition.y - password.anchoredPosition.y;
-                // Below HostOptions' rows (stamina at 0.95 x step, money row under it).
-                row = (RectTransform)UnityEngine.Object.Instantiate(publicRoom.gameObject, publicRoom.parent, false).transform;
-                row.name = LobbyRow;
-                row.anchoredPosition = password.anchoredPosition - new Vector2(0f, step * 1.45f);
-                var toggle = row.GetComponentInChildren<Toggle>(true);
-                if (toggle != null) UnityEngine.Object.Destroy(toggle.gameObject);
-                if (row.Find("title") != null) UnityEngine.Object.Destroy(row.Find("title").gameObject);
-                var line = row.Find("RoomName");
-                var label = line != null ? line.GetComponentsInChildren<TMP_Text>(true)
-                    .FirstOrDefault(t => t.GetComponentInParent<TMP_InputField>() == null && t.GetComponentInParent<Button>() == null) : null;
-                if (label != null) label.text = "INVENTORY SLOTS (1-8):";
-                foreach (var b in row.GetComponentsInChildren<Button>(true)) b.gameObject.SetActive(false);
-                var input = row.GetComponentInChildren<TMP_InputField>(true);
-                input.onValueChanged.RemoveAllListeners();
-                input.onEndEdit.RemoveAllListeners();
-                input.onSubmit.RemoveAllListeners();
-                input.contentType = TMP_InputField.ContentType.IntegerNumber;
-                input.characterLimit = 1;
-                input.onEndEdit.AddListener(text =>
-                {
-                    HostSlots = int.TryParse(text, out var v) ? v : Default;
-                    input.SetTextWithoutNotify(HostSlots.ToString());
-                    Debug.Log($"[Inventory] Host set {HostSlots} slots (applies when characters spawn: next level or lobby reload)");
-                });
-            }
-            row.gameObject.SetActive(IsHost);
-            row.GetComponentInChildren<TMP_InputField>(true)?.SetTextWithoutNotify(HostSlots.ToString());
-        }
+        static void PublishOnMenu() => Publish();
+
     }
 
     // Keeps the stamina bar shifted by Offset, on top of whatever position its Animator (or layout) gives it.

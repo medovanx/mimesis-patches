@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.2.3
+- The slot count is set only in Patches → Inventory (removed from the lobby menu).
+
 ## Inventory 1.2.2
 - The stamina bar moves above the second slot row.
 

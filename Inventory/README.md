@@ -1,6 +1,6 @@
 # Inventory (InventoryPatcher)
 
-**Version 1.2.2**
+**Version 1.2.3**
 
 Lets the host set the inventory size to **1-8 slots**. More than 4 shows as a **2 × 4 grid** (slots 1-4 on the bottom row, 5-8 above).
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -10,7 +10,7 @@ By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 2. Put `InventoryPatcher.exe` next to `MIMESIS.exe` and run it.
 3. Choose install (`i`) or uninstall (`u`).
 
-**Every player needs it.** The host picks the number in the lobby menu (Esc → **INVENTORY SLOTS (1-8)**) or in **Patches → Inventory**; everyone else gets it from the host automatically. It takes effect when characters spawn (the next level, or after reloading the lobby).
+**Every player needs it.** The host picks the number in **Patches → Inventory** on the main menu; everyone else gets it from the host automatically. It takes effect when characters spawn (the next level, or after reloading the lobby).
 
 A player without the patch keeps 4 slots and can run into problems when the host's game hands them items in slots 5-8, so make sure everyone installs it before raising the number.
 
