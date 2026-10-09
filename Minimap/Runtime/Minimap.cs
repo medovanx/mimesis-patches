@@ -1,0 +1,240 @@
+// MIMESIS Minimap - top-right floor plan with your position
+// Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
+//
+// The map is drawn from the level's NavMesh (the walkable floor the game builds on every client at level
+// load), so it never contains players, mimics or monsters: only the layout and your own arrow.
+// Floors are separated by height, so only the floor you're on is shown.
+// Modes (switch by clicking the Minimap chip on the main menu, saved between sessions):
+//   Explored - floor appears as you walk near it (default)
+//   Whole    - the full floor plan from the start
+// M toggles the minimap on/off in game.
+
+using System;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+
+namespace Minimap
+{
+    sealed class Minimap : MonoBehaviour
+    {
+        public enum Mode { Explored, Whole }
+        const string ModeKey = "medovanx.Minimap.Mode";
+
+        public static Mode CurrentMode
+        {
+            get => (Mode)PlayerPrefs.GetInt(ModeKey, (int)Mode.Explored);
+            set { PlayerPrefs.SetInt(ModeKey, (int)value); PlayerPrefs.Save(); }
+        }
+
+        const int MaxTexSize = 512;          // map texture resolution (longest side)
+        const float ViewMeters = 50f;        // width of the area shown around you
+        const float RevealRadius = 7f;       // Explored mode: how far around you the floor gets revealed
+        const float FloorTolerance = 3f;     // vertical distance that still counts as "your floor"
+        const float SameFloor = 2f;          // heights closer than this share one slot
+        const float ScreenSize = 230f;
+
+        static readonly Color32 Empty = new Color32(0, 0, 0, 0);
+        static readonly Color32 Floor = new Color32(200, 200, 190, 220);
+        static readonly Color32 OtherFloor = new Color32(200, 200, 190, 45);
+
+        // Up to two floor heights per pixel (NaN = none), plus what has been explored on each.
+        float[] _h0, _h1;
+        bool[] _seen0, _seen1;
+        int _w, _h;
+        float _metersPerPixel;
+        Vector2 _origin;
+        Texture2D _tex;
+        Color32[] _pixels;
+        object _builtFor;
+
+        Canvas _canvas;
+        RawImage _map;
+        RectTransform _arrow;
+        bool _visible = true;
+        float _nextDraw;
+
+        public static void Create()
+        {
+            var go = new GameObject("MedovanxMinimap");
+            DontDestroyOnLoad(go);
+            go.AddComponent<Minimap>();
+        }
+
+        void Awake() => BuildUi();
+
+        void Update()
+        {
+            var kb = Keyboard.current;
+            if (kb != null && kb.mKey.wasPressedThisFrame) _visible = !_visible;
+
+            var scene = Hub.s?.pdata?.main as GamePlayScene;
+            var me = scene != null ? scene.GetMyAvatar() : null;
+            bool show = _visible && me != null && !me.dead && !(Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen);
+            if (scene == null) _builtFor = null;
+            if (show && _builtFor != scene && !BuildMap(scene)) show = false;
+            _canvas.enabled = show;
+            if (!show) return;
+
+            var pos = me.transform.position;
+            if (CurrentMode == Mode.Explored) Reveal(pos);
+            if (Time.unscaledTime >= _nextDraw)
+            {
+                _nextDraw = Time.unscaledTime + 0.2f;
+                Draw(pos.y);
+            }
+
+            // Keep the player in the centre; the arrow shows where you face (north-up map).
+            var uvSize = new Vector2(ViewMeters / (_w * _metersPerPixel), ViewMeters / (_h * _metersPerPixel));
+            var uvCenter = new Vector2((pos.x - _origin.x) / (_w * _metersPerPixel), (pos.z - _origin.y) / (_h * _metersPerPixel));
+            _map.uvRect = new Rect(uvCenter - uvSize / 2f, uvSize);
+            _arrow.localEulerAngles = new Vector3(0f, 0f, -me.transform.eulerAngles.y);
+        }
+
+        bool BuildMap(object scene)
+        {
+            var tri = NavMesh.CalculateTriangulation();
+            if (tri.vertices == null || tri.vertices.Length == 0) return false;
+
+            var min = new Vector2(float.MaxValue, float.MaxValue);
+            var max = new Vector2(float.MinValue, float.MinValue);
+            foreach (var v in tri.vertices)
+            {
+                min = Vector2.Min(min, new Vector2(v.x, v.z));
+                max = Vector2.Max(max, new Vector2(v.x, v.z));
+            }
+            var size = max - min;
+            _metersPerPixel = Mathf.Max(size.x, size.y, 1f) / MaxTexSize;
+            _w = Mathf.CeilToInt(size.x / _metersPerPixel) + 2;
+            _h = Mathf.CeilToInt(size.y / _metersPerPixel) + 2;
+            _origin = min - Vector2.one * _metersPerPixel;
+
+            int n = _w * _h;
+            _h0 = new float[n]; _h1 = new float[n];
+            for (int i = 0; i < n; i++) _h0[i] = _h1[i] = float.NaN;
+            _seen0 = new bool[n]; _seen1 = new bool[n];
+            for (int t = 0; t + 2 < tri.indices.Length; t += 3)
+                Rasterize(tri.vertices[tri.indices[t]], tri.vertices[tri.indices[t + 1]], tri.vertices[tri.indices[t + 2]]);
+
+            if (_tex != null) Destroy(_tex);
+            _tex = new Texture2D(_w, _h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            _pixels = new Color32[n];
+            _map.texture = _tex;
+            _builtFor = scene;
+            Debug.Log($"[Minimap] Map built: {_w}x{_h} px, {_metersPerPixel:0.00} m/px, {tri.indices.Length / 3} triangles");
+            return true;
+        }
+
+        void Rasterize(Vector3 a, Vector3 b, Vector3 c)
+        {
+            Vector2 P(Vector3 v) => new Vector2((v.x - _origin.x) / _metersPerPixel, (v.z - _origin.y) / _metersPerPixel);
+            Vector2 pa = P(a), pb = P(b), pc = P(c);
+            int x0 = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(pa.x, Mathf.Min(pb.x, pc.x))));
+            int x1 = Mathf.Min(_w - 1, Mathf.CeilToInt(Mathf.Max(pa.x, Mathf.Max(pb.x, pc.x))));
+            int y0 = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(pa.y, Mathf.Min(pb.y, pc.y))));
+            int y1 = Mathf.Min(_h - 1, Mathf.CeilToInt(Mathf.Max(pa.y, Mathf.Max(pb.y, pc.y))));
+            float area = (pb.x - pa.x) * (pc.y - pa.y) - (pc.x - pa.x) * (pb.y - pa.y);
+            if (Mathf.Abs(area) < 1e-6f) return;
+            for (int y = y0; y <= y1; y++)
+            for (int x = x0; x <= x1; x++)
+            {
+                var p = new Vector2(x + 0.5f, y + 0.5f);
+                float w0 = ((pb.x - p.x) * (pc.y - p.y) - (pc.x - p.x) * (pb.y - p.y)) / area;
+                float w1 = ((pc.x - p.x) * (pa.y - p.y) - (pa.x - p.x) * (pc.y - p.y)) / area;
+                float w2 = 1f - w0 - w1;
+                const float e = -0.35f;   // slight overlap so thin corridors don't break up
+                if (w0 < e || w1 < e || w2 < e) continue;
+                float height = w0 * a.y + w1 * b.y + w2 * c.y;
+                int i = y * _w + x;
+                if (float.IsNaN(_h0[i]) || Mathf.Abs(_h0[i] - height) < SameFloor) _h0[i] = float.IsNaN(_h0[i]) ? height : Mathf.Min(_h0[i], height);
+                else if (float.IsNaN(_h1[i]) || Mathf.Abs(_h1[i] - height) < SameFloor) _h1[i] = float.IsNaN(_h1[i]) ? height : Mathf.Min(_h1[i], height);
+            }
+        }
+
+        void Reveal(Vector3 pos)
+        {
+            int cx = Mathf.RoundToInt((pos.x - _origin.x) / _metersPerPixel);
+            int cy = Mathf.RoundToInt((pos.z - _origin.y) / _metersPerPixel);
+            int r = Mathf.CeilToInt(RevealRadius / _metersPerPixel);
+            for (int y = Mathf.Max(0, cy - r); y <= Mathf.Min(_h - 1, cy + r); y++)
+            for (int x = Mathf.Max(0, cx - r); x <= Mathf.Min(_w - 1, cx + r); x++)
+            {
+                if ((x - cx) * (x - cx) + (y - cy) * (y - cy) > r * r) continue;
+                int i = y * _w + x;
+                if (Mathf.Abs(_h0[i] - pos.y) < FloorTolerance) _seen0[i] = true;
+                if (Mathf.Abs(_h1[i] - pos.y) < FloorTolerance) _seen1[i] = true;
+            }
+        }
+
+        void Draw(float myY)
+        {
+            bool whole = CurrentMode == Mode.Whole;
+            for (int i = 0; i < _pixels.Length; i++)
+            {
+                bool on0 = !float.IsNaN(_h0[i]) && (whole || _seen0[i]);
+                bool on1 = !float.IsNaN(_h1[i]) && (whole || _seen1[i]);
+                if ((on0 && Mathf.Abs(_h0[i] - myY) < FloorTolerance) || (on1 && Mathf.Abs(_h1[i] - myY) < FloorTolerance)) _pixels[i] = Floor;
+                else if (on0 || on1) _pixels[i] = OtherFloor;   // other floors, faint
+                else _pixels[i] = Empty;
+            }
+            _tex.SetPixels32(_pixels);
+            _tex.Apply(false);
+        }
+
+        void BuildUi()
+        {
+            _canvas = new GameObject("MinimapCanvas", typeof(Canvas), typeof(CanvasScaler)).GetComponent<Canvas>();
+            _canvas.transform.SetParent(transform, false);
+            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _canvas.sortingOrder = 50;
+            var scaler = _canvas.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 1f;
+
+            // Dark frame in the top-right corner.
+            var frame = new GameObject("Frame", typeof(RectTransform), typeof(Image), typeof(RectMask2D)).GetComponent<RectTransform>();
+            frame.SetParent(_canvas.transform, false);
+            frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(1f, 1f);
+            frame.anchoredPosition = new Vector2(-24f, -24f);
+            frame.sizeDelta = new Vector2(ScreenSize, ScreenSize);
+            var bg = frame.GetComponent<Image>();
+            bg.color = new Color(0f, 0f, 0f, 0.55f);
+            bg.raycastTarget = false;
+
+            _map = new GameObject("Map", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
+            var mapRt = _map.rectTransform;
+            mapRt.SetParent(frame, false);
+            mapRt.anchorMin = Vector2.zero; mapRt.anchorMax = Vector2.one;
+            mapRt.offsetMin = mapRt.offsetMax = Vector2.zero;
+            _map.raycastTarget = false;
+
+            _arrow = new GameObject("You", typeof(RectTransform), typeof(RawImage)).GetComponent<RectTransform>();
+            _arrow.SetParent(frame, false);
+            _arrow.sizeDelta = new Vector2(18f, 18f);
+            var arrowImg = _arrow.GetComponent<RawImage>();
+            arrowImg.texture = ArrowTexture();
+            arrowImg.raycastTarget = false;
+            _canvas.enabled = false;
+        }
+
+        // A small upward-pointing triangle (rotated to your facing).
+        static Texture2D ArrowTexture()
+        {
+            const int s = 32;
+            var tex = new Texture2D(s, s, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear };
+            var px = new Color32[s * s];
+            for (int y = 0; y < s; y++)
+            for (int x = 0; x < s; x++)
+            {
+                float halfWidth = (s - 1 - y) * 0.5f * 0.75f;   // wide at the bottom, point at the top
+                bool inside = y > 2 && Math.Abs(x - (s - 1) / 2f) <= halfWidth;
+                px[y * s + x] = inside ? new Color32(255, 196, 64, 255) : new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(px);
+            tex.Apply(false);
+            return tex;
+        }
+    }
+}

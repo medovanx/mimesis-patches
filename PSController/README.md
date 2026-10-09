@@ -1,6 +1,6 @@
 # PSController (PSControllerPatcher)
 
-**Version 1.1.0**
+**Version 1.2.0**
 
 Shows PlayStation button icons (✕ ○ □ △, L1/R1/L2/R2, L3/R3) instead of Xbox ones in MIMESIS.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).

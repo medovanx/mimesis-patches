@@ -2,6 +2,19 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## SpectatorCam 1.0.0
+- Free camera for dead players (F / R3), within 8 m of the spectated player and never through walls.
+
+## Minimap 1.0.0
+- Top-right floor-plan minimap built from the level's NavMesh: layout and your own arrow only.
+- Explored-only or whole-map mode, switched by clicking the Minimap chip on the main menu. M toggles it in game.
+
+## BiggerLobby 1.2.0
+- Main menu chip turns orange when a newer release is available.
+
+## PSController 1.2.0
+- Main menu chip turns orange when a newer release is available.
+
 ## BiggerLobby 1.1.0
 - Shows a "BiggerLobby v1.1.0" chip in the bottom-left of the main menu; clicking it opens this repo.
 - Lobby list: "Copy invite code" centred under the player slots.

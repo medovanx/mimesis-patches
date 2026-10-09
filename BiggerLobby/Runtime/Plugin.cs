@@ -21,7 +21,7 @@ namespace BiggerLobby
             try
             {
                 new Harmony("medovanx.biggerlobby").PatchAll(typeof(Plugin).Assembly);
-                PatchChip.Register("BiggerLobby v" + typeof(Plugin).Assembly.GetName().Version.ToString(3));
+                MimesisPatches.PatchChip.Register("BiggerLobby", typeof(Plugin).Assembly.GetName().Version);
                 Debug.Log($"[BiggerLobby] v{typeof(Plugin).Assembly.GetName().Version.ToString(3)}: patches applied ({MaxPlayers} players)");
             }
             catch (Exception e)

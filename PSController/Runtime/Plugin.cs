@@ -12,7 +12,7 @@ namespace PSController
         {
             if (_initialized) return;
             _initialized = true;
-            PatchChip.Register("PSController v" + typeof(Plugin).Assembly.GetName().Version.ToString(3));
+            MimesisPatches.PatchChip.Register("PSController", typeof(Plugin).Assembly.GetName().Version);
         }
     }
 }
