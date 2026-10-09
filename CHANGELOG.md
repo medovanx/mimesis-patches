@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Installer 2.1.0
+- Lists the LateJoin patch.
+
 ## LateJoin 1.0.0
 - Join a game in progress: late joiners wait, then enter at the tram when the team returns. Host and joiner need it.
 
