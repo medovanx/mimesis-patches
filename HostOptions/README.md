@@ -1,6 +1,6 @@
 # HostOptions (HostOptionsPatcher)
 
-**Version 1.0.2**
+**Version 1.0.3**
 
 Extra lobby options for the host: **infinite stamina** and **starting money**.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
@@ -19,7 +19,7 @@ Other players never see these controls and don't need the patch. Settings are sa
 ## How it works
 Both are simulated on the host, and every player's game only displays what the host sends:
 - **Stamina**: the server-side movement code drains it through `StatController.ConsumeStamina`. While the option is on, the host skips that for players (`VPlayer`). Monsters are unaffected.
-- **Money**: the lobby room (`MaintenanceRoom`) sets its funds from `C_InitialMoney` when it's created and when a new run starts. The patch replaces that value. Changing it in the lobby before the run's first departure also adjusts the current funds by the difference (money already spent stays spent). `Player.log` notes each change.
+- **Money**: the lobby room (`MaintenanceRoom`) sets its funds from `C_InitialMoney` when it's created and when a new run starts. The patch replaces that value. Changing it in the lobby before the run's first departure also sets the current funds to that amount. `Player.log` notes each change.
 
 ## Files installed
 - `MIMESIS_Data/Managed/HostOptionsRuntime.dll`, `0Harmony.dll`

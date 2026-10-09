@@ -63,16 +63,16 @@ namespace HostOptions
         [HarmonyPostfix, HarmonyPatch(typeof(MaintenanceRoom), MethodType.Constructor, typeof(VRoomManager), typeof(long), typeof(IVRoomProperty))]
         static void TrackRoom(MaintenanceRoom __instance) => _room = __instance;
 
-        // Changing the value in the lobby also updates the current funds by the difference (so money already
-        // spent stays spent), but only before the run's first departure.
+        // Changing the value in the lobby also sets the current funds to it, but only before the run's first departure.
         static void ApplyNow(int value)
         {
             if (_room == null) { Debug.Log("[HostOptions] Starting money saved; no lobby room yet, applies to the next run"); return; }
             if (_room._everDeparted) { Debug.Log("[HostOptions] Starting money saved; this run already departed, applies to the next run"); return; }
-            int previous = _lastStart >= 0 ? _lastStart : DefaultMoney;
+            // Set the funds to the amount (a continued save loads its own funds, so a difference-based
+            // adjustment can't know what the run "started" with).
             _lastStart = value;
-            _room.AddCurrency(value - previous);
-            Debug.Log($"[HostOptions] Funds adjusted by {value - previous} to {_room.Currency}");
+            _room.AddCurrency(value - _room.Currency);
+            Debug.Log($"[HostOptions] Funds set to {_room.Currency}");
         }
 
         // ---------------- Lobby menu controls (host only) ----------------
