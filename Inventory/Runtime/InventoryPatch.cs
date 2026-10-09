@@ -120,6 +120,7 @@ namespace Inventory
             if (slots.Count == 0) return;
             var second = slots[0].frame.transform.parent.parent.parent.Find(SecondRow);
             if (second != null) second.gameObject.SetActive(count > PerRow);
+            MoveStaminaBar(slots[0].frame.transform.parent.parent as RectTransform, second as RectTransform, count > PerRow);
             for (int i = 0; i < slots.Count; i++)
             {
                 // A slot's stack count isn't under its InvenSlot object, so toggle both.
@@ -129,6 +130,33 @@ namespace Inventory
                 if (slot.stackCount != null) slot.stackCount.gameObject.SetActive(on);
                 if (!on && slot.waitEvent != null) slot.waitEvent.gameObject.SetActive(false);
             }
+        }
+
+        // The stamina bar sits just above the slot row; with a second row it would end up between the rows, so it
+        // moves up by the distance between the two rows (and back when there's only one row).
+        static RectTransform _stamina;
+        static Vector2 _staminaPos;
+        static bool _staminaMoved;
+
+        static void MoveStaminaBar(RectTransform row, RectTransform second, bool twoRows)
+        {
+            if (_stamina == null)
+            {
+                var hud = UnityEngine.Object.FindAnyObjectByType<UIPrefab_InGame>();
+                _stamina = hud != null && hud.staminaGauge != null ? hud.staminaGauge.transform as RectTransform : null;
+                if (_stamina == null) return;
+                _staminaPos = _stamina.anchoredPosition;
+                _staminaMoved = false;
+            }
+            if (twoRows == _staminaMoved || row == null || second == null) return;
+            if (twoRows)
+            {
+                var worldUp = second.position - row.position;   // one row height, in world units
+                var local = _stamina.parent.InverseTransformVector(worldUp);
+                _stamina.anchoredPosition = _staminaPos + new Vector2(0f, local.y);
+            }
+            else _stamina.anchoredPosition = _staminaPos;
+            _staminaMoved = twoRows;
         }
 
         // ---------------- Host: lobby menu row ----------------

@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.2.1
+- The stamina bar moves above the second slot row.
+
 ## Inventory 1.2.0
 - Fixed the 5-8 slot layout: slots 1-4 stay exactly as the game draws them, slots 5-8 are a copy of that row placed above.
 
