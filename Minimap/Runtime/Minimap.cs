@@ -63,6 +63,8 @@ namespace Minimap
         static readonly Color MonsterDot = new Color(1f, 0.25f, 0.2f, 1f);
         static readonly Color ItemDot = new Color(1f, 0.85f, 0.2f, 1f);
         const float DotSize = 7f;
+        const float LegendHeight = 26f;
+        static readonly Color YouColor = new Color(1f, 0.77f, 0.25f, 1f);
         static readonly Color32 Unexplored = new Color32(0, 0, 0, 235);   // graphic + explored: darkens unvisited areas
 
         const int GraphicSize = 400;           // render texture resolution for the graphic view (covers GraphicMargin x the visible area)
@@ -91,7 +93,8 @@ namespace Minimap
         readonly List<(Transform t, Color color, bool shown)> _things = new List<(Transform, Color, bool)>();
         readonly List<Renderer> _hiddenRenderers = new List<Renderer>();
         readonly List<RawImage> _dots = new List<RawImage>();
-        RectTransform _frame;
+        RectTransform _frame, _legend;
+        string _legendKey;
         Texture2D _dotTex;
         RectTransform _arrow;
         bool _visible = true;
@@ -130,6 +133,7 @@ namespace Minimap
                 Draw(pos.y, graphic);
             }
             if (Time.unscaledTime >= _nextActorScan) Scan(me);
+            Legend();
             Dots(pos);
             _graphic.enabled = graphic;
             _map.enabled = !graphic || CurrentReveal == Reveal.Explored;   // in graphic mode the map is only the fog overlay
@@ -313,7 +317,7 @@ namespace Minimap
             var frame = new GameObject("Frame", typeof(RectTransform), typeof(Image), typeof(RectMask2D)).GetComponent<RectTransform>();
             frame.SetParent(_canvas.transform, false);
             frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(0f, 0f);
-            frame.anchoredPosition = new Vector2(24f, 24f);
+            frame.anchoredPosition = new Vector2(24f, 24f + LegendHeight);
             frame.sizeDelta = new Vector2(ScreenSize, ScreenSize);
             _frame = frame;
             _dotTex = DotTexture();
@@ -456,6 +460,56 @@ namespace Minimap
             }
             for (int i = used; i < _dots.Count; i++) _dots[i].enabled = false;
             _arrow.SetAsLastSibling();
+        }
+
+        // "You" plus each enabled category, with its colour, in one row under the map.
+        void Legend()
+        {
+            var key = $"{ShowPlayers}{ShowMonsters}{ShowItems}";
+            if (key == _legendKey) return;
+            _legendKey = key;
+            if (_legend == null)
+            {
+                _legend = new GameObject("Legend", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                _legend.SetParent(_canvas.transform, false);
+                _legend.anchorMin = _legend.anchorMax = _legend.pivot = Vector2.zero;
+                _legend.anchoredPosition = new Vector2(24f, 24f);
+                _legend.sizeDelta = new Vector2(ScreenSize, LegendHeight - 4f);
+                var bg = _legend.GetComponent<Image>();
+                bg.color = new Color(0f, 0f, 0f, 0.55f);
+                bg.raycastTarget = false;
+                var layout = _legend.gameObject.AddComponent<HorizontalLayoutGroup>();
+                layout.padding = new RectOffset(8, 8, 2, 2);
+                layout.spacing = 4f;
+                layout.childAlignment = TextAnchor.MiddleLeft;
+                layout.childControlWidth = layout.childControlHeight = true;
+                layout.childForceExpandWidth = layout.childForceExpandHeight = false;
+            }
+            foreach (Transform child in _legend) Destroy(child.gameObject);
+
+            var font = FindAnyObjectByType<TMPro.TMP_Text>()?.font;
+            void Entry(string label, Color color)
+            {
+                var dot = new GameObject("Dot", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
+                dot.transform.SetParent(_legend, false);
+                dot.texture = _dotTex;
+                dot.color = color;
+                dot.raycastTarget = false;
+                var el = dot.gameObject.AddComponent<LayoutElement>();
+                el.preferredWidth = el.preferredHeight = DotSize + 1f;
+                var text = new GameObject("Label", typeof(RectTransform)).AddComponent<TMPro.TextMeshProUGUI>();
+                text.transform.SetParent(_legend, false);
+                if (font != null) text.font = font;
+                text.fontSize = 13f;
+                text.color = new Color(0.9f, 0.92f, 0.88f, 1f);
+                text.text = label;
+                text.raycastTarget = false;
+                text.gameObject.AddComponent<LayoutElement>().preferredWidth = text.GetPreferredValues(label).x + 6f;
+            }
+            Entry("You", YouColor);
+            if (ShowPlayers) Entry("Players", PlayerDot);
+            if (ShowMonsters) Entry("Monsters", MonsterDot);
+            if (ShowItems) Entry("Items", ItemDot);
         }
 
         static Texture2D DotTexture()

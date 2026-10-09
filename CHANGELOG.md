@@ -2,6 +2,12 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Stamina 1.0.0
+- Host-only "Infinite Stamina" checkbox in the lobby menu. Stamina runs on the host, so other players don't need the patch.
+
+## Minimap 1.3.0
+- Colour legend under the map: You, plus Players / Monsters / Items when enabled.
+
 ## Minimap 1.2.2
 - Graphic style scrolls smoothly: each render covers a larger area and the image slides with you between renders.
 
