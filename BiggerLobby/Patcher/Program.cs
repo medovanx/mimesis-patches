@@ -4,11 +4,13 @@
 using System;
 using System.IO;
 using System.Linq;
+
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-// Usage: MorePlayersPatcher [maxPlayers] [path to Assembly-CSharp.dll]
-// With no max, asks for it. With no path, looks next to the exe, then in MIMESIS_Data\Managed below it.
+// Usage: MorePlayersPatcher [path to Assembly-CSharp.dll]
+// With no path, looks next to the exe, then in MIMESIS_Data\Managed below it.
+// The limit is fixed at 10: the UI patches in BiggerLobbyRuntime are laid out for exactly 10 players.
 Console.Title = "MIMESIS More Players Patcher";
 Console.WriteLine("MIMESIS More Players Patcher");
 Console.WriteLine("by Mohamed Darwesh (@medovanx) - github.com/medovanx");
@@ -32,7 +34,7 @@ try { Console.ReadKey(true); } catch (InvalidOperationException) { }
 static void Run(string[] args)
 {
     var here = AppContext.BaseDirectory;
-    var dll = args.Length > 1 ? args[1] : new[] {
+    var dll = args.Length > 0 ? args[0] : new[] {
         Path.Combine(here, "Assembly-CSharp.dll"),
         Path.Combine(here, "MIMESIS_Data", "Managed", "Assembly-CSharp.dll"),
     }.FirstOrDefault(File.Exists);
@@ -42,7 +44,8 @@ static void Run(string[] args)
         return;
     }
 
-    int max = args.Length > 0 && int.TryParse(args[0], out var a) ? a : AskMax();
+    const int max = 10;
+    var managed = Path.GetDirectoryName(dll);
 
     var bak = dll + ".bak";
     if (!File.Exists(bak)) File.Copy(dll, bak);
@@ -117,6 +120,22 @@ static void Run(string[] args)
         return;
     }
 
+    // Start the UI patches (BiggerLobbyRuntime.dll, via Harmony) from Hub.Awake.
+    var awake = module.GetType("Hub").Methods.First(m => m.Name == "Awake" && !m.HasParameters);
+    bool hooked = awake.Body.Instructions[0].Operand is MethodReference h && h.DeclaringType.FullName == "BiggerLobby.Plugin";
+    if (!hooked)
+    {
+        using var rt = AssemblyDefinition.ReadAssembly(Resource("BiggerLobbyRuntime.dll"), new ReaderParameters { AssemblyResolver = resolver });
+        var init = module.ImportReference(rt.MainModule.GetType("BiggerLobby.Plugin").Methods.First(m => m.Name == "Init"));
+        awake.Body.GetILProcessor().InsertBefore(awake.Body.Instructions[0], Instruction.Create(OpCodes.Call, init));
+    }
+    foreach (var name in new[] { "BiggerLobbyRuntime.dll", "0Harmony.dll" })
+    {
+        using var s = Resource(name);
+        using var f = File.Create(Path.Combine(managed, name));
+        s.CopyTo(f);
+    }
+
     var tmp = dll + ".tmp";
     asm.Write(tmp);
     File.Copy(tmp, dll, true);
@@ -127,20 +146,12 @@ static void Run(string[] args)
     Console.WriteLine($"SUCCESS! Max players set to {max}.");
     Console.ResetColor();
     Console.WriteLine($"Patched {checks} player-limit checks and the Steam lobby size.");
+    Console.WriteLine("Installed UI support for 10 players (lobby list, result screens).");
     Console.WriteLine($"Original file backed up to: {bak}");
 }
 
-static int AskMax()
-{
-    while (true)
-    {
-        Console.Write("Max players (2-32, Enter for 10): ");
-        var s = Console.ReadLine()?.Trim();
-        if (string.IsNullOrEmpty(s)) return 10;
-        if (int.TryParse(s, out var n) && n >= 2 && n <= 32) return n;
-        Console.WriteLine("Please enter a number between 2 and 32.");
-    }
-}
+static Stream Resource(string name) => System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(name)
+    ?? throw new InvalidOperationException("Missing embedded resource " + name);
 
 static void Fail(string msg)
 {

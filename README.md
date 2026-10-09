@@ -6,7 +6,7 @@ No mod loader is needed. Each patch is a standalone exe that edits `MIMESIS_Data
 
 | Patch | What it does |
 |---|---|
-| [BiggerLobby](BiggerLobby/) | Raises the lobby limit from 4 to a chosen player count (default 10) |
+| [BiggerLobby](BiggerLobby/) | 10-player lobbies, with UI for 10 and difficulty that scales with player count |
 | [PSController](PSController/) | Replaces Xbox button icons with PlayStation icons |
 
 Each patch has its own folder and README. Build with the .NET 10 SDK; the `.csproj` files expect the game at `O:\Games\MIMESIS v0.3.1`, so change the paths there if yours is elsewhere.
