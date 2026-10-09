@@ -1,8 +1,8 @@
 # Minimap (MinimapPatcher)
 
-**Version 1.0.0**
+**Version 1.0.4**
 
-A floor-plan minimap in the top-right corner with your position and facing.
+A floor-plan minimap in the bottom-left corner with your position and facing.
 By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use

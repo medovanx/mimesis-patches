@@ -6,7 +6,7 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - Free camera for dead players (F / R3), within 8 m of the spectated player and never through walls.
 
 ## Minimap 1.0.0
-- Top-right floor-plan minimap built from the level's NavMesh: layout and your own arrow only.
+- Bottom-left floor-plan minimap built from the level's NavMesh: layout and your own arrow only.
 - Explored-only or whole-map mode, switched by clicking the Minimap chip on the main menu. M toggles it in game.
 
 ## BiggerLobby 1.2.0

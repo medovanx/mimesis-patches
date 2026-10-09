@@ -1,4 +1,4 @@
-// MIMESIS Minimap - top-right floor plan with your position
+// MIMESIS Minimap - bottom-left floor plan with your position
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
 // The map is drawn from the level's NavMesh (the walkable floor the game builds on every client at level
@@ -243,11 +243,11 @@ namespace Minimap
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 1f;
 
-            // Dark frame in the top-right corner.
+            // Dark frame in the bottom-left corner.
             var frame = new GameObject("Frame", typeof(RectTransform), typeof(Image), typeof(RectMask2D)).GetComponent<RectTransform>();
             frame.SetParent(_canvas.transform, false);
-            frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(1f, 1f);
-            frame.anchoredPosition = new Vector2(-24f, -24f);
+            frame.anchorMin = frame.anchorMax = frame.pivot = new Vector2(0f, 0f);
+            frame.anchoredPosition = new Vector2(24f, 24f);
             frame.sizeDelta = new Vector2(ScreenSize, ScreenSize);
             var bg = frame.GetComponent<Image>();
             bg.color = new Color(0f, 0f, 0f, 0.55f);
