@@ -1,18 +1,27 @@
 <Project>
-  <!-- Every patch runtime (<Patch>Runtime.dll) is a BepInEx 5 plugin: Common/BepInExPlugin.cs is its entry point,
-       and it uses BepInEx's own Harmony (HarmonyX). -->
+  <!-- Every patch runtime (<Patch>Runtime.dll) is a MelonLoader mod: Common/MelonEntry.cs is its entry point, and it
+       uses MelonLoader's own Harmony. The MelonInfo attribute is generated from the project's name and version. -->
   <PropertyGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
     <PatchName>$(AssemblyName.Replace('Runtime', ''))</PatchName>
-    <BepInExPluginGuid>medovanx.$(PatchName)</BepInExPluginGuid>
-    <BepInExPluginName>$(PatchName)</BepInExPluginName>
-    <BepInExPluginVersion>$(Version)</BepInExPluginVersion>
-    <RootNamespace>MimesisPatches</RootNamespace>   <!-- MyPluginInfo is generated here -->
   </PropertyGroup>
   <ItemGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
     <PackageReference Remove="Lib.Harmony" />
-    <PackageReference Include="BepInEx.Core" Version="5.4.21" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all" />
+    <PackageReference Include="LavaGang.MelonLoader" Version="0.7.3" PrivateAssets="all" ExcludeAssets="runtime" />
     <Reference Include="UnityEngine"><HintPath>$(Managed)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
-    <Compile Include="$(MSBuildThisFileDirectory)Common\BepInExPlugin.cs" Link="Common\BepInExPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MelonEntry.cs" Link="Common\MelonEntry.cs" />
+    <AssemblyAttribute Include="MelonLoader.MelonInfoAttribute">
+      <_Parameter1>typeof(MimesisPatches.MelonEntry)</_Parameter1>
+      <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+      <_Parameter2>$(PatchName)</_Parameter2>
+      <_Parameter3>$(Version)</_Parameter3>
+      <_Parameter4>medovanx</_Parameter4>
+      <_Parameter5>https://github.com/medovanx/mimesis-patches</_Parameter5>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="MelonLoader.MelonGameAttribute">
+      <_Parameter1>ReLUGames</_Parameter1>
+      <_Parameter2>MIMESIS</_Parameter2>
+    </AssemblyAttribute>
+    <!-- Each patch applies its Harmony patches itself, in Plugin.Init at Hub.Awake; don't let MelonLoader do it too. -->
+    <AssemblyAttribute Include="MelonLoader.HarmonyDontPatchAllAttribute" />
   </ItemGroup>
 </Project>

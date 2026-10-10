@@ -19,7 +19,7 @@ namespace LateJoin
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.latejoin").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.latejoin").PatchAll(typeof(Plugin).Assembly);
                 var go = new GameObject("MedovanxLateJoin");
                 UnityEngine.Object.DontDestroyOnLoad(go);
                 go.AddComponent<Ticker>();

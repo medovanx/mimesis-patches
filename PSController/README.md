@@ -15,7 +15,7 @@ The full icon set:
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `PSControllerRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`. Also unzip `PSIcons.zip` into a `PSIcons` folder next to the DLL.
+Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `PSControllerRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## Controller setup
 Use **DS4Windows** so your PS4/PS5 controller is read reliably:
@@ -31,8 +31,6 @@ Use **DS4Windows** so your PS4/PS5 controller is read reliably:
 | L2 / R2 | L2 / R2 |
 | L3 / R3 (stick clicks) | L3 / R3 |
 
-You can replace the icons in `MIMESIS_Data/PSIcons/` (74×74 PNGs) with your own.
-
 ## Options
 
 ![Patches > PSController settings](screenshots/settings.png)
@@ -40,10 +38,10 @@ You can replace the icons in `MIMESIS_Data/PSIcons/` (74×74 PNGs) with your own
 **Patches > PSController** on the main menu: turn it on/off.
 
 ## Troubleshooting
-`Player.log` has a `[PSController] Gamepads: ...` line showing which pad the game uses. To log every button press, create an empty `MIMESIS_Data/PSIcons/debug.txt`; delete it when done.
+`Player.log` has a `[PSController] Gamepads: ...` line showing which pad the game uses. To log every button press, create an empty `PSController-debug.txt` in the `Mods` folder; delete it when done.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `PSControllerRuntime.dll` from `BepInEx\plugins`.
+Use the installer's **Uninstall selected**, or delete `PSControllerRuntime.dll` from the game's `Mods` folder.
 
 ## Build
 `dotnet build -c Release` in `Runtime`.

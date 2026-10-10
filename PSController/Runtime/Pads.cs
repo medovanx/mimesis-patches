@@ -38,8 +38,8 @@ namespace PSController
             }
         }
 
-        // Logs every gamepad press to Player.log while PSIcons/debug.txt (next to the plugin) exists.
+        // Logs every gamepad press to Player.log while PSController-debug.txt exists next to the mod DLL.
         static int _lastFrame = -1;
-        static readonly bool Debug_ = System.IO.File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(Pads).Assembly.Location), "PSIcons", "debug.txt"));
+        static readonly bool Debug_ = System.IO.File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(Pads).Assembly.Location), "PSController-debug.txt"));
     }
 }

@@ -1,17 +1,19 @@
 # MIMESIS Patches
 
-Patches for MIMESIS (EA 0.3.1). Each patch is a [BepInEx 5](https://github.com/BepInEx/BepInEx) plugin, your game files are never modified, and you can combine any of them.
+Patches for MIMESIS (EA 0.3.1). Each patch is a [MelonLoader](https://github.com/LavaGang/MelonLoader) mod, your game files are never modified, and you can combine any of them.
 
 ![Main menu with the Patches chip bottom-left, and the Patches window open](screenshots/menu.png)
 
 ## Install
 1. Download **`MimesisPatchesInstaller.exe`** from the [Releases page](https://github.com/medovanx/mimesis-patches/releases).
-2. Run it, tick the patches you want and click **Install / update selected**. It installs BepInEx for you if you don't have it. See [Installer](Installer/).
+2. Run it, tick the patches you want and click **Install / update selected**. It installs MelonLoader for you if you don't have it, and moves older installs over automatically. See [Installer](Installer/).
 3. In game, click the **Patches** chip in the bottom-left of the main menu to turn patches on/off and change their options. It turns orange when an update is available.
 
 ![Installer window](Installer/screenshots/installer.png)
 
-To install by hand instead: install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder and run the game once, then copy `<Patch>Runtime.dll` from the patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins` (PSController also needs its `PSIcons.zip` unzipped into a `PSIcons` folder next to the DLL). Thunderstore / r2modman packages are coming.
+The mods are also coming to Thunderstore (team medovanx, MIMESIS community), so you'll be able to install them with r2modman or Gale.
+
+To install by hand instead: install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder and run the game once, then copy `<Patch>Runtime.dll` from the patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## Patches
 
@@ -41,9 +43,9 @@ To install by hand instead: install [BepInEx 5](https://github.com/BepInEx/BepIn
 </table>
 
 ## Uninstall
-Run the installer and click **Uninstall selected** or **Uninstall all**, or delete the patch's DLL from `BepInEx\plugins`. BepInEx stays installed.
+Run the installer and click **Uninstall selected** or **Uninstall all**, or delete the patch's DLL from the game's `Mods` folder. MelonLoader stays installed.
 
 ## Build
-Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `MIMESIS.exe`) and run `dotnet build -c Release` in `<Patch>/Runtime`. The builds find the game on their own; to build from elsewhere, pass `-p:GameDir="<path to the MIMESIS folder>\"`. BepInEx packages come from nuget.bepinex.dev (see `NuGet.config`). `Common/` holds code shared by all patches.
+Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `MIMESIS.exe`) and run `dotnet build -c Release` in `<Patch>/Runtime`. The builds find the game on their own; to build from elsewhere, pass `-p:GameDir="<path to the MIMESIS folder>\"`. The MelonLoader reference comes from NuGet (`LavaGang.MelonLoader`). `Common/` holds code shared by all patches.
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.

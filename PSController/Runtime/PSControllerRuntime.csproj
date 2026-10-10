@@ -2,6 +2,7 @@
   <PropertyGroup>
     <Version>1.4.0</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>   <!-- MelonLoader package is compile-only; its dependency versions do not matter here -->
     <AssemblyName>PSControllerRuntime</AssemblyName>
     <Authors>Mohamed Darwesh</Authors>
     <Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
@@ -20,5 +21,7 @@
     <Reference Include="UnityEngine.UIModule"><HintPath>$(Managed)\UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(Managed)\UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Unity.TextMeshPro"><HintPath>$(Managed)\Unity.TextMeshPro.dll</HintPath><Private>false</Private></Reference>
+    <!-- PlayStation icons, embedded so the mod is a single DLL. -->
+    <EmbeddedResource Include="..\Icons\*.png" LogicalName="PSIcons.%(Filename).png" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@
 **Only the host needs it.**
 
 ## Install
-Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `ReviveRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
+Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `ReviveRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## Options
 
@@ -23,4 +23,4 @@ Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/Be
 There's no progress bar yet; just stay next to the body.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `ReviveRuntime.dll` from `BepInEx\plugins`.
+Use the installer's **Uninstall selected**, or delete `ReviveRuntime.dll` from the game's `Mods` folder.

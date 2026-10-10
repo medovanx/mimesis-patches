@@ -20,7 +20,7 @@ namespace HostOptions
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.hostoptions").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.hostoptions").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("HostOptions", version, build: (page, font) =>
                 {
                     MimesisPatches.PatchUi.Section(page, font, "Lobby");

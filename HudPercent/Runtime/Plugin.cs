@@ -19,7 +19,7 @@ namespace HudPercent
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.hudpercent").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.hudpercent").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("HudPercent", version,
                     status: () => HudPercentPatch.Enabled ? "Health and radiation % next to the HUD bars" : "Off",
                     build: (page, font) =>

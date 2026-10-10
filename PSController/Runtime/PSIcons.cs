@@ -45,16 +45,20 @@ namespace PSController
         static void Load()
         {
             _sprites = new Dictionary<string, Sprite>();
-            var dir = Path.Combine(Path.GetDirectoryName(typeof(PSIcons).Assembly.Location), "PSIcons");   // next to the plugin DLL
+            var asm = typeof(PSIcons).Assembly;   // the icons are embedded in this DLL (PSIcons.<name>.png)
             var byFile = new Dictionary<string, Sprite>();
             foreach (var kv in Files)
             {
                 if (!byFile.TryGetValue(kv.Value, out var sprite))
                 {
-                    var path = Path.Combine(dir, kv.Value + ".png");
-                    if (!File.Exists(path)) continue;
+                    byte[] png;
+                    using (var stream = asm.GetManifestResourceStream("PSIcons." + kv.Value + ".png"))
+                    {
+                        if (stream == null) continue;
+                        using (var ms = new MemoryStream()) { stream.CopyTo(ms); png = ms.ToArray(); }
+                    }
                     var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                    tex.LoadImage(File.ReadAllBytes(path));
+                    tex.LoadImage(png);
                     tex.filterMode = FilterMode.Bilinear;
                     sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
                     sprite.name = "PS_" + kv.Value;
@@ -62,7 +66,7 @@ namespace PSController
                 }
                 _sprites[kv.Key] = sprite;
             }
-            Debug.Log($"[PSController] v{typeof(PSIcons).Assembly.GetName().Version.ToString(3)}: loaded {byFile.Count} PlayStation icons from {dir}");
+            Debug.Log($"[PSController] v{typeof(PSIcons).Assembly.GetName().Version.ToString(3)}: loaded {byFile.Count} PlayStation icons");
         }
     }
 }

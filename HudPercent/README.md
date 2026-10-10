@@ -11,7 +11,7 @@ Shows your **health** and **radiation** as percentages next to the bars in the t
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `HudPercentRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
+Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `HudPercentRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## What you see
 - **Health**: how much you have left (100% = full).
@@ -24,4 +24,4 @@ Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/Be
 **Patches > HudPercent** on the main menu: turn it on/off.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `HudPercentRuntime.dll` from `BepInEx\plugins`.
+Use the installer's **Uninstall selected**, or delete `HudPercentRuntime.dll` from the game's `Mods` folder.

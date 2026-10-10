@@ -9,7 +9,7 @@ Lets friends **join a game that's already running**. If the team is in a level, 
 **The host and the joining player both need it.**
 
 ## Install
-Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `LateJoinRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
+Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `LateJoinRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## Options
 
@@ -20,4 +20,4 @@ Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/Be
 You can't drop straight into a level in progress; you join at the tram.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `LateJoinRuntime.dll` from `BepInEx\plugins`.
+Use the installer's **Uninstall selected**, or delete `LateJoinRuntime.dll` from the game's `Mods` folder.

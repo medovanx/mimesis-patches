@@ -11,7 +11,7 @@ Lobbies hold **10 players**, with the UI and difficulty adjusted to match.
 **Only the host needs it.**
 
 ## Install
-Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `BiggerLobbyRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
+Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `BiggerLobbyRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.
 
 ## What you get
 - **Player list** (pause/lobby menu): 10 rows, each with volume, mute, profile, kick (host) and ping. Free slots show as **Empty slot**.
@@ -34,7 +34,7 @@ With 4 players or fewer, nothing changes. Loot isn't scaled. Saves stay correct 
 **Patches > BiggerLobby** on the main menu: turn difficulty scaling on/off.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `BiggerLobbyRuntime.dll` from `BepInEx\plugins`.
+Use the installer's **Uninstall selected**, or delete `BiggerLobbyRuntime.dll` from the game's `Mods` folder.
 
 ## Build
 `dotnet build -c Release` in `Runtime`.

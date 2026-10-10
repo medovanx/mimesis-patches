@@ -80,7 +80,7 @@ namespace MimesisInstaller
                 else if (mode == "uninstall")
                 {
                     Engine.Uninstall(dll, Engine.Patches, releases);
-                    Log.Success("All patches removed. BepInEx stays installed for any other mods.");
+                    Log.Success("All patches removed. MelonLoader stays installed for any other mods.");
                 }
                 else if (mode.StartsWith("uninstall:"))
                 {

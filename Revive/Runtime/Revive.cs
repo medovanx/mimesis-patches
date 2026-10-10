@@ -48,7 +48,7 @@ namespace Revive
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.revive").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.revive").PatchAll(typeof(Plugin).Assembly);
                 PatchMenu.Register("Revive", version,
                     status: () => Enabled ? $"Stand over a dead teammate for {HoldSeconds}s to revive them" : "Off",
                     build: (page, font) =>

@@ -19,7 +19,7 @@ namespace SpectatorCam
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.spectatorcam").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.spectatorcam").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("SpectatorCam", version,
                     status: () => FreeCamPatch.Enabled ? "Free camera: F / R3 while spectating" : "Off",
                     build: (page, font) =>

@@ -20,7 +20,7 @@ namespace BiggerLobby
             _initialized = true;
             try
             {
-                new Harmony("medovanx.biggerlobby").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.biggerlobby").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("BiggerLobby", typeof(Plugin).Assembly.GetName().Version,
                     status: () => $"Lobbies hold {MaxPlayers} players, difficulty scaling {(ScalingPatch.Enabled ? "on" : "off")}",
                     build: (page, font) =>

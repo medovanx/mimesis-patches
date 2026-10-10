@@ -19,7 +19,7 @@ namespace Inventory
             var version = typeof(Plugin).Assembly.GetName().Version;
             try
             {
-                new Harmony("medovanx.inventory").PatchAll(typeof(Plugin).Assembly);
+                new HarmonyLib.Harmony("medovanx.inventory").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("Inventory", version,
                     status: () => $"Hosting: {InventoryPatch.HostSlots} slots, every player needs this patch",
                     build: (page, font) =>

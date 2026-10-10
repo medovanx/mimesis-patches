@@ -2,14 +2,14 @@
 
 Usage: python tools/package_thunderstore.py <output folder>
 Run `dotnet build -c Release` in each <Patch>/Runtime first. Each zip holds manifest.json, icon.png (256x256),
-README.md and the plugin DLL (PSController also gets its PSIcons folder next to the DLL).
+README.md and the mod DLL (at the root, like other MIMESIS MelonLoader packages).
 """
 import json, re, sys, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "https://github.com/medovanx/mimesis-patches"
-BEPINEX = "BepInEx-BepInExPack-5.4.2305"
+MELONLOADER = "LavaGang-MelonLoader-0.7.3"
 
 DESCRIPTIONS = {
     "BiggerLobby": "10-player lobbies with UI for 10 and difficulty that scales with the group size. Host only.",
@@ -62,17 +62,14 @@ def package(patch, out):
         "version_number": v,
         "website_url": f"{REPO}/tree/main/{patch}",
         "description": DESCRIPTIONS[patch][:250],
-        "dependencies": [BEPINEX],
+        "dependencies": [MELONLOADER],
     }
     target = out / f"{patch}-{v}.zip"
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("manifest.json", json.dumps(manifest, indent=2))
         z.writestr("README.md", readme(patch))
         z.write(ROOT / patch / "icon.png", "icon.png")   # <Patch>/icon.png, drawn by tools/icons.py
-        z.write(dll, dll.name)
-        if patch == "PSController":
-            for png in sorted((ROOT / "PSController" / "Icons").glob("*.png")):
-                z.write(png, f"PSIcons/{png.name}")
+        z.write(dll, dll.name)   # at the root, like other MIMESIS packages; mod managers put it in Mods
     return target
 
 
