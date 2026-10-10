@@ -2,7 +2,7 @@
 
 Usage: python tools/package_thunderstore.py <output folder>
 Run `dotnet build -c Release` in each <Patch>/Runtime first. Each zip holds manifest.json, icon.png (256x256),
-README.md and the mod DLL (at the root, like other MIMESIS MelonLoader packages).
+README.md, CHANGELOG.md and the mod DLL (at the root, like other MIMESIS MelonLoader packages).
 """
 import json, re, sys, zipfile
 from pathlib import Path
@@ -68,6 +68,7 @@ def package(patch, out):
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("manifest.json", json.dumps(manifest, indent=2))
         z.writestr("README.md", readme(patch))
+        z.writestr("CHANGELOG.md", (ROOT / patch / "CHANGELOG.md").read_text(encoding="utf-8"))   # shown on the Changelog tab
         z.write(ROOT / patch / "icon.png", "icon.png")   # <Patch>/icon.png, drawn by tools/icons.py
         z.write(dll, dll.name)   # at the root, like other MIMESIS packages; mod managers put it in Mods
     return target
