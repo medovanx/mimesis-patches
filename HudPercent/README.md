@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.3.0**
+**Version 1.3.1**
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
 

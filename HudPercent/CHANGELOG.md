@@ -1,5 +1,9 @@
 # HudPercent changelog
 
+## 1.3.1
+- Installed from a mod manager (r2modman, Gale): updates come from the mod manager; the Patches window no longer checks GitHub or updates itself.
+- AI disclosure added to the README and the DLL.
+
 ## 1.3.0
 - Now a MelonLoader mod, the loader MIMESIS mods on Thunderstore use. Installer 5.0 sets up MelonLoader and moves existing installs over.
 

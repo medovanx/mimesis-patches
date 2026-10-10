@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.6.0**
+**Version 1.6.1**
 
 A minimap in the bottom-left corner showing your position and facing.
 
