@@ -4,7 +4,6 @@
 
 Shows PlayStation button icons (✕ ○ □ △, L1/R1/L2/R2, L3/R3) instead of Xbox ones.
 
-<!-- SCREENSHOT TODO: replace screenshots/prompts.png with: In-game HUD showing PlayStation button prompts (L1/R1/Cross etc.) -->
 ![In-game HUD showing PlayStation button prompts (L1/R1/Cross etc.)](screenshots/prompts.png)
 
 The full icon set:

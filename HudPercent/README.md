@@ -4,7 +4,6 @@
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
 
-<!-- SCREENSHOT TODO: replace screenshots/hud.png with: HUD with health and radiation shown as percentages -->
 ![HUD with health and radiation shown as percentages](screenshots/hud.png)
 
 **Only you need it.**

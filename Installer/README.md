@@ -4,7 +4,6 @@
 
 Install, update or remove **every patch** from one exe.
 
-<!-- SCREENSHOT TODO: replace screenshots/installer.png with: Installer window with the patch cards (one Installed, one Download) -->
 ![Installer window with the patch cards (one Installed, one Download)](screenshots/installer.png)
 
 ## Use

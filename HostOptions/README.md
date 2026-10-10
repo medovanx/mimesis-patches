@@ -4,7 +4,6 @@
 
 Extra lobby options for the host: **infinite stamina** and **starting money**.
 
-<!-- SCREENSHOT TODO: replace screenshots/options.png with: Patches > HostOptions page: infinite stamina and starting money -->
 ![Patches > HostOptions page: infinite stamina and starting money](screenshots/options.png)
 
 **Only the host needs it.** Other players don't see the controls.
