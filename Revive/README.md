@@ -1,3 +1,5 @@
+<img src="icon.png" width="128" align="right">
+
 # Revive
 
 **Version 1.1.0**

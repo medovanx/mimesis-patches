@@ -1,3 +1,5 @@
+<img src="icon.png" width="128" align="right">
+
 # FpsCounter
 
 **Version 1.0.0**

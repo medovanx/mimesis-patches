@@ -1,7 +1,7 @@
 """Draws the 256x256 patch icons (Thunderstore): foggy dark background, a symbol per patch, gold name band.
 
-Drawn at 4x and scaled down for smooth edges. Used by package_thunderstore.py; run directly to preview:
-python tools/icons.py <output folder>
+Drawn at 4x and scaled down for smooth edges. Saved as <Patch>/icon.png (shown in the README, used by the
+Thunderstore package): python tools/icons.py --save. Or preview into a folder: python tools/icons.py <output folder>
 """
 import math, random, sys
 from pathlib import Path
@@ -171,6 +171,11 @@ class _Mask:
 
 
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--save"]:
+        root = Path(__file__).resolve().parent.parent
+        for p in SYMBOLS:
+            icon(p).save(root / p / "icon.png")
+        sys.exit()
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "icons")
     out.mkdir(parents=True, exist_ok=True)
     for p in SYMBOLS:

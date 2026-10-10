@@ -1,3 +1,5 @@
+<img src="icon.png" width="128" align="right">
+
 # SpectatorCam
 
 **Version 1.2.0**

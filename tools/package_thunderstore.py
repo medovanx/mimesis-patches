@@ -6,8 +6,6 @@ README.md and the plugin DLL (PSController also gets its PSIcons folder next to 
 """
 import json, re, sys, zipfile
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from icons import icon   # tools/icons.py
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "https://github.com/medovanx/mimesis-patches"
@@ -47,10 +45,7 @@ def package(patch, out):
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("manifest.json", json.dumps(manifest, indent=2))
         z.writestr("README.md", (ROOT / patch / "README.md").read_text(encoding="utf-8"))
-        icon_file = out / f"{patch}-icon.png"
-        icon(patch).save(icon_file)
-        z.write(icon_file, "icon.png")
-        icon_file.unlink()
+        z.write(ROOT / patch / "icon.png", "icon.png")   # <Patch>/icon.png, drawn by tools/icons.py
         z.write(dll, dll.name)
         if patch == "PSController":
             for png in sorted((ROOT / "PSController" / "Icons").glob("*.png")):

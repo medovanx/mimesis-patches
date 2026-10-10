@@ -1,3 +1,5 @@
+<img src="icon.png" width="128" align="right">
+
 # Fov
 
 **Version 1.4.0**
