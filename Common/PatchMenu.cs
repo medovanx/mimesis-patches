@@ -69,9 +69,26 @@ namespace MimesisPatches
         Image _chipBg;
         TMP_FontAsset _font;
 
+        /// <summary>True when the mods were installed by MimesisPatchesInstaller (directly in the game's Mods folder).
+        /// Installs from a mod manager (r2modman, Gale: Mods\Team-Package\ or a profile folder) get their updates there,
+        /// so the window doesn't check GitHub or offer to update itself (Thunderstore rule).</summary>
+        static bool InstallerManaged
+        {
+            get
+            {
+                try
+                {
+                    var dir = System.IO.Path.GetDirectoryName(typeof(PatchMenu).Assembly.Location);
+                    var mods = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), "Mods");
+                    return string.Equals(System.IO.Path.GetFullPath(dir).TrimEnd('\\', '/'), System.IO.Path.GetFullPath(mods).TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase);
+                }
+                catch { return false; }
+            }
+        }
+
         IEnumerator Start()
         {
-            StartCoroutine(CheckForUpdates());
+            if (InstallerManaged) StartCoroutine(CheckForUpdates());
             var wait = new WaitForSeconds(0.5f);
             while (true)
             {

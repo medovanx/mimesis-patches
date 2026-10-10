@@ -24,3 +24,6 @@ There's no progress bar yet; just stay next to the body.
 
 ## Uninstall
 Use the installer's **Uninstall selected**, or delete `ReviveRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

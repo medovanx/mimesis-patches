@@ -16,3 +16,6 @@ Use the [installer](../Installer/) and tick **FpsCounter**. Or install [MelonLoa
 
 ## Uninstall
 Use the installer, or delete `FpsCounterRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

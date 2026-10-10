@@ -38,3 +38,6 @@ Use the installer's **Uninstall selected**, or delete `BiggerLobbyRuntime.dll` f
 
 ## Build
 `dotnet build -c Release` in `Runtime`.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

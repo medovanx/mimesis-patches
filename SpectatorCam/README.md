@@ -34,3 +34,6 @@ Switching to another player returns you to the normal camera.
 
 ## Uninstall
 Use the installer's **Uninstall selected**, or delete `SpectatorCamRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

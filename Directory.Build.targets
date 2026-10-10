@@ -21,6 +21,9 @@
       <_Parameter1>ReLUGames</_Parameter1>
       <_Parameter2>MIMESIS</_Parameter2>
     </AssemblyAttribute>
+    <!-- AI disclosure, as Thunderstore asks (wiki: "LLMs and AI-generated files"). -->
+    <AssemblyMetadata Include="AI_Assisted_Creation" Value="This assembly was partially or fully created with the assistance of Generative AI (code, refactoring and documentation)." />
+    <AssemblyMetadata Include="AI_Model_Vendor" Value="Anthropic (Claude)" />
     <!-- Each patch applies its Harmony patches itself, in Plugin.Init at Hub.Awake; don't let MelonLoader do it too. -->
     <AssemblyAttribute Include="MelonLoader.HarmonyDontPatchAllAttribute" />
   </ItemGroup>

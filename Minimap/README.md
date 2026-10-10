@@ -36,3 +36,6 @@ By default you only see the level and your own arrow, so a "teammate" can still 
 
 ## Uninstall
 Use the installer's **Uninstall selected**, or delete `MinimapRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

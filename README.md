@@ -49,3 +49,6 @@ Run the installer and click **Uninstall selected** or **Uninstall all**, or dele
 Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `MIMESIS.exe`) and run `dotnet build -c Release` in `<Patch>/Runtime`. The builds find the game on their own; to build from elsewhere, pass `-p:GameDir="<path to the MIMESIS folder>\"`. The MelonLoader reference comes from NuGet (`LavaGang.MelonLoader`). `Common/` holds code shared by all patches.
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
+
+## AI disclosure
+These mods were made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

@@ -25,3 +25,6 @@ Use the [installer](../Installer/), or install [MelonLoader](https://github.com/
 
 ## Uninstall
 Use the installer's **Uninstall selected**, or delete `HudPercentRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

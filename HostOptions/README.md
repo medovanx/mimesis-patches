@@ -41,3 +41,6 @@ Settings are saved on your PC.
 
 ## Uninstall
 Use the installer's **Uninstall selected**, or delete `HostOptionsRuntime.dll` from the game's `Mods` folder.
+
+## AI disclosure
+This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.
