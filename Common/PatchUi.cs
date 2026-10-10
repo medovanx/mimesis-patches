@@ -139,10 +139,40 @@ namespace MimesisPatches
         }
 
         /// <summary>A titled whole-number slider with its value shown next to it. Applies while dragging.</summary>
-        public static Slider Slider(Transform parent, TMP_FontAsset font, string title, int min, int max, Func<int> get, Action<int> set, string suffix = "")
+        /// <summary>A heading with a thin line under it, to group related options.</summary>
+        public static void Section(Transform parent, TMP_FontAsset font, string title)
         {
-            var row = Row(parent);
-            Label(row, font, title, 22f).GetComponent<LayoutElement>().preferredWidth = 190f;
+            var box = new GameObject("Section", typeof(RectTransform)).GetComponent<RectTransform>();
+            box.SetParent(parent, false);
+            var v = box.gameObject.AddComponent<VerticalLayoutGroup>();
+            v.childControlWidth = v.childControlHeight = true;
+            v.childForceExpandHeight = false;
+            v.spacing = 4f;
+            v.padding = new RectOffset(0, 0, 10, 2);
+            Label(box, font, title.ToUpperInvariant(), 17f, Accent, 24f).characterSpacing = 6f;
+            var line = Box(box, "Line", new Color(1f, 1f, 1f, 0.12f));
+            line.gameObject.AddComponent<LayoutElement>().preferredHeight = 1f;
+        }
+
+        public static Slider Slider(Transform parent, TMP_FontAsset font, string title, int min, int max, Func<int> get, Action<int> set, string suffix = "", string description = null)
+        {
+            var row = Row(parent, description == null ? 48f : 58f);
+            if (description == null)
+                Label(row, font, title, 22f).GetComponent<LayoutElement>().preferredWidth = 190f;
+            else
+            {
+                // Title with a small description under it, in the same left column.
+                var col = new GameObject("Title", typeof(RectTransform)).GetComponent<RectTransform>();
+                col.SetParent(row, false);
+                var v = col.gameObject.AddComponent<VerticalLayoutGroup>();
+                v.childControlWidth = v.childControlHeight = true;
+                v.childForceExpandHeight = false;
+                v.childAlignment = TextAnchor.MiddleLeft;
+                v.spacing = 0f;
+                col.gameObject.AddComponent<LayoutElement>().preferredWidth = 190f;
+                Label(col, font, title, 22f, null, 28f);
+                Label(col, font, description, 15f, Dim, 20f);
+            }
 
             var root = new GameObject("Slider", typeof(RectTransform)).GetComponent<RectTransform>();
             root.SetParent(row, false);

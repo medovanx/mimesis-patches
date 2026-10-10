@@ -252,7 +252,7 @@ namespace MimesisPatches
             dimButton.onClick.AddListener(Close);
 
             var panel = PatchUi.Box(canvas.transform, "Panel", new Color(0.06f, 0.06f, 0.06f, 0.96f));
-            panel.sizeDelta = new Vector2(1100f, 640f);
+            panel.sizeDelta = new Vector2(1100f, 760f);
 
             // Title bar with close button.
             var title = PatchUi.Label(panel, _font, "Patches", 30f);
@@ -366,16 +366,63 @@ namespace MimesisPatches
 
             if (e["build"] is Action<RectTransform, TMP_FontAsset> build)
             {
-                var page = new GameObject("Options", typeof(RectTransform)).GetComponent<RectTransform>();
-                page.SetParent(_content, false);
+                var page = ScrollArea(_content);
                 var layout = page.gameObject.AddComponent<VerticalLayoutGroup>();
-                layout.spacing = 12f;
-                layout.padding = new RectOffset(0, 0, 12, 0);
+                layout.spacing = 14f;
+                layout.padding = new RectOffset(0, 24, 8, 16);
                 layout.childControlWidth = layout.childControlHeight = true;
                 layout.childForceExpandHeight = false;
+                page.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 try { build(page, _font); }
                 catch (Exception ex) { Debug.LogError($"[{name}] Options page failed: {ex}"); }
             }
+        }
+
+        // Fills the rest of the content column and scrolls (mouse wheel or the bar on the right) when the
+        // options don't fit. Returns the scrolled content, which grows to fit its children.
+        RectTransform ScrollArea(Transform parent)
+        {
+            var root = new GameObject("Scroll", typeof(RectTransform)).GetComponent<RectTransform>();
+            root.SetParent(parent, false);
+            root.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
+
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+            viewport.SetParent(root, false);
+            PatchUi.Stretch(viewport);
+            // A transparent image so the wheel scrolls anywhere over the page, not just over controls.
+            viewport.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+
+            var content = new GameObject("Options", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(viewport, false);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.offsetMin = content.offsetMax = Vector2.zero;
+
+            var bar = PatchUi.Box(root, "Scrollbar", new Color(1f, 1f, 1f, 0.05f));
+            bar.anchorMin = new Vector2(1f, 0f);
+            bar.anchorMax = Vector2.one;
+            bar.pivot = new Vector2(1f, 0.5f);
+            bar.sizeDelta = new Vector2(8f, 0f);
+            var handleArea = new GameObject("Handle Area", typeof(RectTransform)).GetComponent<RectTransform>();
+            handleArea.SetParent(bar, false);
+            PatchUi.Stretch(handleArea);
+            var handle = PatchUi.Box(handleArea, "Handle", new Color(1f, 1f, 1f, 0.3f));
+            handle.offsetMin = handle.offsetMax = Vector2.zero;
+            var scrollbar = bar.gameObject.AddComponent<Scrollbar>();
+            scrollbar.handleRect = handle;
+            scrollbar.targetGraphic = handle.GetComponent<Image>();
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+
+            var scroll = root.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;   // never scroll past the last option
+            scroll.scrollSensitivity = 30f;
+            scroll.verticalScrollbar = scrollbar;
+            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+            return content;
         }
 
         // ---------------- Hand cursor while hovering the chip ----------------
