@@ -1,5 +1,8 @@
 # Fov changelog
 
+## 1.3.3
+- Test release for the in-game updater (no changes).
+
 ## 1.3.2
 - Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
 

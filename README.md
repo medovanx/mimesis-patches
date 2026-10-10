@@ -24,7 +24,7 @@ Each patch also has its own patcher exe if you prefer: close the game, put the e
 | [HostOptions](HostOptions/) | 1.2.1 | Yes | No | Lobby options: infinite stamina, starting money, difficulty and economy |
 | [Inventory](Inventory/) | 1.2.10 | Yes | Yes | 1-8 inventory slots (2 × 4 grid), set by the host |
 | [LateJoin](LateJoin/) | 1.0.3 | Yes | Yes | Join a game in progress; you enter at the tram when the team returns |
-| [Fov](Fov/) | 1.3.2 | Optional | Optional | Field of view setting; [ and ] change it in game |
+| [Fov](Fov/) | 1.3.3 | Optional | Optional | Field of view setting; [ and ] change it in game |
 | [Revive](Revive/) | 1.0.2 | Yes | No | Stand next to a dead teammate to revive them |
 | [HudPercent](HudPercent/) | 1.1.5 | Optional | Optional | Health and radiation percentages next to the HUD bars |
 

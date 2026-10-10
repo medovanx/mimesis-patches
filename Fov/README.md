@@ -1,6 +1,6 @@
 # Fov
 
-**Version 1.3.2**
+**Version 1.3.3**
 
 Adds a **field of view** setting for your first-person view.
 
