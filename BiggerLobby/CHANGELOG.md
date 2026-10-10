@@ -1,5 +1,8 @@
 # BiggerLobby changelog
 
+## 1.5.4
+- Spectator player list (while dead) shows every player, not just the first 4
+
 ## 1.5.3
 - Thunderstore version: no updater code at all (mod managers handle updates). The GitHub / installer version keeps the in-game Update button
 
