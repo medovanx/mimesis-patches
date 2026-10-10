@@ -18,7 +18,7 @@ Download **`MimesisPatchesInstaller.exe`** from the [Releases page](https://gith
 | [HostOptions](HostOptions/) | 1.1.0 | Yes | No | Host lobby options: infinite stamina, starting money (only the host needs it) |
 | [Inventory](Inventory/) | 1.2.7 | Yes | Yes | Host sets 1-8 inventory slots (2 × 4 grid); every player needs it |
 | [LateJoin](LateJoin/) | 1.0.0 | Yes | Yes | Join a game in progress; late joiners enter at the tram when the team returns |
-| [Fov](Fov/) | 1.2.0 | Optional | Optional | Field of view setting; [ and ] change it in game |
+| [Fov](Fov/) | 1.3.0 | Optional | Optional | Field of view setting; [ and ] change it in game |
 | [Revive](Revive/) | 1.0.0 | Yes | No | Stand next to a dead teammate to revive them |
 | [HudPercent](HudPercent/) | 1.1.2 | Optional | Optional | Health and radiation percentages next to the HUD bars |
 

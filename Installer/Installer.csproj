@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.2.0</Version>
-    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>disable</Nullable>
-    <AssemblyName>MimesisPatchesInstaller</AssemblyName>
+    <Version>3.0.0</Version>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><Nullable>disable</Nullable>
+    <AssemblyName>MimesisPatchesInstaller</AssemblyName><RootNamespace>MimesisInstaller</RootNamespace>
     <Authors>Mohamed Darwesh</Authors><Company>Mohamed Darwesh</Company><Product>MIMESIS Patches Installer</Product><Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained><PublishSingleFile>true</PublishSingleFile>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><PublishTrimmed>true</PublishTrimmed><TrimMode>partial</TrimMode><InvariantGlobalization>true</InvariantGlobalization><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- Windows Forms can't be trimmed, so the whole framework is bundled (bigger exe, nothing to install). -->
   </PropertyGroup>
   <ItemGroup>
     <!-- Only the install logic is compiled in; every patch file is downloaded from GitHub releases. -->

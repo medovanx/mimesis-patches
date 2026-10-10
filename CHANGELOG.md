@@ -7,14 +7,17 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - The checklist redraws in place instead of clearing the screen on every key press, so it no longer flickers.
 - Close button in the Patches window is drawn as a true ✕ (two crossed bars) instead of the letter "X".
 
-## Fov 1.2.0
-- Field of view slider (50-120°) in Patches → Fov; [ and ] change it in game by 5°.
+## Fov 1.3.0
+- Field of view slider (50-120°) in Patches → Fov; [ and ] change it in game: tap for 5° steps, hold to change smoothly.
 
 ## Revive 1.0.0
 - Revive dead teammates by standing next to their body (host only).
 
-## Installer 2.2.0
+## Installer 3.0.0
+- Windows installer window: tick patches, install/update, uninstall selected or all, progress bar and log, game-folder picker.
+- Removing a single patch is safe (restores the original and reinstalls the rest); MIMESIS is closed automatically.
 - Lists Fov and Revive.
+- About 52 MB (Windows Forms can't be trimmed).
 
 ## Installer 2.1.1
 - 3x smaller (12 MB instead of 38 MB) and a 30-minute download timeout, so it works on slow connections.

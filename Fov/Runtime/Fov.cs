@@ -4,7 +4,7 @@
 // The game has no FOV option: the player camera (CameraManager.playerCamera, a Cinemachine camera) keeps the
 // prefab's value. This keeps that camera at the chosen FOV every frame, except while the game's own
 // "zoom to face" effect runs (it animates FOV and restores it afterwards). Client-side only.
-// In game, [ and ] change it by 5 degrees (50-120) with a short on-screen message.
+// In game, tap [ / ] for 5-degree steps or hold them to change it smoothly (50-120), with a short on-screen message.
 
 using System;
 using MimesisPatches;
@@ -44,7 +44,7 @@ namespace Fov
                         PatchUi.Slider(page, font, "Field of view", FovApplier.Min, FovApplier.Max,
                             () => Value > 0 ? Value : Mathf.RoundToInt(FovApplier.DefaultFov), v => Value = v, "°");
                         PatchUi.Options(page, font, "", ("Reset to default", () => Value == 0, () => Value = 0));
-                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, press [ and ] to change it by 5°. Only you need this patch.", 20f, PatchUi.Dim);
+                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, tap [ / ] for 5° steps or hold them to change it quickly. Only you need this patch.", 20f, PatchUi.Dim);
                     });
                 Debug.Log($"[Fov] v{version.ToString(3)}: loaded (fov {(Value > 0 ? Value.ToString() : "default")})");
             }
@@ -70,12 +70,29 @@ namespace Fov
             var cm = Hub.s != null ? Hub.s.cameraman : null;
             if (kb == null || cm == null || cm.playerCamera == null) return;
             if (Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen) return;
-            int delta = kb.rightBracketKey.wasPressedThisFrame ? Step : kb.leftBracketKey.wasPressedThisFrame ? -Step : 0;
-            if (delta == 0) return;
-            int current = Plugin.Value > 0 ? Plugin.Value : Mathf.RoundToInt(DefaultFov / Step) * Step;
-            Plugin.Value = Mathf.Clamp(current + delta, Min, Max);
-            Toast($"FOV {Plugin.Value}°");
+            // Tap: one 5-degree step. Hold: after a short delay it keeps changing smoothly (RepeatSpeed degrees/second).
+            int dir = kb.rightBracketKey.isPressed ? 1 : kb.leftBracketKey.isPressed ? -1 : 0;
+            if (dir == 0) { _held = 0f; return; }
+            int current = Plugin.Value > 0 ? Plugin.Value : Mathf.RoundToInt(DefaultFov);
+            if (kb.rightBracketKey.wasPressedThisFrame || kb.leftBracketKey.wasPressedThisFrame)
+            {
+                _held = 0f;
+                _exact = Mathf.Clamp(current + dir * Step, Min, Max);
+            }
+            else
+            {
+                _held += Time.unscaledDeltaTime;
+                if (_held < RepeatDelay) return;
+                _exact = Mathf.Clamp(_exact + dir * RepeatSpeed * Time.unscaledDeltaTime, Min, Max);
+            }
+            int next = Mathf.RoundToInt(_exact);
+            if (next == current) return;
+            Plugin.Value = next;
+            Toast($"FOV {next}°");
         }
+
+        const float RepeatDelay = 0.35f, RepeatSpeed = 40f;
+        float _held, _exact;
 
         void Toast(string text)
         {
