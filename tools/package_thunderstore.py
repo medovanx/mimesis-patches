@@ -31,6 +31,29 @@ def version(patch):
     return re.search(r"<Version>([^<]+)</Version>", csproj).group(1)
 
 
+def readme(patch):
+    """The patch README with relative links made absolute: Thunderstore shows it outside the repo, so
+    "icon.png" or "../Installer/" would point nowhere. Images load from raw.githubusercontent.com."""
+    text = (ROOT / patch / "README.md").read_text(encoding="utf-8")
+    raw = f"https://raw.githubusercontent.com/medovanx/mimesis-patches/main/{patch}/"
+    page = f"{REPO}/tree/main/{patch}/"
+
+    def fix(path, base):
+        if re.match(r"[a-z]+://|#|mailto:", path):
+            return path
+        return requests_join(base, path)
+
+    text = re.sub(r'src="([^"]+)"', lambda m: f'src="{fix(m.group(1), raw)}"', text)
+    text = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", lambda m: f"![{m.group(1)}]({fix(m.group(2), raw)})", text)
+    text = re.sub(r"(?<!!)\[([^\]]*)\]\(([^)]+)\)", lambda m: f"[{m.group(1)}]({fix(m.group(2), page)})", text)
+    return text
+
+
+def requests_join(base, path):
+    from urllib.parse import urljoin
+    return urljoin(base, path)
+
+
 def package(patch, out):
     v = version(patch)
     dll = next((ROOT / patch / "Runtime" / "bin" / "Release").rglob(f"{patch}Runtime.dll"))
@@ -44,7 +67,7 @@ def package(patch, out):
     target = out / f"{patch}-{v}.zip"
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("manifest.json", json.dumps(manifest, indent=2))
-        z.writestr("README.md", (ROOT / patch / "README.md").read_text(encoding="utf-8"))
+        z.writestr("README.md", readme(patch))
         z.write(ROOT / patch / "icon.png", "icon.png")   # <Patch>/icon.png, drawn by tools/icons.py
         z.write(dll, dll.name)
         if patch == "PSController":
