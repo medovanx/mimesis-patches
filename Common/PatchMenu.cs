@@ -132,33 +132,59 @@ namespace MimesisPatches
             seconds >= 3600 ? $"{(int)(seconds / 3600)}h {(int)(seconds % 3600 / 60)}m" :
             seconds >= 60 ? $"{(int)(seconds / 60)}m {(int)(seconds % 60)}s" : $"{(int)Math.Ceiling(seconds)}s";
 
+        // A popup over the whole window: dims everything behind it and blocks clicks until closed.
+        RectTransform Dialog()
+        {
+            if (_confirm != null) Destroy(_confirm.gameObject);
+            _confirm = PatchUi.Box(_window.transform, "UpdateDialog", new Color(0f, 0f, 0f, 0.6f));
+            PatchUi.Stretch(_confirm);
+            var box = PatchUi.Box(_confirm, "Box", new Color(0.09f, 0.09f, 0.09f, 0.98f));
+            box.anchorMin = box.anchorMax = box.pivot = new Vector2(0.5f, 0.5f);
+            var v = box.gameObject.AddComponent<VerticalLayoutGroup>();
+            v.padding = new RectOffset(32, 32, 28, 28);
+            v.spacing = 18f;
+            v.childControlWidth = v.childControlHeight = true;
+            v.childForceExpandHeight = false;
+            var fit = box.gameObject.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            box.gameObject.AddComponent<LayoutElement>();
+            box.sizeDelta = new Vector2(640f, 0f);
+            return box;
+        }
+
+        void CloseDialog() { if (_confirm != null) Destroy(_confirm.gameObject); _confirm = null; }
+
         // Asks first: updating closes the game.
         void StartUpdate(string[] names)
         {
             if (_updating) return;
-            if (_confirm != null) Destroy(_confirm.gameObject);
-            _confirm = new GameObject("UpdateConfirm", typeof(RectTransform), typeof(VerticalLayoutGroup)).GetComponent<RectTransform>();
-            _confirm.SetParent(_content, false);
-            _confirm.SetSiblingIndex(2);
-            var v = _confirm.GetComponent<VerticalLayoutGroup>();
-            v.childControlHeight = v.childControlWidth = true; v.childForceExpandHeight = false; v.spacing = 6f;
-            PatchUi.Label(_confirm, _font, $"Update {string.Join(", ", names)}? The game will close, update and start again.", 20f, UpdateColor);
-            var row = PatchUi.Row(_confirm, 44f);
+            var box = Dialog();
+            PatchUi.Label(box, _font, names.Length == 1 ? $"Update {names[0]}?" : $"Update {names.Length} patches?", 28f, null, 36f);
+            PatchUi.Label(box, _font, "The game will close, install the update and start again.", 20f, PatchUi.Dim);
+            var row = PatchUi.Row(box, 44f);
             PatchUi.Button(row, _font, "Update now", () =>
             {
-                Destroy(_confirm.gameObject);
                 _updating = true;
                 StartCoroutine(RunUpdate(names));
             }, 200f).GetComponent<Image>().color = UpdateColor;
-            PatchUi.Button(row, _font, "Not now", () => Destroy(_confirm.gameObject), 160f);
+            PatchUi.Button(row, _font, "Not now", CloseDialog, 160f);
+        }
+
+        void Failed(string message)
+        {
+            var box = Dialog();
+            PatchUi.Label(box, _font, "Update failed", 28f, null, 36f);
+            PatchUi.Label(box, _font, message, 20f, PatchUi.Dim);
+            PatchUi.Button(PatchUi.Row(box, 44f), _font, "OK", CloseDialog, 160f);
+            _updating = false;
         }
 
         IEnumerator RunUpdate(string[] names)
         {
-            var status = PatchUi.Label(_content, _font, "Downloading the update... the game will restart.", 20f, UpdateColor);
-            status.transform.SetSiblingIndex(2);
-            var track = PatchUi.Box(_content, "Progress", PatchUi.Off);
-            track.SetSiblingIndex(3);
+            var box = Dialog();
+            PatchUi.Label(box, _font, names.Length == 1 ? $"Updating {names[0]}" : $"Updating {names.Length} patches", 28f, null, 36f);
+            var status = PatchUi.Label(box, _font, "Starting the download...", 20f, PatchUi.Dim);
+            var track = PatchUi.Box(box, "Progress", PatchUi.Off);
             track.gameObject.AddComponent<LayoutElement>().preferredHeight = 8f;
             var fill = PatchUi.Box(track, "Fill", UpdateColor);
             fill.anchorMin = Vector2.zero;
@@ -189,12 +215,11 @@ namespace MimesisPatches
                     if (speed > 0 && total > got) text += $"  |  {Eta((total - got) / speed)} left";
                     status.text = text;
                 }
-                status.text = "Download done. Closing the game to install...";
+                status.text = "Downloaded. Closing the game to install...";
                 fill.anchorMax = Vector2.one;
                 if (req.result != UnityWebRequest.Result.Success)
                 {
-                    PatchUi.Label(_content, _font, "Couldn't download the update. Check your connection, or use the installer.", 20f, UpdateColor);
-                    _updating = false;
+                    Failed("Couldn't download the update. Check your connection, or run MimesisPatchesInstaller.exe.");
                     yield break;
                 }
             }
@@ -206,8 +231,7 @@ namespace MimesisPatches
             catch (Exception ex)
             {
                 Debug.LogError("[Patches] Couldn't start the installer: " + ex);
-                PatchUi.Label(_content, _font, "Couldn't start the installer. Run MimesisPatchesInstaller.exe yourself.", 20f, UpdateColor);
-                _updating = false;
+                Failed("Couldn't start the installer. Run MimesisPatchesInstaller.exe yourself.");
             }
         }
 
