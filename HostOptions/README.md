@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.3.0**
+**Version 1.4.0**
 
 Extra lobby options for the host: **infinite stamina**, **starting money**, and **difficulty and economy** settings.
 

@@ -1,5 +1,8 @@
 # Inventory changelog
 
+## 1.4.0
+- Now a MelonLoader mod, the loader MIMESIS mods on Thunderstore use. Installer 5.0 sets up MelonLoader and moves existing installs over.
+
 ## 1.3.0
 - Now a BepInEx 5 plugin: the game files are no longer modified. Installer 4.0 sets up BepInEx and moves existing installs over.
 

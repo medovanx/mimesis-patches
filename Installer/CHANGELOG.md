@@ -1,5 +1,9 @@
 # Installer changelog
 
+## 5.0.0
+- Mods are MelonLoader mods now (the loader MIMESIS mods on Thunderstore use). The installer sets up MelonLoader and installs mods into the game's Mods folder.
+- BepInEx installs from installer 4 are moved over automatically; BepInEx is removed if nothing else uses it.
+
 ## 4.0.0
 - Patches are BepInEx 5 plugins now. The installer sets up BepInEx in the game folder and installs patches into BepInEx\plugins\MimesisPatches; the game files stay untouched.
 - Existing installs are moved over automatically: the original Assembly-CSharp.dll is restored and every installed patch is reinstalled as a plugin.
