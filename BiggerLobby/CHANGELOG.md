@@ -1,5 +1,8 @@
 # BiggerLobby changelog
 
+## 1.5.5
+- Spectator list: extra rows placed reliably below the first four; logs the row layout once to help diagnose
+
 ## 1.5.4
 - Spectator player list (while dead) shows every player, not just the first 4
 
