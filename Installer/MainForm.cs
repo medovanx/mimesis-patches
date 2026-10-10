@@ -135,11 +135,19 @@ namespace MimesisInstaller
             using (var dim = new SolidBrush(Theme.Dim)) g.DrawString(Patch.About, Theme.Body, dim, x + 1, 40);
 
             // Right side: version and status
-            string status = Installed ? "Installed" : Available ? "Not installed" : "Coming soon";
+            // Installed: green check. Available to download: gold with an arrow so it stands out. Otherwise grey.
+            bool download = !Installed && Available;
+            string status = Installed ? "Installed" : download ? "Download" : "Coming soon";
             var statusSize = g.MeasureString(status, Theme.Small);
-            float sx = Width - statusSize.Width - 30 - (Installed ? statusSize.Height : 0);
-            Theme.Pill(g, status, Theme.Small, Installed ? Theme.Good : Theme.Dim, Installed ? Color.FromArgb(30, 60, 38) : Color.FromArgb(66, 67, 76), sx, 14, out _,
-                Installed ? Theme.Glyph.Check : Theme.Glyph.None);
+            float sx = Width - statusSize.Width - 30 - (Installed || download ? statusSize.Height : 0);
+            Color pillFg = Installed ? Theme.Good : download ? Theme.Accent : Theme.Dim;
+            Color pillBg = Installed ? Color.FromArgb(30, 60, 38) : download ? Color.FromArgb(72, 58, 24) : Color.FromArgb(66, 67, 76);
+            Theme.Pill(g, status, Theme.Small, pillFg, pillBg, sx, 14, out float pillW,
+                Installed ? Theme.Glyph.Check : download ? Theme.Glyph.Arrow : Theme.Glyph.None);
+            if (download)
+                using (var pen = new Pen(Color.FromArgb(150, Theme.Accent), 1f))
+                using (var path = Theme.Round(new RectangleF(sx, 14, pillW, statusSize.Height + 4), (statusSize.Height + 4) / 2))
+                    g.DrawPath(pen, path);
             if (!string.IsNullOrEmpty(Version))
             {
                 var vs = g.MeasureString(Version, Theme.Small);
@@ -315,7 +323,7 @@ namespace MimesisInstaller
             var title = new GlitchTitle { Location = new Point(28, 16) };
             var sub = new LinkLabel
             {
-                Text = $"v{Engine.Version}  ·  by Mohamed Darwesh (@medovanx)  ·  GitHub",
+                Text = $"v{Engine.Version}   |   by Mohamed Darwesh (@medovanx)   |   GitHub",
                 AutoSize = true, Location = new Point(31, 92), LinkColor = Theme.Dim, ActiveLinkColor = Theme.Accent,
                 LinkBehavior = LinkBehavior.HoverUnderline, ForeColor = Theme.Dim, BackColor = Color.Transparent,
             };
@@ -336,7 +344,7 @@ namespace MimesisInstaller
             _cards.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             _cards.AutoScroll = true;
             _cards.BackColor = Color.Transparent;
-            _cards.Padding = new Padding(4);
+            _cards.Padding = new Padding(4, 4, 4, 0);
             _cards.Resize += (s, e) => LayoutCards();
 
             _install.SetBounds(28, 636, 240, 42);
@@ -487,6 +495,9 @@ namespace MimesisInstaller
             int inner = _cards.ClientSize.Width - _cards.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth;
             int w = Math.Max(300, inner / 2 - 12);
             foreach (var c in _cardList) c.Width = w;
+            int rows = (_cardList.Count + 1) / 2;
+            int content = _cards.Padding.Top + rows * (_cardList.Count > 0 ? _cardList[0].Height + 12 : 0);
+            _cards.AutoScroll = content > _cards.ClientSize.Height;
         }
 
         void SelectAll()

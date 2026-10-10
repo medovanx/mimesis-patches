@@ -21,7 +21,7 @@ namespace Inventory
             {
                 new Harmony("medovanx.inventory").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("Inventory", version,
-                    status: () => $"Hosting: {InventoryPatch.HostSlots} slots · every player needs this patch",
+                    status: () => $"Hosting: {InventoryPatch.HostSlots} slots, every player needs this patch",
                     build: (page, font) =>
                     {
                         // 1-8 as a 2 x 4 grid of buttons, like the in-game slots.

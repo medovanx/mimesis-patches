@@ -87,7 +87,7 @@ namespace MimesisPatches
                     if (_row == null) BuildChip(version.canvas.rootCanvas.transform, version);
                     var entries = Entries;
                     int updates = entries.Count(HasUpdate);
-                    _chipText.text = $"Patches ({entries.Count})" + (updates > 0 ? $" · {updates} update{(updates > 1 ? "s" : "")}" : "");
+                    _chipText.text = $"Patches ({entries.Count})" + (updates > 0 ? $", {updates} update{(updates > 1 ? "s" : "")}" : "");
                     _chipBg.color = updates > 0 ? UpdateColor : ChipColor;
                     // The main menu object stays active behind game scenes, so also require that no game scene is loaded.
                     bool onMenu = menu.activeInHierarchy && (Hub.s == null || Hub.s.pdata == null || Hub.s.pdata.main == null);
@@ -227,7 +227,7 @@ namespace MimesisPatches
 
             // Author footer along the bottom; clicking it opens the repo.
             var footer = PatchUi.Label(panel, _font,
-                "Made by <b>Mohamed Darwesh</b> (@medovanx)  ·  <u>github.com/medovanx/mimesis-patches</u>", 18f, PatchUi.Dim);
+                "Made by <b>Mohamed Darwesh</b> (@medovanx)   |   <u>github.com/medovanx/mimesis-patches</u>", 18f, PatchUi.Dim);
             Destroy(footer.GetComponent<LayoutElement>());
             footer.alignment = TextAlignmentOptions.Center;
             footer.raycastTarget = true;

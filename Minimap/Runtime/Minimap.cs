@@ -54,7 +54,7 @@ namespace Minimap
             set { PlayerPrefs.SetInt("medovanx.Minimap.Visible", value ? 1 : 0); PlayerPrefs.Save(); }
         }
 
-        public static string Summary => (CurrentReveal == Reveal.Full ? "Full" : "Explored") + " · " + CurrentStyle;
+        public static string Summary => (CurrentReveal == Reveal.Full ? "Full" : "Explored") + ", " + CurrentStyle;
 
         const int MaxTexSize = 512;          // map texture resolution (longest side)
         const float ViewMeters = 50f;        // width of the area shown around you
