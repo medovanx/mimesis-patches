@@ -1,5 +1,8 @@
 # HudPercent changelog
 
+## 1.1.5
+- Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
+
 ## 1.1.4
 - Patches window: update patches from inside the game, scrollable options, section headings, roomier layout, resizable from the bottom-right corner.
 

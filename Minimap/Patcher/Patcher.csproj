@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>1.4.2</Version>
+    <Version>1.4.3</Version>
     <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>disable</Nullable>
     <AssemblyName>MinimapPatcher</AssemblyName>
     <Authors>Mohamed Darwesh</Authors><Company>Mohamed Darwesh</Company><Product>MIMESIS Minimap Patcher</Product><Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>

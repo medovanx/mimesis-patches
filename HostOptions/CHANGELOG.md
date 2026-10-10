@@ -1,5 +1,8 @@
 # HostOptions changelog
 
+## 1.2.1
+- Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
+
 ## 1.2.0
 - Difficulty presets (Easy, Normal, Hard) and sliders for quota/repair cost, shop prices, sell value and monsters.
 - Patches window: update patches from inside the game, scrollable options, section headings, resizable from the bottom-right corner.

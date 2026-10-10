@@ -1,5 +1,8 @@
 # Inventory changelog
 
+## 1.2.10
+- Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
+
 ## 1.2.9
 - Patches window: update patches from inside the game, scrollable options, section headings, roomier layout, resizable from the bottom-right corner.
 
