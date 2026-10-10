@@ -49,7 +49,7 @@ namespace MimesisInstaller
                 var dll = args.Length > 1 ? args[1] : Engine.DetectDll();
                 if (dll == null)
                 {
-                    PatcherCore.Fail("Assembly-CSharp.dll not found. Put this exe in the MIMESIS game folder (next to MIMESIS.exe), or pass its path.");
+                    PatcherCore.Fail("Assembly-CSharp.dll not found. Put this exe next to MIMESIS.exe, or pass the DLL path.");
                     return 1;
                 }
 

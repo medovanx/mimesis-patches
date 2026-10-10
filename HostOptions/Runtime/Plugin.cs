@@ -28,11 +28,11 @@ namespace HostOptions
                         v => { HostOptionsPatch.StartMoney = v == HostOptionsPatch.DefaultMoney ? -1 : v; HostOptionsPatch.ApplyNow(v); },
                         HostOptionsPatch.DefaultMoney);
                     MimesisPatches.PatchUi.Label(page, font,
-                        "Host only; also in the lobby menu (Esc). Starting money applies to new runs, and sets the current funds before the first departure.",
+                        "Host only. Also in the lobby menu (Esc). Starting money applies to new runs, and to current funds before the first departure.",
                         20f, MimesisPatches.PatchUi.Dim);
                 }, status: () =>
                     (HostOptionsPatch.InfiniteStamina ? "Infinite stamina" : "Normal stamina") +
-                    (HostOptionsPatch.StartMoney >= 0 ? " \u00b7 $" + HostOptionsPatch.StartMoney : ""));
+                    (HostOptionsPatch.StartMoney >= 0 ? ", $" + HostOptionsPatch.StartMoney : ""));
                 Debug.Log($"[HostOptions] v{version.ToString(3)}: patches applied");
             }
             catch (Exception e)

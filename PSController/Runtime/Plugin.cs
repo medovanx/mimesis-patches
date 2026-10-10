@@ -18,7 +18,7 @@ namespace PSController
                 {
                     MimesisPatches.PatchUi.OnOff(page, font, "PlayStation icons", () => PSIcons.Enabled, v => PSIcons.Enabled = v);
                     MimesisPatches.PatchUi.Label(page, font,
-                        "Use DS4Windows with Xbox 360 output; the game always prefers the Xbox (XInput) pad so buttons read correctly.",
+                        "Use DS4Windows with Xbox 360 output so your buttons are read correctly.",
                         20f, MimesisPatches.PatchUi.Dim);
                 });
         }

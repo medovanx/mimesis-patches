@@ -1,19 +1,19 @@
-# Fov (FovPatcher)
+# Fov
 
 **Version 1.3.0**
 
-Adds a **field of view** setting (60°-110°, or the game default) for your first-person view.
+Adds a **field of view** setting for your first-person view.
+
+**Only you need it.**
+
+## Install
+Use the [installer](../Installer/), or: close the game, put `FovPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
 
 ## Use
-1. Close the game.
-2. Put `FovPatcher.exe` next to `MIMESIS.exe` and run it.
-3. Choose install (`i`) or uninstall (`u`).
+- **Patches > Fov** on the main menu: slider (50°-120°) or **Reset to default**.
+- In game: tap **[** / **]** for 5° steps, or hold them to change it smoothly.
 
-Set it with the slider in **Patches → Fov** on the main menu (50°-120°, or reset to the game default), or in game tap **[** / **]** for 5° steps or hold them to change it smoothly (50°-120°, with a short on-screen message). It applies right away and is saved. Only you need it (client-side).
+Changes apply right away and are saved.
 
-## How it works
-The game has no FOV option: the player camera (`CameraManager.playerCamera`, Cinemachine) keeps its prefab value. The patch keeps that camera at your chosen FOV every frame, except while the game's own "zoom to face" effect is running.
-
-## Files installed
-- `MIMESIS_Data/Managed/FovRuntime.dll`, `0Harmony.dll`
-- `Assembly-CSharp.dll`: one `Fov.Plugin.Init()` call at the start of `Hub.Awake` (original kept as `.bak`)
+## Uninstall
+Run `FovPatcher.exe` and choose `u`, or use the installer.

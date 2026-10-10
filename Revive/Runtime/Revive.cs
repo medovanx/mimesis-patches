@@ -62,7 +62,7 @@ namespace Revive
                             ("Once per level", () => PerLevel == 1, () => PerLevel = 1),
                             ("Unlimited", () => PerLevel == 0, () => PerLevel = 0));
                         PatchUi.Label(page, font,
-                            "When you host: stand next to a dead teammate's body to bring them back with low health.\n" +
+                            "Stand next to a dead teammate's body to bring them back with low health.\n" +
                             "Only the host needs this patch.", 20f, PatchUi.Dim);
                     });
                 Debug.Log($"[Revive] v{version.ToString(3)}: patches applied");

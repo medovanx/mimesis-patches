@@ -22,7 +22,7 @@ namespace BiggerLobby
             {
                 new Harmony("medovanx.biggerlobby").PatchAll(typeof(Plugin).Assembly);
                 MimesisPatches.PatchMenu.Register("BiggerLobby", typeof(Plugin).Assembly.GetName().Version,
-                    status: () => $"Lobbies hold {MaxPlayers} players \u00b7 difficulty scaling {(ScalingPatch.Enabled ? "on" : "off")}",
+                    status: () => $"Lobbies hold {MaxPlayers} players, difficulty scaling {(ScalingPatch.Enabled ? "on" : "off")}",
                     build: (page, font) =>
                     {
                         MimesisPatches.PatchUi.OnOff(page, font, "Difficulty scaling", () => ScalingPatch.Enabled, v => ScalingPatch.Enabled = v);

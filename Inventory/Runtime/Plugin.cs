@@ -38,8 +38,8 @@ namespace Inventory
                             }
                         }
                         MimesisPatches.PatchUi.Label(page, font,
-                            "The host's number applies to everyone; more than 4 shows as a 2 × 4 grid in game.\n" +
-                            "Every player needs this patch. It takes effect when characters spawn (next level, or reload the lobby).",
+                            "Your number applies to everyone in your lobby. More than 4 shows as a 2 × 4 grid.\n" +
+                            "Every player needs this patch. Applies when characters spawn (next level, or reload the lobby).",
                             20f, MimesisPatches.PatchUi.Dim);
                     });
                 Debug.Log($"[Inventory] v{version.ToString(3)}: patches applied");

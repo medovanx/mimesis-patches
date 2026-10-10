@@ -44,7 +44,7 @@ namespace Fov
                         PatchUi.Slider(page, font, "Field of view", FovApplier.Min, FovApplier.Max,
                             () => Value > 0 ? Value : Mathf.RoundToInt(FovApplier.DefaultFov), v => Value = v, "°");
                         PatchUi.Options(page, font, "", ("Reset to default", () => Value == 0, () => Value = 0));
-                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, tap [ / ] for 5° steps or hold them to change it quickly. Only you need this patch.", 20f, PatchUi.Dim);
+                        PatchUi.Label(page, font, "Applies right away. In game, tap [ / ] for 5° steps or hold them to change it quickly. Only you need this patch.", 20f, PatchUi.Dim);
                     });
                 Debug.Log($"[Fov] v{version.ToString(3)}: loaded (fov {(Value > 0 ? Value.ToString() : "default")})");
             }

@@ -1,25 +1,20 @@
-# HudPercent (HudPercentPatcher)
+# HudPercent
 
 **Version 1.1.2**
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
 
-## Use
-1. Close the game.
-2. Put `HudPercentPatcher.exe` next to `MIMESIS.exe` and run it.
-3. Choose install (`i`) or uninstall (`u`).
+**Only you need it.**
 
-Each player installs it for themselves; it only changes your own HUD.
+## Install
+Use the [installer](../Installer/), or: close the game, put `HudPercentPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
 
-- **Health**: how much you have left (100% = full health).
+## What you see
+- **Health**: how much you have left (100% = full).
 - **Radiation**: how contaminated you are (100% = full bar).
 
-## How it works
-The HUD (`UIPrefab_InGame`) updates its bars through `OnHpChanged` and `OnContaChanged`. Postfixes on those write the same values as a percentage into a label attached to the right edge of each bar, styled like the HUD's money text.
+## Options
+**Patches > HudPercent** on the main menu: turn it on/off.
 
-## Files installed
-- `MIMESIS_Data/Managed/HudPercentRuntime.dll`, `0Harmony.dll`
-- `Assembly-CSharp.dll`: one `HudPercent.Plugin.Init()` call at the start of `Hub.Awake` (original kept as `.bak`)
-
-## Settings
-Open **Patches → HudPercent** on the main menu to turn it on/off.
+## Uninstall
+Run `HudPercentPatcher.exe` and choose `u`, or use the installer.

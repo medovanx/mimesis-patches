@@ -29,7 +29,7 @@ namespace MimesisInstaller
             new("BiggerLobby", "10-player lobbies + difficulty scaling", "Host", new[] { "BiggerLobbyRuntime.dll", "0Harmony.dll" }, dll => BiggerLobbySetup.Setup.Run(new[] { dll })),
             new("PSController", "PlayStation button icons", "Anyone", new[] { "PSControllerRuntime.dll", "PSIcons.zip" }, dll => PSControllerSetup.Setup.Run(new[] { "install", dll })),
             new("SpectatorCam", "Free spectator camera", "Anyone", new[] { "SpectatorCamRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "SpectatorCam")),
-            new("Minimap", "Minimap (layout + you)", "Anyone", new[] { "MinimapRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Minimap")),
+            new("Minimap", "Minimap of the level", "Anyone", new[] { "MinimapRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Minimap")),
             new("HostOptions", "Infinite stamina, starting money", "Host", new[] { "HostOptionsRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HostOptions")),
             new("HudPercent", "Health / radiation % on the HUD", "Anyone", new[] { "HudPercentRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HudPercent")),
             new("Inventory", "Host sets 1-8 inventory slots", "Everyone", new[] { "InventoryRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Inventory")),

@@ -425,7 +425,7 @@ namespace MimesisInstaller
                     Close();
                     return;
                 }
-                SetBusy(false, _dll != null ? "Ready. Pick the patches you want and click Install." : "Choose your MIMESIS folder to get started.");
+                SetBusy(false, _dll != null ? "Ready. Pick your patches and click Install." : "Choose your MIMESIS folder to get started.");
             }
             catch (Exception e)
             {
@@ -445,7 +445,7 @@ namespace MimesisInstaller
             }
             else
             {
-                _game.Text = "Couldn't find MIMESIS automatically. Choose the game folder (the one with MIMESIS.exe)";
+                _game.Text = "MIMESIS not found. Choose your game folder (the one with MIMESIS.exe)";
                 _game.ForeColor = Theme.Accent;
                 _game.Glyph = Theme.Glyph.Warn;
             }
@@ -456,9 +456,9 @@ namespace MimesisInstaller
             using var dialog = new FolderBrowserDialog { Description = "Choose the MIMESIS game folder (the one with MIMESIS.exe)", UseDescriptionForTitle = true };
             if (dialog.ShowDialog(this) != DialogResult.OK) return;
             var dll = Engine.FindDll(dialog.SelectedPath);
-            if (dll == null) { MessageBox.Show(this, "That folder doesn't look like MIMESIS (no MIMESIS_Data\\Managed\\Assembly-CSharp.dll).", Text); return; }
+            if (dll == null) { MessageBox.Show(this, "That folder isn't MIMESIS (no MIMESIS_Data\\Managed\\Assembly-CSharp.dll).", Text); return; }
             SetGame(dll);
-            if (!_busy) _status.Text = "Ready. Pick the patches you want and click Install.";
+            if (!_busy) _status.Text = "Ready. Pick your patches and click Install.";
             Fill();
         }
 
@@ -540,7 +540,7 @@ namespace MimesisInstaller
             try
             {
                 await Task.Run(() => work(_dll));
-                SetBusy(false, "Done. Open the game and click \"Patches\" on the main menu to configure them.");
+                SetBusy(false, "Done. Start the game and click \"Patches\" on the main menu to set them up.");
                 _status.ForeColor = Theme.Good;
                 _status.Glyph = Theme.Glyph.Check;
                 _progress.Set(1);

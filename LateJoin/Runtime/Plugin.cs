@@ -24,13 +24,13 @@ namespace LateJoin
                 UnityEngine.Object.DontDestroyOnLoad(go);
                 go.AddComponent<Ticker>();
                 MimesisPatches.PatchMenu.Register("LateJoin", version,
-                    status: () => LateJoinPatch.Enabled ? "Players can join a run in progress" : "Off (vanilla: lobby only)",
+                    status: () => LateJoinPatch.Enabled ? "Players can join a run in progress" : "Off (join in lobby only)",
                     build: (page, font) =>
                     {
                         MimesisPatches.PatchUi.OnOff(page, font, "Allow late join", () => LateJoinPatch.Enabled, v => LateJoinPatch.Enabled = v);
                         MimesisPatches.PatchUi.Label(page, font,
-                            "When you host: friends can join while the team is in a level. They wait on a message and join at the tram when the team returns.\n" +
-                            "The host and the joining player both need this patch.", 20f, MimesisPatches.PatchUi.Dim);
+                            "When you host, friends can join mid-run. They wait, then join at the tram when the team returns.\n" +
+                            "You and the joining player both need this patch.", 20f, MimesisPatches.PatchUi.Dim);
                     });
                 Debug.Log($"[LateJoin] v{version.ToString(3)}: patches applied");
             }
