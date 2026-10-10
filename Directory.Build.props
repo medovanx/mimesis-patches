@@ -1,0 +1,11 @@
+<Project>
+  <!-- The repo lives inside the game folder (<game>\Patches), so the game's DLLs are found relative to it.
+       Building from somewhere else: dotnet build -p:GameDir="D:\SteamLibrary\steamapps\common\MIMESIS\" -->
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))\</GameDir>
+    <Managed Condition="'$(Managed)' == ''">$(GameDir)MIMESIS_Data\Managed</Managed>
+    <!-- The game's code. A .bak is the original left by the old (pre-BepInEx) patches; prefer it if it's still there. -->
+    <GameDll Condition="'$(GameDll)' == '' And Exists('$(Managed)\Assembly-CSharp.dll.bak')">$(Managed)\Assembly-CSharp.dll.bak</GameDll>
+    <GameDll Condition="'$(GameDll)' == ''">$(Managed)\Assembly-CSharp.dll</GameDll>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project>
+  <!-- Every patch runtime (<Patch>Runtime.dll) is a BepInEx 5 plugin: Common/BepInExPlugin.cs is its entry point,
+       and it uses BepInEx's own Harmony (HarmonyX). -->
+  <PropertyGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
+    <PatchName>$(AssemblyName.Replace('Runtime', ''))</PatchName>
+    <BepInExPluginGuid>medovanx.$(PatchName)</BepInExPluginGuid>
+    <BepInExPluginName>$(PatchName)</BepInExPluginName>
+    <BepInExPluginVersion>$(Version)</BepInExPluginVersion>
+    <RootNamespace>MimesisPatches</RootNamespace>   <!-- MyPluginInfo is generated here -->
+  </PropertyGroup>
+  <ItemGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
+    <PackageReference Remove="Lib.Harmony" />
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" PrivateAssets="all" />
+    <Reference Include="UnityEngine"><HintPath>$(Managed)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Compile Include="$(MSBuildThisFileDirectory)Common\BepInExPlugin.cs" Link="Common\BepInExPlugin.cs" />
+  </ItemGroup>
+</Project>

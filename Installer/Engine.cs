@@ -1,8 +1,8 @@
 // MIMESIS Patches Installer - install logic shared by the window and the command line
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
-// The installer carries only the install logic. Patch files (runtime DLLs, Harmony, PS icons) are downloaded
-// from each patch's latest GitHub release, so a shared copy always installs the newest patches.
+// The patches are BepInEx 5 plugins. The installer sets up BepInEx in the game folder if needed, then downloads each
+// patch's plugin DLL (and PS icons) from its latest GitHub release into BepInEx\plugins\MimesisPatches.
 
 using System;
 using System.Collections.Generic;
@@ -11,31 +11,38 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
-using MimesisPatches;
 
 namespace MimesisInstaller
 {
     record Release(Version Version, Dictionary<string, string> Assets);
 
-    record PatchInfo(string Name, string About, string Who, string[] Files, Action<string> Install);
+    /// <summary>A patch: its plugin DLL (and extra files) come from its latest GitHub release.</summary>
+    record PatchInfo(string Name, string About, string Who, string[] Files)
+    {
+        public string Dll => Name + "Runtime.dll";
+    }
 
     static class Engine
     {
         public const string Repo = "medovanx/mimesis-patches";
         public static readonly string Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
+        // BepInEx 5, the mod loader the patches run in. Installed once into the game folder if it isn't there.
+        const string BepInExVersion = "5.4.23.5";
+        const string BepInExUrl = "https://github.com/BepInEx/BepInEx/releases/download/v" + BepInExVersion + "/BepInEx_win_x64_" + BepInExVersion + ".zip";
+
         public static readonly List<PatchInfo> Patches = new List<PatchInfo>
         {
-            new("BiggerLobby", "10-player lobbies + difficulty scaling", "Host", new[] { "BiggerLobbyRuntime.dll", "0Harmony.dll" }, dll => BiggerLobbySetup.Setup.Run(new[] { dll })),
-            new("PSController", "PlayStation button icons", "Anyone", new[] { "PSControllerRuntime.dll", "PSIcons.zip" }, dll => PSControllerSetup.Setup.Run(new[] { "install", dll })),
-            new("SpectatorCam", "Free spectator camera", "Anyone", new[] { "SpectatorCamRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "SpectatorCam")),
-            new("Minimap", "Minimap of the level", "Anyone", new[] { "MinimapRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Minimap")),
-            new("HostOptions", "Infinite stamina, starting money", "Host", new[] { "HostOptionsRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HostOptions")),
-            new("HudPercent", "Health / radiation % on the HUD", "Anyone", new[] { "HudPercentRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HudPercent")),
-            new("Inventory", "Host sets 1-8 inventory slots", "Everyone", new[] { "InventoryRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Inventory")),
-            new("LateJoin", "Join a game in progress", "Everyone", new[] { "LateJoinRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "LateJoin")),
-            new("Fov", "Field of view slider", "Anyone", new[] { "FovRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Fov")),
-            new("Revive", "Revive dead teammates", "Host", new[] { "ReviveRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Revive")),
+            new("BiggerLobby", "10-player lobbies + difficulty scaling", "Host", new[] { "BiggerLobbyRuntime.dll" }),
+            new("PSController", "PlayStation button icons", "Anyone", new[] { "PSControllerRuntime.dll", "PSIcons.zip" }),
+            new("SpectatorCam", "Free spectator camera", "Anyone", new[] { "SpectatorCamRuntime.dll" }),
+            new("Minimap", "Minimap of the level", "Anyone", new[] { "MinimapRuntime.dll" }),
+            new("HostOptions", "Stamina, money, difficulty", "Host", new[] { "HostOptionsRuntime.dll" }),
+            new("HudPercent", "Health / radiation % on the HUD", "Anyone", new[] { "HudPercentRuntime.dll" }),
+            new("Inventory", "Host sets 1-8 inventory slots", "Everyone", new[] { "InventoryRuntime.dll" }),
+            new("LateJoin", "Join a game in progress", "Everyone", new[] { "LateJoinRuntime.dll" }),
+            new("Fov", "Field of view slider", "Anyone", new[] { "FovRuntime.dll" }),
+            new("Revive", "Revive dead teammates", "Host", new[] { "ReviveRuntime.dll" }),
         };
 
         // Long timeout: patch files and the installer itself can be slow to download on some connections.
@@ -47,9 +54,6 @@ namespace MimesisInstaller
             http.DefaultRequestHeaders.UserAgent.ParseAdd("mimesis-patches-installer");
             return http;
         }
-
-        static void Core(string dll, string name) =>
-            PatcherCore.Run(new[] { "install", dll }, $"MIMESIS {name} Patcher", $"{name}.Plugin", $"{name}Runtime.dll");
 
         /// <summary>Assembly-CSharp.dll next to the exe or under MIMESIS_Data\Managed in the given folder.</summary>
         public static string FindDll(string folder) => new[] {
@@ -114,7 +118,14 @@ namespace MimesisInstaller
                 yield return Path.Combine(lib, "steamapps", "common", "MIMESIS", "MIMESIS_Data", "Managed");
         }
 
-        public static bool IsInstalled(string dll, PatchInfo p) => File.Exists(Path.Combine(Path.GetDirectoryName(dll), p.Files[0]));
+        // Layout: <game>\MIMESIS_Data\Managed\Assembly-CSharp.dll (how the game is found) and
+        //         <game>\BepInEx\plugins\MimesisPatches\<Patch>Runtime.dll (+ PSIcons\) for the patches.
+        static string GameDir(string dll) => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(dll), "..", ".."));
+        static string PluginDir(string dll) => Path.Combine(GameDir(dll), "BepInEx", "plugins", "MimesisPatches");
+
+        // Installed as a plugin, or the old way (DLL in Managed), which the next install moves to BepInEx.
+        public static bool IsInstalled(string dll, PatchInfo p) =>
+            File.Exists(Path.Combine(PluginDir(dll), p.Dll)) || File.Exists(Path.Combine(Path.GetDirectoryName(dll), p.Dll));
 
         /// <summary>Latest release per name, from tags "Name-vX.Y.Z" (includes "Installer").</summary>
         public static Dictionary<string, Release> LatestReleases()
@@ -153,54 +164,102 @@ namespace MimesisInstaller
 
         public static void Install(string dll, IEnumerable<PatchInfo> selected, Dictionary<string, Release> releases, Action<int, int> progress = null)
         {
-            PatcherCore.CloseGame();
-            var list = selected.ToList();
+            Log.CloseGame();
+            // Patches installed the old way (hook in Assembly-CSharp.dll) move to BepInEx too, not just the selected ones.
+            var list = selected.Union(Migrate(dll)).ToList();
+            EnsureBepInEx(dll);
+            var plugins = PluginDir(dll);
+            Directory.CreateDirectory(plugins);
             for (int i = 0; i < list.Count; i++)
             {
                 var p = list[i];
                 progress?.Invoke(i, list.Count);
                 if (!releases.TryGetValue(p.Name, out var r)) { Console.WriteLine($"== {p.Name}: not released yet, skipped\n"); continue; }
                 Console.WriteLine($"== {p.Name} v{r.Version.ToString(3)}");
-                UseFiles(Download(r, p.Files, p.Name));
-                p.Install(dll);
+                foreach (var file in Download(r, p.Files, p.Name))
+                {
+                    if (file.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var to = Path.Combine(plugins, Path.GetFileNameWithoutExtension(file));   // PSIcons.zip -> PSIcons\
+                        Directory.CreateDirectory(to);
+                        ZipFile.ExtractToDirectory(file, to, true);
+                    }
+                    else File.Copy(file, Path.Combine(plugins, Path.GetFileName(file)), true);
+                }
+                Log.Success("   installed");
                 Console.WriteLine();
             }
             progress?.Invoke(list.Count, list.Count);
         }
 
-        /// <summary>Removes the given patches. Every patch adds a startup hook to Assembly-CSharp.dll, so this
-        /// restores the original and reinstalls the patches that stay.</summary>
+        /// <summary>Removes the given patches' plugin files. BepInEx stays (other mods may use it).</summary>
         public static void Uninstall(string dll, IEnumerable<PatchInfo> remove, Dictionary<string, Release> releases, Action<int, int> progress = null)
         {
-            PatcherCore.CloseGame();
-            var removing = remove.Select(p => p.Name).ToHashSet();
-            var managed = Path.GetDirectoryName(dll);
-            var keep = Patches.Where(p => !removing.Contains(p.Name) && IsInstalled(dll, p)).ToList();
-            var bak = dll + ".bak";
-            if (!File.Exists(bak)) throw new InvalidOperationException("No Assembly-CSharp.dll.bak backup found, so patches can't be removed safely.");
-            File.Copy(bak, dll, true);
-            foreach (var f in Patches.Select(p => p.Files[0]).Append("0Harmony.dll"))
+            Log.CloseGame();
+            var removing = remove.ToList();
+            var kept = Migrate(dll).Except(removing).ToList();   // old-style installs that stay: reinstall them as plugins
+            var plugins = PluginDir(dll);
+            foreach (var p in removing)
             {
-                var path = Path.Combine(managed, f);
+                var path = Path.Combine(plugins, p.Dll);
                 if (File.Exists(path)) File.Delete(path);
+                if (p.Name == "PSController" && Directory.Exists(Path.Combine(plugins, "PSIcons"))) Directory.Delete(Path.Combine(plugins, "PSIcons"), true);
+                Console.WriteLine($"== {p.Name}: removed");
             }
+            if (Directory.Exists(plugins) && !Directory.EnumerateFileSystemEntries(plugins).Any()) Directory.Delete(plugins);
+            Console.WriteLine();
+            if (kept.Count > 0) Install(dll, kept, releases, progress);
+            else progress?.Invoke(1, 1);
+        }
+
+        // Downloads BepInEx 5 and unpacks it into the game folder, unless it's already there.
+        static void EnsureBepInEx(string dll)
+        {
+            var game = GameDir(dll);
+            if (File.Exists(Path.Combine(game, "BepInEx", "core", "BepInEx.dll"))) return;
+            Console.WriteLine($"== BepInEx {BepInExVersion} (mod loader, installed once)");
+            var zip = Path.Combine(Path.GetTempPath(), "mimesis-patches", $"BepInEx_{BepInExVersion}.zip");
+            Directory.CreateDirectory(Path.GetDirectoryName(zip));
+            if (!File.Exists(zip))
+            {
+                Console.WriteLine("   downloading...");
+                File.WriteAllBytes(zip, Http.GetByteArrayAsync(BepInExUrl).Result);
+            }
+            ZipFile.ExtractToDirectory(zip, game, true);
+            Log.Success("   installed");
+            Console.WriteLine();
+        }
+
+        /// <summary>Undoes an install from before BepInEx (startup hook in Assembly-CSharp.dll, patch DLLs in Managed):
+        /// restores the original game DLL and removes those files. Returns the patches that were installed that way.</summary>
+        static List<PatchInfo> Migrate(string dll)
+        {
+            var managed = Path.GetDirectoryName(dll);
+            var old = Patches.Where(p => File.Exists(Path.Combine(managed, p.Dll))).ToList();
+            var bak = dll + ".bak";
+            if (!File.Exists(bak) && old.Count == 0) return old;
+            Console.WriteLine("== Moving patches from the old install to BepInEx");
+            if (File.Exists(bak))
+            {
+                File.Copy(bak, dll, true);
+                File.Delete(bak);
+                Console.WriteLine("   original Assembly-CSharp.dll restored");
+            }
+            foreach (var p in old) File.Delete(Path.Combine(managed, p.Dll));
+            var harmony = Path.Combine(managed, "0Harmony.dll");   // the game doesn't ship Harmony; it came with the patches
+            if (File.Exists(harmony)) File.Delete(harmony);
             var icons = Path.Combine(Path.GetDirectoryName(managed), "PSIcons");
             if (Directory.Exists(icons)) Directory.Delete(icons, true);
-            foreach (var name in removing) Console.WriteLine($"== {name}: removed");
             Console.WriteLine();
-            if (keep.Count > 0)
-            {
-                Console.WriteLine($"Reinstalling the {keep.Count} patch(es) you're keeping...\n");
-                Install(dll, keep, releases, progress);
-            }
+            return old;
         }
 
         // Downloads a release's files into a temp folder (cached per version).
-        static Dictionary<string, string> Download(Release r, string[] files, string name)
+        static List<string> Download(Release r, string[] files, string name)
         {
             var dir = Path.Combine(Path.GetTempPath(), "mimesis-patches", $"{name}-v{r.Version.ToString(3)}");
             Directory.CreateDirectory(dir);
-            var paths = new Dictionary<string, string>();
+            var paths = new List<string>();
             foreach (var f in files)
             {
                 if (!r.Assets.TryGetValue(f, out var url)) throw new InvalidOperationException($"{name} v{r.Version.ToString(3)} release has no {f}.");
@@ -210,32 +269,46 @@ namespace MimesisInstaller
                     Console.WriteLine($"   downloading {f}...");
                     File.WriteAllBytes(path, Http.GetByteArrayAsync(url).Result);
                 }
-                paths[f] = path;
+                paths.Add(path);
             }
             return paths;
         }
+    }
 
-        // Points the install logic at the downloaded files (PSIcons.zip becomes the "icons/*.png" resources).
-        static void UseFiles(Dictionary<string, string> files)
+    /// <summary>Console output helpers and closing the game.</summary>
+    static class Log
+    {
+        /// <summary>Set when running from the window or the in-game updater: never wait for input.</summary>
+        public static bool Unattended;
+
+        public static void CloseGame()
         {
-            var icons = new Dictionary<string, byte[]>();
-            if (files.TryGetValue("PSIcons.zip", out var zip))
-                using (var archive = ZipFile.OpenRead(zip))
-                    foreach (var entry in archive.Entries.Where(e => e.Name.EndsWith(".png")))
-                    {
-                        using var s = entry.Open();
-                        using var m = new MemoryStream();
-                        s.CopyTo(m);
-                        icons["icons/" + entry.Name] = m.ToArray();
-                    }
-            Stream Open(string name) =>
-                icons.TryGetValue(name, out var bytes) ? new MemoryStream(bytes)
-                : files.TryGetValue(name, out var path) ? File.OpenRead(path)
-                : null;
-            PatcherCore.ResourceOverride = Open;
-            BiggerLobbySetup.Setup.ResourceOverride = Open;
-            PSControllerSetup.Setup.ResourceOverride = Open;
-            PSControllerSetup.Setup.ResourceNamesOverride = () => icons.Keys.ToArray();
+            foreach (var p in System.Diagnostics.Process.GetProcessesByName("MIMESIS"))
+            {
+                try
+                {
+                    Console.WriteLine("MIMESIS is running; closing it so the patches can be installed...");
+                    p.Kill();
+                    p.WaitForExit(15000);
+                }
+                catch (Exception e) { Console.WriteLine($"Couldn't close MIMESIS ({e.Message}). Close it yourself and try again."); }
+                finally { p.Dispose(); }
+            }
+        }
+
+        public static void Success(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(msg);
+            Console.ResetColor();
+        }
+
+        public static void Fail(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine();
+            Console.WriteLine("FAILED: " + msg);
+            Console.ResetColor();
         }
     }
 }

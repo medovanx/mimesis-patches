@@ -38,8 +38,8 @@ namespace PSController
             }
         }
 
-        // Logs every gamepad press to Player.log while MIMESIS_Data/PSIcons/debug.txt exists.
+        // Logs every gamepad press to Player.log while PSIcons/debug.txt (next to the plugin) exists.
         static int _lastFrame = -1;
-        static readonly bool Debug_ = System.IO.File.Exists(System.IO.Path.Combine(Application.dataPath, "PSIcons", "debug.txt"));
+        static readonly bool Debug_ = System.IO.File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(Pads).Assembly.Location), "PSIcons", "debug.txt"));
     }
 }

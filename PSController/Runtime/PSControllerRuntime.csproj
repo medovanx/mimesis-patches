@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
-    <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(Managed)\Assembly-CSharp.dll.bak</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(GameDll)</HintPath><Private>false</Private></Reference>
     <!-- Shared code (main menu chip + update check). -->
     <Compile Include="..\..\Common\PatchMenu.cs;..\..\Common\PatchUi.cs" Link="Common\%(Filename)%(Extension)" />
     <Reference Include="UnityEngine.UnityWebRequestModule"><HintPath>$(Managed)\UnityEngine.UnityWebRequestModule.dll</HintPath><Private>false</Private></Reference>

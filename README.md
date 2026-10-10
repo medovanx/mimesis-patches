@@ -43,6 +43,6 @@ Each patch also has its own patcher exe if you prefer: close the game, put the e
 Run the installer and click **Uninstall selected** or **Uninstall all**.
 
 ## Build
-Use the .NET 10 SDK. The `.csproj` files expect the game at `O:\Games\MIMESIS v0.3.1`; change the paths if yours is elsewhere. `Common/` holds code shared by all patches.
+Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `MIMESIS.exe`) and the builds find the game's DLLs on their own; to build from elsewhere, pass `-p:GameDir="<path to the MIMESIS folder>\"`. `Common/` holds code shared by all patches.
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.

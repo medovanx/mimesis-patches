@@ -13,7 +13,7 @@ namespace BiggerLobby
 
         static bool _initialized;
 
-        // Called once from the patched Hub.Awake.
+        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
         public static void Init()
         {
             if (_initialized) return;

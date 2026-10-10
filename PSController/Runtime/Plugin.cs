@@ -7,11 +7,12 @@ namespace PSController
     {
         static bool _initialized;
 
-        // Called once from the patched Hub.Awake.
+        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
         public static void Init()
         {
             if (_initialized) return;
             _initialized = true;
+            new HarmonyLib.Harmony("medovanx.pscontroller").PatchAll(typeof(Plugin).Assembly);
             MimesisPatches.PatchMenu.Register("PSController", typeof(Plugin).Assembly.GetName().Version,
                 status: () => PSIcons.Enabled ? "PlayStation button icons" : "Xbox button icons (game default)",
                 build: (page, font) =>

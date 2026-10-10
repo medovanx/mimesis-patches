@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>3.1.1</Version>
+    <Version>4.0.0</Version>
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><Nullable>disable</Nullable>
     <AssemblyName>MimesisPatchesInstaller</AssemblyName><RootNamespace>MimesisInstaller</RootNamespace><ApplicationIcon>icon.ico</ApplicationIcon>
     <Authors>Mohamed Darwesh</Authors><Company>Mohamed Darwesh</Company><Product>MIMESIS Patches Installer</Product><Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
@@ -8,11 +8,4 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <!-- Windows Forms can't be trimmed, so the whole framework is bundled (bigger exe, nothing to install). -->
   </PropertyGroup>
-  <ItemGroup>
-    <!-- Only the install logic is compiled in; every patch file is downloaded from GitHub releases. -->
-    <Compile Include="..\Common\PatcherCore.cs" Link="Common\%(Filename)%(Extension)" />
-    <Compile Include="..\BiggerLobby\Patcher\Setup.cs" Link="BiggerLobby\Setup.cs" />
-    <Compile Include="..\PSController\Patcher\Setup.cs" Link="PSController\Setup.cs" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-  </ItemGroup>
 </Project>

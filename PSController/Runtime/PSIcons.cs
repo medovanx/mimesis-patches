@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace PSController
 {
-    // Called from the patched KeyImageData.GetKeyImage(string). Returns a PS icon for gamepad keys, or null to use the game's own.
+    // Called from a prefix on KeyImageData.GetKeyImage(string) (GamePatches). Returns a PS icon for gamepad keys, or null to use the game's own.
     public static class PSIcons
     {
         static Dictionary<string, Sprite> _sprites;
@@ -45,7 +45,7 @@ namespace PSController
         static void Load()
         {
             _sprites = new Dictionary<string, Sprite>();
-            var dir = Path.Combine(Application.dataPath, "PSIcons");
+            var dir = Path.Combine(Path.GetDirectoryName(typeof(PSIcons).Assembly.Location), "PSIcons");   // next to the plugin DLL
             var byFile = new Dictionary<string, Sprite>();
             foreach (var kv in Files)
             {

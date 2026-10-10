@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using MimesisPatches;
 
 namespace MimesisInstaller
 {
@@ -23,7 +22,7 @@ namespace MimesisInstaller
         {
             if (args.Length == 0)
             {
-                PatcherCore.Unattended = true;
+                Log.Unattended = true;
                 ApplicationConfiguration.Initialize();
                 Application.Run(new MainForm());
                 return 0;
@@ -31,7 +30,7 @@ namespace MimesisInstaller
             // Command line: use the calling console (or open one) so output is visible.
             if (!AttachConsole(-1)) AllocConsole();
             // Never wait for input (it may run unattended from the in-game Update button), and keep a log.
-            PatcherCore.Unattended = true;
+            Log.Unattended = true;
             Console.SetIn(System.IO.TextReader.Null);
             var log = new System.IO.StreamWriter(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.log"), false) { AutoFlush = true };
             Console.SetOut(new Tee(Console.Out, log));
@@ -58,7 +57,7 @@ namespace MimesisInstaller
                 var dll = args.Length > 1 ? args[1] : Engine.DetectDll();
                 if (dll == null)
                 {
-                    PatcherCore.Fail("Assembly-CSharp.dll not found. Put this exe next to MIMESIS.exe, or pass the DLL path.");
+                    Log.Fail("Assembly-CSharp.dll not found. Put this exe next to MIMESIS.exe, or pass the DLL path.");
                     return 1;
                 }
 
@@ -66,33 +65,33 @@ namespace MimesisInstaller
                 if (mode == "install")
                 {
                     Engine.Install(dll, Engine.Patches, releases);
-                    PatcherCore.Success("Done.");
+                    Log.Success("Done.");
                 }
                 else if (mode.StartsWith("install:"))
                 {
                     // install:A,B - used by the in-game Update button
                     var names = mode.Substring("install:".Length).Split(',', StringSplitOptions.RemoveEmptyEntries);
                     var picked = Engine.Patches.Where(x => names.Any(n => string.Equals(n, x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
-                    if (picked.Count == 0) { PatcherCore.Fail($"Unknown patch: {mode.Substring(8)}"); return 1; }
+                    if (picked.Count == 0) { Log.Fail($"Unknown patch: {mode.Substring(8)}"); return 1; }
                     Engine.Install(dll, picked, releases);
-                    PatcherCore.Success("Updated: " + string.Join(", ", picked.Select(x => x.Name)));
+                    Log.Success("Updated: " + string.Join(", ", picked.Select(x => x.Name)));
                 }
                 else if (mode == "uninstall")
                 {
                     Engine.Uninstall(dll, Engine.Patches, releases);
-                    PatcherCore.Success("All patches removed; the game is back to its original files.");
+                    Log.Success("All patches removed. BepInEx stays installed for any other mods.");
                 }
                 else if (mode.StartsWith("uninstall:"))
                 {
                     var wanted = mode.Substring("uninstall:".Length);
                     var p = Engine.Patches.FirstOrDefault(x => string.Equals(x.Name, wanted, StringComparison.OrdinalIgnoreCase));
-                    if (p == null) { PatcherCore.Fail($"Unknown patch: {wanted}"); return 1; }
+                    if (p == null) { Log.Fail($"Unknown patch: {wanted}"); return 1; }
                     Engine.Uninstall(dll, new[] { p }, releases);
-                    PatcherCore.Success($"{p.Name} removed.");
+                    Log.Success($"{p.Name} removed.");
                 }
                 else
                 {
-                    PatcherCore.Fail($"Unknown command: {args[0]} (use install, install:<Patch>, uninstall or uninstall:<Patch>)");
+                    Log.Fail($"Unknown command: {args[0]} (use install, install:<Patch>, uninstall or uninstall:<Patch>)");
                     return 1;
                 }
                 if (relaunch)
@@ -106,7 +105,7 @@ namespace MimesisInstaller
             }
             catch (Exception e)
             {
-                PatcherCore.Fail(Describe(e));
+                Log.Fail(Describe(e));
                 return 1;
             }
         }

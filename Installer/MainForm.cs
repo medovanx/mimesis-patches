@@ -355,7 +355,7 @@ namespace MimesisInstaller
             _uninstall.Click += async (s, e) => await Run("Removing", dll => Engine.Uninstall(dll, Checked(), _releases, Progress));
             _uninstallAll.Click += async (s, e) =>
             {
-                if (MessageBox.Show(this, "Remove every patch and restore the original game files?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (MessageBox.Show(this, "Remove every patch? BepInEx stays installed for any other mods.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     await Run("Removing all", dll => Engine.Uninstall(dll, Engine.Patches, _releases, Progress));
             };
 

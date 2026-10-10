@@ -7,9 +7,6 @@
     <Authors>Mohamed Darwesh</Authors>
     <Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
     <Managed>O:\Games\MIMESIS v0.3.1\MIMESIS_Data\Managed</Managed>
-    <!-- Reference the unpatched game DLL so the build works whatever is installed. -->
-    <GameDll Condition="Exists('$(Managed)\Assembly-CSharp.dll.bak')">$(Managed)\Assembly-CSharp.dll.bak</GameDll>
-    <GameDll Condition="'$(GameDll)' == ''">$(Managed)\Assembly-CSharp.dll</GameDll>
   </PropertyGroup>
   <ItemGroup>
     <!-- Shared code (main menu chip + update check). -->
@@ -19,6 +16,7 @@
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <!-- Publicized so the patches can use the game's internal UI classes directly. -->
+    <Reference Include="com.rlabrecque.steamworks.net"><HintPath>$(Managed)\com.rlabrecque.steamworks.net.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>$(GameDll)</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(Managed)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.UI"><HintPath>$(Managed)\UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
