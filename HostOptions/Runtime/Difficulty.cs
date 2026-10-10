@@ -89,10 +89,7 @@ namespace HostOptions
             return vanilla.ToDictionary(x => x.Key, x => x.Value == null ? null : new ShopItemPriceInfo { Price = Price(x.Value.Price), DiscountRate = x.Value.DiscountRate });
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(MaintenanceRoom), nameof(MaintenanceRoom.OnEnterChannel))]
-        [HarmonyPatch(typeof(MaintenanceRoom), nameof(MaintenanceRoom.OnCompleteGame))]
-        static IEnumerable<CodeInstruction> SendScaledPrices(IEnumerable<CodeInstruction> code)
+        public static IEnumerable<CodeInstruction> SendScaledPrices(IEnumerable<CodeInstruction> code)
         {
             var field = AccessTools.Field(typeof(MaintenanceRoom), "_priceForItems");
             foreach (var x in code)
@@ -129,5 +126,21 @@ namespace HostOptions
             __instance._mimicSpawnCountRemain = __instance._mimicSpawnCountMax;
             Debug.Log($"[HostOptions] Monsters x{f:0.##}: threat {__instance._normalMonsterThreatLimit}, mimics {__instance._mimicSpawnCountMax}");
         }
+    }
+
+    // The price list goes out when a player enters the lobby (OnEnterChannel) and when the team returns from a
+    // level (a compiler-generated helper inside OnCompleteGame). Harmony needs each target listed separately.
+    [HarmonyPatch]
+    static class SendPricesPatch
+    {
+        static IEnumerable<System.Reflection.MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(MaintenanceRoom), nameof(MaintenanceRoom.OnEnterChannel));
+            foreach (var t in new[] { typeof(MaintenanceRoom) }.Concat(typeof(MaintenanceRoom).GetNestedTypes(AccessTools.all)))
+                foreach (var m in t.GetMethods(AccessTools.all).Where(m => m.Name.StartsWith("<OnCompleteGame>")))
+                    yield return m;
+        }
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> code) => Difficulty.SendScaledPrices(code);
     }
 }
