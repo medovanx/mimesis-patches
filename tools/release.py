@@ -1,14 +1,14 @@
 """Releases one or more patches everywhere players get them, in one go.
 
-    python tools/release.py Fov HostOptions --note "Fixed the slider" [--minor] [--no-thunderstore] [--dry-run]
+    python tools/release.py Fov HostOptions --note "Fixed the slider" --token tss_... [--minor] [--no-thunderstore] [--dry-run]
 
 For each patch: bump the version (patch number, or minor with --minor), add the note to its CHANGELOG, update the
 version in its README and the root table, build it and package it for Thunderstore. Then commit and push, create the
 GitHub release (installer users and the in-game Update button get it from there) and upload the package to
 Thunderstore (Gale / r2modman users get it from there).
 
-Thunderstore uploads need a service account token (thunderstore.io > Teams > medovanx > Service accounts) in the
-THUNDERSTORE_TOKEN environment variable. Only patches listed in THUNDERSTORE are uploaded there.
+Thunderstore uploads need a service account token (thunderstore.io > Teams > medovanx > Service accounts), passed
+with --token. Only patches listed in THUNDERSTORE are uploaded there.
 """
 import argparse, json, os, re, subprocess, sys, tempfile
 from pathlib import Path
@@ -85,6 +85,7 @@ def main():
     ap.add_argument("patches", nargs="+", help="patch folder names, e.g. Fov HostOptions")
     ap.add_argument("--note", required=True, help="what changed (one CHANGELOG bullet per line)")
     ap.add_argument("--minor", action="store_true", help="bump the minor version instead of the patch number")
+    ap.add_argument("--token", help="Thunderstore service account token (tss_...)")
     ap.add_argument("--no-thunderstore", action="store_true", help="GitHub release only")
     ap.add_argument("--dry-run", action="store_true", help="show what would happen, change nothing")
     args = ap.parse_args()
@@ -92,10 +93,10 @@ def main():
     for p in args.patches:
         if p not in DESCRIPTIONS:
             sys.exit(f"Unknown patch: {p}")
-    token = os.environ.get("THUNDERSTORE_TOKEN")
+    token = args.token
     ts = not args.no_thunderstore
     if ts and not token and any(p in THUNDERSTORE for p in args.patches):
-        sys.exit("Set THUNDERSTORE_TOKEN (Thunderstore service account token), or pass --no-thunderstore.")
+        sys.exit("Pass --token tss_... (Thunderstore service account token), or --no-thunderstore.")
 
     out = Path(tempfile.mkdtemp(prefix="mimesis-release-"))
     done = []
