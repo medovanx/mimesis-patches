@@ -50,5 +50,9 @@ Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
+
+## Releasing
+`python tools/release.py Fov HostOptions --note "What changed"` bumps the version, updates the CHANGELOG and README, builds, commits, creates the GitHub release (installer and in-game updates) and uploads to Thunderstore (Gale / r2modman). Add `--minor` for a minor version, `--no-thunderstore` for GitHub only, `--dry-run` to preview. Thunderstore uploads need a service account token in `THUNDERSTORE_TOKEN`.
+
 ## AI disclosure
 These mods were made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.
