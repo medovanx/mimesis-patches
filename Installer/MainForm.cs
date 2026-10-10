@@ -400,7 +400,7 @@ namespace MimesisInstaller
 
         async Task Startup()
         {
-            SetGame(Engine.FindDll(AppContext.BaseDirectory));
+            SetGame(Engine.DetectDll());
             SetBusy(true, "Checking GitHub for the latest patches...");
             try
             {
@@ -434,7 +434,7 @@ namespace MimesisInstaller
             }
             else
             {
-                _game.Text = "Game not found. Put this exe next to MIMESIS.exe, or choose the game folder";
+                _game.Text = "Couldn't find MIMESIS automatically. Choose the game folder (the one with MIMESIS.exe)";
                 _game.ForeColor = Theme.Accent;
                 _game.Glyph = Theme.Glyph.Warn;
             }

@@ -14,6 +14,7 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - Revive dead teammates by standing next to their body (host only).
 
 ## Installer 3.0.0
+- Finds the game automatically (next to the exe, the game's own log, or Steam libraries); runs from anywhere.
 - Windows installer window: tick patches, install/update, uninstall selected or all, progress bar and log, game-folder picker.
 - Removing a single patch is safe (restores the original and reinstalls the rest); MIMESIS is closed automatically.
 - Lists Fov and Revive.

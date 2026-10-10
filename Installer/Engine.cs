@@ -57,6 +57,63 @@ namespace MimesisInstaller
             Path.Combine(folder, "MIMESIS_Data", "Managed", "Assembly-CSharp.dll"),
         }.FirstOrDefault(File.Exists);
 
+        /// <summary>Finds the game without asking: next to this exe, then the path the game writes at the top of its
+        /// log on every launch (any copy that has been started once), then Steam's library folders.</summary>
+        public static string DetectDll()
+        {
+            var here = FindDll(AppContext.BaseDirectory);
+            if (here != null) return here;
+            foreach (var managed in FromGameLog().Concat(FromSteam()))
+            {
+                try
+                {
+                    var dll = Path.Combine(managed, "Assembly-CSharp.dll");
+                    if (File.Exists(dll)) return Path.GetFullPath(dll);
+                }
+                catch { }
+            }
+            return null;
+        }
+
+        // %USERPROFILE%\AppData\LocalLow\ReLUGames\MIMESIS\Player.log starts with "Mono path[0] = '<game>/MIMESIS_Data/Managed'".
+        static IEnumerable<string> FromGameLog()
+        {
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "ReLUGames", "MIMESIS");
+            foreach (var name in new[] { "Player.log", "Player-prev.log" })
+            {
+                string line = null;
+                try
+                {
+                    using var fs = new FileStream(Path.Combine(dir, name), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    using var reader = new StreamReader(fs);
+                    for (int i = 0; i < 20 && (line = reader.ReadLine()) != null; i++)
+                        if (line.StartsWith("Mono path[0]")) break;
+                }
+                catch { continue; }
+                if (line == null || !line.StartsWith("Mono path[0]")) continue;
+                int a = line.IndexOf('\''), b = line.LastIndexOf('\'');
+                if (a >= 0 && b > a) yield return line.Substring(a + 1, b - a - 1).Replace('/', Path.DirectorySeparatorChar);
+            }
+        }
+
+        // Steam: registry SteamPath -> steamapps\libraryfolders.vdf "path" entries -> steamapps\common\MIMESIS.
+        static IEnumerable<string> FromSteam()
+        {
+            string steam = null;
+            try { steam = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string; } catch { }
+            if (string.IsNullOrEmpty(steam)) yield break;
+            var libraries = new List<string> { steam };
+            try
+            {
+                var vdf = File.ReadAllText(Path.Combine(steam, "steamapps", "libraryfolders.vdf"));
+                foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(vdf, "\"path\"\\s+\"([^\"]+)\""))
+                    libraries.Add(m.Groups[1].Value.Replace(@"\\", @"\"));
+            }
+            catch { }
+            foreach (var lib in libraries.Distinct(StringComparer.OrdinalIgnoreCase))
+                yield return Path.Combine(lib, "steamapps", "common", "MIMESIS", "MIMESIS_Data", "Managed");
+        }
+
         public static bool IsInstalled(string dll, PatchInfo p) => File.Exists(Path.Combine(Path.GetDirectoryName(dll), p.Files[0]));
 
         /// <summary>Latest release per name, from tags "Name-vX.Y.Z" (includes "Installer").</summary>
