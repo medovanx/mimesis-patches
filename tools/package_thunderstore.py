@@ -1,7 +1,7 @@
 """Builds a Thunderstore package (zip) for each patch from its built plugin DLL.
 
 Usage: python tools/package_thunderstore.py <output folder>
-Run `dotnet build -c Release` in each <Patch>/Runtime first. Each zip holds manifest.json, icon.png (256x256),
+Run `dotnet build -c Release -p:Thunderstore=1` in each <Patch>/Runtime first (the build without the updater). Each zip holds manifest.json, icon.png (256x256),
 README.md, CHANGELOG.md and the mod DLL (at the root, like other MIMESIS MelonLoader packages).
 """
 import json, re, sys, zipfile
@@ -56,7 +56,8 @@ def requests_join(base, path):
 
 def package(patch, out):
     v = version(patch)
-    dll = next((ROOT / patch / "Runtime" / "bin" / "Release").rglob(f"{patch}Runtime.dll"))
+    # The Thunderstore build (dotnet build -c Release -p:Thunderstore=1): no updater code, which Thunderstore doesn't allow.
+    dll = next((ROOT / patch / "Runtime" / "bin" / "Thunderstore" / "Release").rglob(f"{patch}Runtime.dll"))
     manifest = {
         "name": patch,
         "version_number": v,

@@ -7,17 +7,23 @@
 //
 // The window: left sidebar = installed patches (orange dot = update available); right = the selected
 // patch's version, status, update link and options. Updates are checked once per launch on GitHub releases.
+// Thunderstore builds (-p:Thunderstore=1, define THUNDERSTORE) contain none of the update code: Thunderstore doesn't
+// allow mods that update themselves, and the mod manager serves updates there.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
 using System.Text.RegularExpressions;
+#endif
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
 using UnityEngine.Networking;
+#endif
 using UnityEngine.UI;
 
 namespace MimesisPatches
@@ -69,6 +75,7 @@ namespace MimesisPatches
         Image _chipBg;
         TMP_FontAsset _font;
 
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
         /// <summary>True when the mods were installed by MimesisPatchesInstaller (directly in the game's Mods folder).
         /// Installs from a mod manager (r2modman, Gale: Mods\Team-Package\ or a profile folder) get their updates there,
         /// so the window doesn't check GitHub or offer to update itself (Thunderstore rule).</summary>
@@ -85,10 +92,13 @@ namespace MimesisPatches
                 catch { return false; }
             }
         }
+#endif
 
         IEnumerator Start()
         {
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
             if (InstallerManaged) StartCoroutine(CheckForUpdates());
+#endif
             var wait = new WaitForSeconds(0.5f);
             while (true)
             {
@@ -117,6 +127,7 @@ namespace MimesisPatches
             }
         }
 
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
         IEnumerator CheckForUpdates()
         {
             using (var req = UnityWebRequest.Get($"https://api.github.com/repos/{Repo}/releases?per_page=100"))
@@ -252,6 +263,7 @@ namespace MimesisPatches
                 Failed("Couldn't start the installer. Run MimesisPatchesInstaller.exe yourself.");
             }
         }
+#endif
 
         // ---------------- Chip (bottom-left of the main menu) ----------------
 
@@ -296,7 +308,9 @@ namespace MimesisPatches
 
         GameObject _window;
         RectTransform _sidebar, _content;
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
         Button _updateAll;
+#endif
         string _selected;
 
         void Open()
@@ -365,6 +379,7 @@ namespace MimesisPatches
                 bar.GetComponent<Image>().raycastTarget = false;
             }
 
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
             // "Update all" in the title bar, left of the close button; shown when any patch has an update.
             _updateAll = PatchUi.Button(panel, _font, "Update all", () =>
                 StartUpdate(Entries.Where(HasUpdate).Select(x => (string)x["name"]).ToArray()), 200f);
@@ -374,6 +389,7 @@ namespace MimesisPatches
             ua.anchorMin = ua.anchorMax = ua.pivot = new Vector2(1f, 1f);
             ua.anchoredPosition = new Vector2(-72f, -16f);
             ua.sizeDelta = new Vector2(200f, 44f);
+#endif
 
             // Author footer along the bottom; clicking it opens the repo.
             var footer = PatchUi.Label(panel, _font,
@@ -436,9 +452,11 @@ namespace MimesisPatches
         void Select(string name)
         {
             BuildSidebar();
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
             int updates = Entries.Count(HasUpdate);
             _updateAll.gameObject.SetActive(updates > 0);
             _updateAll.GetComponentInChildren<TMP_Text>().text = updates > 1 ? $"Update all ({updates})" : "Update";
+#endif
             foreach (Transform c in _content) Destroy(c.gameObject);
             var e = Entries.FirstOrDefault(x => (string)x["name"] == name);
             if (e == null) return;
@@ -450,6 +468,7 @@ namespace MimesisPatches
                 try { s = status(); } catch { }
                 if (!string.IsNullOrEmpty(s)) PatchUi.Label(_content, _font, s, 18f, PatchUi.Dim, 26f);
             }
+#if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
             if (HasUpdate(e))
             {
                 var row = PatchUi.Row(_content, 44f);
@@ -457,6 +476,7 @@ namespace MimesisPatches
                     .GetComponent<Image>().color = UpdateColor;
                 PatchUi.Button(row, _font, "What's new", () => Application.OpenURL($"{RepoUrl}/blob/main/{name}/CHANGELOG.md"), 160f);
             }
+#endif
 
             if (e["build"] is Action<RectTransform, TMP_FontAsset> build)
             {

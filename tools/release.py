@@ -3,7 +3,8 @@
     python tools/release.py Fov HostOptions --note "Fixed the slider" --token tss_... [--minor] [--no-thunderstore] [--dry-run]
 
 For each patch: bump the version (patch number, or minor with --minor), add the note to its CHANGELOG, update the
-version in its README and the root table, build it and package it for Thunderstore. Then commit and push, create the
+version in its README and the root table, build it twice (the normal DLL with the in-game updater, for GitHub;
+and -p:Thunderstore=1 without any updater code, for the Thunderstore package) and package it. Then commit and push, create the
 GitHub release (installer users and the in-game Update button get it from there) and upload the package to
 Thunderstore (Gale / r2modman users get it from there).
 
@@ -55,10 +56,11 @@ def changelog(patch, version, note):
 
 
 def build(patch, dry):
-    run("dotnet", "build", "-c", "Release", cwd=ROOT / patch / "Runtime", dry=dry)
+    run("dotnet", "build", "-c", "Release", cwd=ROOT / patch / "Runtime", dry=dry)                       # GitHub / installer
+    run("dotnet", "build", "-c", "Release", "-p:Thunderstore=1", cwd=ROOT / patch / "Runtime", dry=dry)   # Thunderstore, no updater
     if dry:
         return None
-    return next(p for p in (ROOT / patch / "Runtime" / "bin" / "Release").rglob(f"{patch}Runtime.dll"))
+    return next((ROOT / patch / "Runtime" / "bin" / "Release").rglob(f"{patch}Runtime.dll"))
 
 
 def upload_thunderstore(zip_path, token):
@@ -72,7 +74,9 @@ def upload_thunderstore(zip_path, token):
         f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{zip_path.name}\"\r\n"
         f"Content-Type: application/zip\r\n\r\n".encode(), zip_path.read_bytes(), f"\r\n--{boundary}--\r\n".encode()])
     req = urllib.request.Request("https://thunderstore.io/api/experimental/package/upload/", data=body, method="POST",
-                                 headers={"Authorization": f"Bearer {token}", "Content-Type": f"multipart/form-data; boundary={boundary}"})
+                                 headers={"Authorization": f"Bearer {token}", "Content-Type": f"multipart/form-data; boundary={boundary}",
+                                          # Cloudflare blocks Python's default user agent (error 1010)
+                                          "User-Agent": "mimesis-patches-release/1.0 (+https://github.com/medovanx/mimesis-patches)"})
     try:
         with urllib.request.urlopen(req, timeout=600) as r:
             return r.status, r.read().decode()[:300]

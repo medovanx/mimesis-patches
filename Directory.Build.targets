@@ -4,6 +4,9 @@
   <PropertyGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
     <PatchName>$(AssemblyName.Replace('Runtime', ''))</PatchName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Thunderstore)' == '1'">
+    <DefineConstants>$(DefineConstants);THUNDERSTORE</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="$(AssemblyName.EndsWith('Runtime'))">
     <PackageReference Remove="Lib.Harmony" />
     <PackageReference Include="LavaGang.MelonLoader" Version="0.7.3" PrivateAssets="all" ExcludeAssets="runtime" />

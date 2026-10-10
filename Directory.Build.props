@@ -8,4 +8,14 @@
     <GameDll Condition="'$(GameDll)' == '' And Exists('$(Managed)\Assembly-CSharp.dll.bak')">$(Managed)\Assembly-CSharp.dll.bak</GameDll>
     <GameDll Condition="'$(GameDll)' == ''">$(Managed)\Assembly-CSharp.dll</GameDll>
   </PropertyGroup>
+  <!-- Thunderstore build (dotnet build -p:Thunderstore=1): no updater code, own obj/bin so it never mixes with the
+       normal build that GitHub releases and the installer use. -->
+  <PropertyGroup Condition="'$(Thunderstore)' == '1'">
+    <BaseIntermediateOutputPath>obj\Thunderstore\</BaseIntermediateOutputPath>
+    <BaseOutputPath>bin\Thunderstore\</BaseOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Keep each build's generated files out of the other's compile. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**;bin\**</DefaultItemExcludes>
+  </PropertyGroup>
 </Project>
