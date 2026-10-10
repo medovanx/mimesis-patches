@@ -64,24 +64,42 @@ def build(patch, dry):
 
 
 def upload_thunderstore(zip_path, token):
-    """Thunderstore's upload API (the same one their CLI uses)."""
-    import urllib.request, uuid
-    boundary = uuid.uuid4().hex
-    metadata = {"author_name": TEAM, "communities": [COMMUNITY], "categories": [],
-                "community_categories": {COMMUNITY: CATEGORIES}, "has_nsfw_content": False}
-    body = b"".join([
-        f"--{boundary}\r\nContent-Disposition: form-data; name=\"metadata\"\r\n\r\n{json.dumps(metadata)}\r\n".encode(),
-        f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{zip_path.name}\"\r\n"
-        f"Content-Type: application/zip\r\n\r\n".encode(), zip_path.read_bytes(), f"\r\n--{boundary}--\r\n".encode()])
-    req = urllib.request.Request("https://thunderstore.io/api/experimental/package/upload/", data=body, method="POST",
-                                 headers={"Authorization": f"Bearer {token}", "Content-Type": f"multipart/form-data; boundary={boundary}",
-                                          # Cloudflare blocks Python's default user agent (error 1010)
-                                          "User-Agent": "mimesis-patches-release/1.0 (+https://github.com/medovanx/mimesis-patches)"})
-    try:
+    """Uploads a package the way Thunderstore's CLI (tcli) does: start an upload, PUT the file in parts to the
+    URLs it returns, finish the upload, then submit the package to the community. Returns (status, message)."""
+    import urllib.request, urllib.error
+    api = "https://thunderstore.io/api/experimental"
+    # Cloudflare blocks Python's default user agent (error 1010).
+    ua = "mimesis-patches-release/1.0 (+https://github.com/medovanx/mimesis-patches)"
+
+    def call(method, url, payload=None, data=None, headers=None, auth=True):
+        h = {"User-Agent": ua}
+        if auth:
+            h["Authorization"] = f"Bearer {token}"
+        if payload is not None:
+            data = json.dumps(payload).encode()
+            h["Content-Type"] = "application/json"
+        h.update(headers or {})
+        req = urllib.request.Request(url, data=data, method=method, headers=h)
         with urllib.request.urlopen(req, timeout=600) as r:
-            return r.status, r.read().decode()[:300]
+            body = r.read()
+            return r.headers, (json.loads(body) if body[:1] in (b"{", b"[") else body)
+
+    data = zip_path.read_bytes()
+    try:
+        _, start = call("POST", f"{api}/usermedia/initiate-upload/", {"filename": zip_path.name, "file_size_bytes": len(data)})
+        uuid = start["user_media"]["uuid"]
+        parts = []
+        for part in start["upload_urls"]:
+            chunk = data[part["offset"]:part["offset"] + part["length"]]
+            headers, _ = call("PUT", part["url"], data=chunk, auth=False)   # presigned storage URL: no token
+            parts.append({"ETag": headers["ETag"], "PartNumber": part["part_number"]})
+        call("POST", f"{api}/usermedia/{uuid}/finish-upload/", {"parts": parts})
+        _, result = call("POST", f"{api}/submission/submit/", {
+            "upload_uuid": uuid, "author_name": TEAM, "communities": [COMMUNITY], "categories": [],
+            "community_categories": {COMMUNITY: CATEGORIES}, "has_nsfw_content": False})
+        return 200, str(result)[:200]
     except urllib.error.HTTPError as e:
-        return e.code, e.read().decode()[:500]
+        return e.code, e.read().decode(errors="replace")[:500]
 
 
 def main():
