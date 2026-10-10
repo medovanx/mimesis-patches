@@ -2,7 +2,6 @@
 
 Patches for MIMESIS (EA 0.3.1). No mod loader needed, and you can combine any of them.
 
-<!-- SCREENSHOT TODO: replace screenshots/menu.png with: Main menu with the Patches chip bottom-left, and the Patches window open -->
 ![Main menu with the Patches chip bottom-left, and the Patches window open](screenshots/menu.png)
 
 ## Install

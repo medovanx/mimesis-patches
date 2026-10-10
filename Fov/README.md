@@ -4,8 +4,14 @@
 
 Adds a **field of view** setting for your first-person view.
 
-<!-- SCREENSHOT TODO: replace screenshots/slider.png with: Patches > Fov page with the slider, plus the FOV toast after pressing [ or ] -->
-![Patches > Fov page with the slider, plus the FOV toast after pressing [ or ]](screenshots/slider.png)
+![Patches > Fov page with the slider](screenshots/slider.png)
+
+Pressing [ or ] in game:
+
+<p>
+  <img src="screenshots/toast-50.png" alt="FOV at 50" width="49%">
+  <img src="screenshots/toast-120.png" alt="FOV at 120" width="49%">
+</p>
 
 **Only you need it.**
 
