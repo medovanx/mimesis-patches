@@ -6,7 +6,8 @@ README.md and the plugin DLL (PSController also gets its PSIcons folder next to 
 """
 import json, re, sys, zipfile
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from icons import icon   # tools/icons.py
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "https://github.com/medovanx/mimesis-patches"
@@ -30,31 +31,6 @@ DESCRIPTIONS = {
 def version(patch):
     csproj = next((ROOT / patch / "Runtime").glob("*.csproj")).read_text(encoding="utf-8")
     return re.search(r"<Version>([^<]+)</Version>", csproj).group(1)
-
-
-def icon(patch):
-    """Dark tile with a gold frame and the patch name, in the installer's style."""
-    img = Image.new("RGB", (256, 256), (22, 27, 32))
-    g = ImageDraw.Draw(img)
-    g.rectangle([6, 6, 249, 249], outline=(240, 196, 92), width=4)
-    try:
-        small = ImageFont.truetype("seguisb.ttf", 22)
-    except OSError:
-        small = ImageFont.load_default()
-    g.text((128, 60), "MIMESIS", font=small, fill=(200, 200, 205), anchor="mm")
-    size = 46
-    while size > 18:
-        try:
-            font = ImageFont.truetype("seguibl.ttf", size)
-        except OSError:
-            font = ImageFont.load_default()
-            break
-        if g.textlength(patch, font=font) <= 220:
-            break
-        size -= 2
-    g.text((128, 132), patch, font=font, fill=(240, 196, 92), anchor="mm")
-    g.text((128, 200), "PATCHES", font=small, fill=(150, 150, 155), anchor="mm")
-    return img
 
 
 def package(patch, out):
