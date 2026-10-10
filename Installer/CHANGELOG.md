@@ -1,5 +1,9 @@
 # Installer changelog
 
+## 3.1.1
+- Fixed: updating from inside the game could hang on a hidden "press any key" prompt. The installer never waits for input now.
+- Writes a log to `%TEMP%\MimesisPatchesInstaller.log`.
+
 ## 3.1.0
 - Asks before closing MIMESIS.
 - New command `install:<Patch,...> --relaunch`, used by the in-game Update button: installs those patches and starts the game again.

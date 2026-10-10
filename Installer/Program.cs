@@ -23,13 +23,21 @@ namespace MimesisInstaller
         {
             if (args.Length == 0)
             {
+                PatcherCore.Unattended = true;
                 ApplicationConfiguration.Initialize();
                 Application.Run(new MainForm());
                 return 0;
             }
             // Command line: use the calling console (or open one) so output is visible.
             if (!AttachConsole(-1)) AllocConsole();
-            return RunCommandLine(args);
+            // Never wait for input (it may run unattended from the in-game Update button), and keep a log.
+            PatcherCore.Unattended = true;
+            Console.SetIn(System.IO.TextReader.Null);
+            var log = new System.IO.StreamWriter(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.log"), false) { AutoFlush = true };
+            Console.SetOut(new Tee(Console.Out, log));
+            log.WriteLine($"[{DateTime.Now}] {string.Join(" ", args)}");
+            try { return RunCommandLine(args); }
+            finally { log.Dispose(); }
         }
 
         static int RunCommandLine(string[] args)
@@ -101,6 +109,17 @@ namespace MimesisInstaller
                 PatcherCore.Fail(Describe(e));
                 return 1;
             }
+        }
+
+        /// <summary>Writes console output to the screen and to the log file.</summary>
+        sealed class Tee : System.IO.TextWriter
+        {
+            readonly System.IO.TextWriter _a, _b;
+            public Tee(System.IO.TextWriter a, System.IO.TextWriter b) { _a = a; _b = b; }
+            public override System.Text.Encoding Encoding => _a.Encoding;
+            public override void Write(char value) { _a.Write(value); try { _b.Write(value); } catch { } }
+            public override void Write(string value) { _a.Write(value); try { _b.Write(value); } catch { } }
+            public override void WriteLine(string value) { _a.WriteLine(value); try { _b.WriteLine(value); } catch { } }
         }
 
         public static string Describe(Exception e)

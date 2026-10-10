@@ -37,6 +37,7 @@ namespace MimesisPatches
             {
                 Fail($"Unexpected error: {e}");
             }
+            if (Unattended) return;
             Console.WriteLine();
             Console.WriteLine("Press any key to close.");
             try { Console.ReadKey(true); } catch (InvalidOperationException) { }
@@ -138,12 +139,16 @@ namespace MimesisPatches
         {
             while (true)
             {
+                if (Unattended) return "install";
                 Console.Write("Install or uninstall? (i/u, Enter = install): ");
                 var s = Console.ReadLine()?.Trim().ToLowerInvariant();
                 if (string.IsNullOrEmpty(s) || s == "i" || s == "install") return "install";
                 if (s == "u" || s == "uninstall") return "uninstall";
             }
         }
+
+        /// <summary>Set by the all-in-one installer: never wait for a key press or ask questions.</summary>
+        public static bool Unattended;
 
         /// <summary>Set by the all-in-one installer to read patch files it downloaded instead of embedded ones.</summary>
         public static Func<string, Stream> ResourceOverride;
