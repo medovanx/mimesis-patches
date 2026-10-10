@@ -180,7 +180,7 @@ namespace MimesisPatches
 
             var value = Label(row, font, get() + suffix, 22f);
             value.GetComponent<LayoutElement>().preferredWidth = 80f;
-            slider.onValueChanged.AddListener(v => { set((int)v); value.text = (int)v + suffix; });
+            slider.onValueChanged.AddListener(v => { set((int)v); RefreshAll(); });   // others (e.g. preset buttons) may depend on it
             Refreshers.Add(() => { slider.SetValueWithoutNotify(get()); value.text = get() + suffix; });
             return slider;
         }

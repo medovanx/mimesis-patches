@@ -31,9 +31,13 @@ namespace HostOptions
                     MimesisPatches.PatchUi.Options(page, font, "Difficulty",
                         Difficulty.Presets.Select(p => (p.name, (Func<bool>)(() => Difficulty.Current == p.name), (Action)(() => Difficulty.Apply(p)))).ToArray());
                     MimesisPatches.PatchUi.Slider(page, font, "Quota / repair", Difficulty.Min, Difficulty.Max, () => Difficulty.Quota, v => Difficulty.Quota = v, "%");
+                    MimesisPatches.PatchUi.Label(page, font, "Money needed to repair the tram.", 17f, MimesisPatches.PatchUi.Dim);
                     MimesisPatches.PatchUi.Slider(page, font, "Shop prices", Difficulty.Min, Difficulty.Max, () => Difficulty.Prices, v => Difficulty.Prices = v, "%");
+                    MimesisPatches.PatchUi.Label(page, font, "Cost of items in the shop.", 17f, MimesisPatches.PatchUi.Dim);
                     MimesisPatches.PatchUi.Slider(page, font, "Sell value", Difficulty.Min, Difficulty.Max, () => Difficulty.SellValue, v => Difficulty.SellValue = v, "%");
+                    MimesisPatches.PatchUi.Label(page, font, "Money you get for each item you sell.", 17f, MimesisPatches.PatchUi.Dim);
                     MimesisPatches.PatchUi.Slider(page, font, "Monsters", Difficulty.Min, Difficulty.Max, () => Difficulty.Monsters, v => Difficulty.Monsters = v, "%");
+                    MimesisPatches.PatchUi.Label(page, font, "How many monsters and mimics spawn in a level.", 17f, MimesisPatches.PatchUi.Dim);
                     MimesisPatches.PatchUi.Label(page, font,
                         "Host only. Also in the lobby menu (Esc). Starting money applies to new runs, and to current funds before the first departure.",
                         20f, MimesisPatches.PatchUi.Dim);
