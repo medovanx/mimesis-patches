@@ -9,6 +9,8 @@ Patches for MIMESIS (EA 0.3.1). No mod loader needed, and you can combine any of
 2. Run it, tick the patches you want and click **Install / update selected**. See [Installer](Installer/).
 3. In game, click the **Patches** chip in the bottom-left of the main menu to turn patches on/off and change their options. It turns orange when an update is available.
 
+![Installer window](Installer/screenshots/installer.png)
+
 Each patch also has its own patcher exe if you prefer: close the game, put the exe next to `MIMESIS.exe` and run it. Your original game file is backed up as `Assembly-CSharp.dll.bak`.
 
 ## Patches
