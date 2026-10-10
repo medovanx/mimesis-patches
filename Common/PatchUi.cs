@@ -84,13 +84,16 @@ namespace MimesisPatches
         }
 
         /// <summary>A titled row of buttons; the selected one(s) are highlighted.</summary>
-        public static void Options(Transform parent, TMP_FontAsset font, string title, params (string label, Func<bool> selected, Action select)[] options)
+        public static void Options(Transform parent, TMP_FontAsset font, string title, params (string label, Func<bool> selected, Action select)[] options) =>
+            Options(parent, font, title, 160f, options);
+
+        public static void Options(Transform parent, TMP_FontAsset font, string title, float width, params (string label, Func<bool> selected, Action select)[] options)
         {
             var row = Row(parent);
             Label(row, font, title, 22f).GetComponent<LayoutElement>().preferredWidth = 190f;
             foreach (var (label, selected, select) in options)
             {
-                var img = Button(row, font, label, select).GetComponent<Image>();
+                var img = Button(row, font, label, select, width).GetComponent<Image>();
                 Refreshers.Add(() => img.color = selected() ? On : Off);
             }
         }

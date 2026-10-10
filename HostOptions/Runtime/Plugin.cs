@@ -28,8 +28,10 @@ namespace HostOptions
                         () => HostOptionsPatch.StartMoney >= 0 ? HostOptionsPatch.StartMoney : HostOptionsPatch.DefaultMoney,
                         v => { HostOptionsPatch.StartMoney = v == HostOptionsPatch.DefaultMoney ? -1 : v; HostOptionsPatch.ApplyNow(v); },
                         HostOptionsPatch.DefaultMoney);
-                    MimesisPatches.PatchUi.Options(page, font, "Difficulty",
-                        Difficulty.Presets.Select(p => (p.name, (Func<bool>)(() => Difficulty.Current == p.name), (Action)(() => Difficulty.Apply(p)))).ToArray());
+                    // "Custom" lights up when the sliders don't match a preset; clicking it does nothing.
+                    MimesisPatches.PatchUi.Options(page, font, "Difficulty", 122f,
+                        Difficulty.Presets.Select(p => (p.name, (Func<bool>)(() => Difficulty.Current == p.name), (Action)(() => Difficulty.Apply(p))))
+                            .Append(("Custom", () => Difficulty.Current == "Custom", () => { })).ToArray());
                     MimesisPatches.PatchUi.Slider(page, font, "Quota / repair", Difficulty.Min, Difficulty.Max, () => Difficulty.Quota, v => Difficulty.Quota = v, "%");
                     MimesisPatches.PatchUi.Label(page, font, "Money needed to repair the tram.", 17f, MimesisPatches.PatchUi.Dim);
                     MimesisPatches.PatchUi.Slider(page, font, "Shop prices", Difficulty.Min, Difficulty.Max, () => Difficulty.Prices, v => Difficulty.Prices = v, "%");

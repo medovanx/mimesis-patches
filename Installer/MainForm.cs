@@ -536,6 +536,10 @@ namespace MimesisInstaller
 
         async Task Run(string what, Action<string> work)
         {
+            if (System.Diagnostics.Process.GetProcessesByName("MIMESIS").Length > 0 &&
+                MessageBox.Show(this, "MIMESIS is running. Close it now to continue?", "MIMESIS Patches",
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK)
+                return;
             SetBusy(true, what + "...");
             try
             {

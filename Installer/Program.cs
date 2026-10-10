@@ -2,7 +2,7 @@
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
 // No arguments: opens the installer window.
-// Command line: MimesisPatchesInstaller install|uninstall|uninstall:<Patch> [path to Assembly-CSharp.dll] [--no-update]
+// Command line: MimesisPatchesInstaller install|install:<A,B>|uninstall|uninstall:<Patch> [path to Assembly-CSharp.dll] [--no-update] [--relaunch]
 //   install installs/updates every released patch; uninstall removes everything; uninstall:<Patch> removes one.
 
 using System;
@@ -45,7 +45,8 @@ namespace MimesisInstaller
                     Engine.LaunchNewer(newer, args);
                     return 0;
                 }
-                args = args.Where(a => a != "--no-update").ToArray();
+                bool relaunch = args.Contains("--relaunch");
+                args = args.Where(a => a != "--no-update" && a != "--relaunch").ToArray();
                 var dll = args.Length > 1 ? args[1] : Engine.DetectDll();
                 if (dll == null)
                 {
@@ -58,6 +59,15 @@ namespace MimesisInstaller
                 {
                     Engine.Install(dll, Engine.Patches, releases);
                     PatcherCore.Success("Done.");
+                }
+                else if (mode.StartsWith("install:"))
+                {
+                    // install:A,B - used by the in-game Update button
+                    var names = mode.Substring("install:".Length).Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    var picked = Engine.Patches.Where(x => names.Any(n => string.Equals(n, x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+                    if (picked.Count == 0) { PatcherCore.Fail($"Unknown patch: {mode.Substring(8)}"); return 1; }
+                    Engine.Install(dll, picked, releases);
+                    PatcherCore.Success("Updated: " + string.Join(", ", picked.Select(x => x.Name)));
                 }
                 else if (mode == "uninstall")
                 {
@@ -74,8 +84,15 @@ namespace MimesisInstaller
                 }
                 else
                 {
-                    PatcherCore.Fail($"Unknown command: {args[0]} (use install, uninstall or uninstall:<Patch>)");
+                    PatcherCore.Fail($"Unknown command: {args[0]} (use install, install:<Patch>, uninstall or uninstall:<Patch>)");
                     return 1;
+                }
+                if (relaunch)
+                {
+                    var game = System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(dll), "..", "..", "MIMESIS.exe"));
+                    Console.WriteLine("Starting MIMESIS...");
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(game) { UseShellExecute = true, WorkingDirectory = System.IO.Path.GetDirectoryName(game) });
+                    System.Threading.Thread.Sleep(1500);
                 }
                 return 0;
             }

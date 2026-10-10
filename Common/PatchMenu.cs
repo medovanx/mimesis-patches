@@ -118,6 +118,63 @@ namespace MimesisPatches
             }
         }
 
+        // ---------------- In-game update ----------------
+        // Downloads the latest installer and runs it: it closes the game, installs the updates and starts the game again.
+
+        const string InstallerUrl = RepoUrl + "/releases/latest/download/MimesisPatchesInstaller.exe";
+        bool _updating;
+
+        RectTransform _confirm;
+
+        // Asks first: updating closes the game.
+        void StartUpdate(string[] names)
+        {
+            if (_updating) return;
+            if (_confirm != null) Destroy(_confirm.gameObject);
+            _confirm = new GameObject("UpdateConfirm", typeof(RectTransform), typeof(VerticalLayoutGroup)).GetComponent<RectTransform>();
+            _confirm.SetParent(_content, false);
+            _confirm.SetSiblingIndex(2);
+            var v = _confirm.GetComponent<VerticalLayoutGroup>();
+            v.childControlHeight = v.childControlWidth = true; v.childForceExpandHeight = false; v.spacing = 6f;
+            PatchUi.Label(_confirm, _font, $"Update {string.Join(", ", names)}? The game will close, update and start again.", 20f, UpdateColor);
+            var row = PatchUi.Row(_confirm, 44f);
+            PatchUi.Button(row, _font, "Update now", () =>
+            {
+                Destroy(_confirm.gameObject);
+                _updating = true;
+                StartCoroutine(RunUpdate(names));
+            }, 200f).GetComponent<Image>().color = UpdateColor;
+            PatchUi.Button(row, _font, "Not now", () => Destroy(_confirm.gameObject), 160f);
+        }
+
+        IEnumerator RunUpdate(string[] names)
+        {
+            PatchUi.Label(_content, _font, "Downloading the update... the game will restart.", 20f, UpdateColor);
+            var exe = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.exe");
+            using (var req = new UnityWebRequest(InstallerUrl, UnityWebRequest.kHttpVerbGET, new DownloadHandlerFile(exe), null))
+            {
+                req.timeout = 600;
+                yield return req.SendWebRequest();
+                if (req.result != UnityWebRequest.Result.Success)
+                {
+                    PatchUi.Label(_content, _font, "Couldn't download the update. Check your connection, or use the installer.", 20f, UpdateColor);
+                    _updating = false;
+                    yield break;
+                }
+            }
+            var dll = System.IO.Path.Combine(Application.dataPath, "Managed", "Assembly-CSharp.dll");
+            try
+            {
+                System.Diagnostics.Process.Start(exe, $"install:{string.Join(",", names)} \"{dll}\" --relaunch");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[Patches] Couldn't start the installer: " + ex);
+                PatchUi.Label(_content, _font, "Couldn't start the installer. Run MimesisPatchesInstaller.exe yourself.", 20f, UpdateColor);
+                _updating = false;
+            }
+        }
+
         // ---------------- Chip (bottom-left of the main menu) ----------------
 
         void BuildChip(Transform canvas, TMP_Text version)
@@ -296,9 +353,16 @@ namespace MimesisPatches
                 if (!string.IsNullOrEmpty(s)) PatchUi.Label(_content, _font, s, 18f, PatchUi.Dim, 26f);
             }
             if (HasUpdate(e))
-                PatchUi.Button(PatchUi.Row(_content, 44f), _font, $"Update to {Latest(e).ToString(3)}",
-                    () => Application.OpenURL($"{RepoUrl}/releases/tag/{name}-v{Latest(e).ToString(3)}"), 220f)
+            {
+                var row = PatchUi.Row(_content, 44f);
+                PatchUi.Button(row, _font, $"Update to {Latest(e).ToString(3)}", () => StartUpdate(new[] { name }), 220f)
                     .GetComponent<Image>().color = UpdateColor;
+                var others = Entries.Where(HasUpdate).Select(x => (string)x["name"]).ToArray();
+                if (others.Length > 1)
+                    PatchUi.Button(row, _font, $"Update all ({others.Length})", () => StartUpdate(others), 220f)
+                        .GetComponent<Image>().color = UpdateColor;
+                PatchUi.Button(row, _font, "What's new", () => Application.OpenURL($"{RepoUrl}/blob/main/{name}/CHANGELOG.md"), 160f);
+            }
 
             if (e["build"] is Action<RectTransform, TMP_FontAsset> build)
             {
