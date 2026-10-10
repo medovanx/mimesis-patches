@@ -220,6 +220,7 @@ namespace MimesisPatches
 
         GameObject _window;
         RectTransform _sidebar, _content;
+        Button _updateAll;
         string _selected;
 
         void Open()
@@ -287,6 +288,16 @@ namespace MimesisPatches
                 bar.GetComponent<Image>().raycastTarget = false;
             }
 
+            // "Update all" in the title bar, left of the close button; shown when any patch has an update.
+            _updateAll = PatchUi.Button(panel, _font, "Update all", () =>
+                StartUpdate(Entries.Where(HasUpdate).Select(x => (string)x["name"]).ToArray()), 200f);
+            _updateAll.GetComponent<Image>().color = UpdateColor;
+            var ua = (RectTransform)_updateAll.transform;
+            Destroy(ua.GetComponent<LayoutElement>());
+            ua.anchorMin = ua.anchorMax = ua.pivot = new Vector2(1f, 1f);
+            ua.anchoredPosition = new Vector2(-72f, -16f);
+            ua.sizeDelta = new Vector2(200f, 44f);
+
             // Author footer along the bottom; clicking it opens the repo.
             var footer = PatchUi.Label(panel, _font,
                 "Made by <b>Mohamed Darwesh</b> (@medovanx)   |   <u>github.com/medovanx/mimesis-patches</u>", 18f, PatchUi.Dim);
@@ -346,6 +357,9 @@ namespace MimesisPatches
         void Select(string name)
         {
             BuildSidebar();
+            int updates = Entries.Count(HasUpdate);
+            _updateAll.gameObject.SetActive(updates > 0);
+            _updateAll.GetComponentInChildren<TMP_Text>().text = updates > 1 ? $"Update all ({updates})" : "Update";
             foreach (Transform c in _content) Destroy(c.gameObject);
             var e = Entries.FirstOrDefault(x => (string)x["name"] == name);
             if (e == null) return;
@@ -362,10 +376,6 @@ namespace MimesisPatches
                 var row = PatchUi.Row(_content, 44f);
                 PatchUi.Button(row, _font, $"Update to {Latest(e).ToString(3)}", () => StartUpdate(new[] { name }), 220f)
                     .GetComponent<Image>().color = UpdateColor;
-                var others = Entries.Where(HasUpdate).Select(x => (string)x["name"]).ToArray();
-                if (others.Length > 1)
-                    PatchUi.Button(row, _font, $"Update all ({others.Length})", () => StartUpdate(others), 220f)
-                        .GetComponent<Image>().color = UpdateColor;
                 PatchUi.Button(row, _font, "What's new", () => Application.OpenURL($"{RepoUrl}/blob/main/{name}/CHANGELOG.md"), 160f);
             }
 
