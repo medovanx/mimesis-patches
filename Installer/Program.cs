@@ -108,16 +108,30 @@ try
         }
         else if (mode.StartsWith("uninstall:"))
         {
-            var name = mode.Substring("uninstall:".Length);
-            var p = patches.First(x => x.Name == name);
-            var path = Path.Combine(managed, p.Files[0]);
-            if (File.Exists(path)) File.Delete(path);
-            if (name == "PSController")
+            // Every patch adds a startup hook to Assembly-CSharp.dll that loads its runtime DLL, so deleting the
+            // DLL alone would stop the game from starting. Instead: restore the original, then reinstall every
+            // other installed patch.
+            var wanted = mode.Substring("uninstall:".Length);
+            var name = patches.FirstOrDefault(p => string.Equals(p.Name, wanted, StringComparison.OrdinalIgnoreCase)).Name;
+            if (name == null) throw new InvalidOperationException($"Unknown patch: {wanted}");
+            var keep = patches.Where(p => p.Name != name && File.Exists(Path.Combine(managed, p.Files[0]))).ToList();
+            var bak = dll + ".bak";
+            if (!File.Exists(bak)) throw new InvalidOperationException("No Assembly-CSharp.dll.bak backup found; can't remove a single patch safely.");
+            File.Copy(bak, dll, true);
+            foreach (var f in patches.Select(p => p.Files[0])) { var path = Path.Combine(managed, f); if (File.Exists(path)) File.Delete(path); }
+            var icons = Path.Combine(Path.GetDirectoryName(managed), "PSIcons");
+            if (Directory.Exists(icons)) Directory.Delete(icons, true);
+            Console.WriteLine($"== {name}: removed\n");
+            foreach (var p in keep)
             {
-                var icons = Path.Combine(Path.GetDirectoryName(managed), "PSIcons");
-                if (Directory.Exists(icons)) Directory.Delete(icons, true);
+                if (!releases.TryGetValue(p.Name, out var r)) continue;
+                Console.WriteLine($"== {p.Name} v{r.Version.ToString(3)} (reinstalling)");
+                UseFiles(Download(http, r, p.Files, p.Name));
+                p.Install(dll);
+                Console.WriteLine();
             }
-            PatcherCore.Success($"SUCCESS! {name} removed. (Assembly-CSharp.dll was left as is; its hook is now unused.)");
+            if (keep.Count == 0) { var h = Path.Combine(managed, "0Harmony.dll"); if (File.Exists(h)) File.Delete(h); }
+            PatcherCore.Success($"SUCCESS! {name} removed; {keep.Count} other patch(es) kept.");
         }
         else Console.WriteLine("Nothing changed.");
     }
@@ -217,6 +231,7 @@ static void Header(string version)
 static string Checklist(string version, List<(string Name, string About, string State, bool Available)> items, bool[] selected)
 {
     if (Console.IsInputRedirected) return "install";
+    Console.OutputEncoding = System.Text.Encoding.UTF8;   // for the ✓ and arrow symbols
     int cursor = 0;
     int nameWidth = items.Max(i => i.Name.Length) + 2;
     int aboutWidth = items.Max(i => i.About.Length) + 2;
@@ -233,13 +248,13 @@ static string Checklist(string version, List<(string Name, string About, string 
             for (int i = 0; i < items.Count; i++)
             {
                 Console.ForegroundColor = !items[i].Available ? ConsoleColor.DarkGray : i == cursor ? ConsoleColor.Yellow : ConsoleColor.Gray;
-                Console.Write($"{(i == cursor ? ">" : " ")} [{(selected[i] ? "x" : " ")}] {Pad(items[i].Name, nameWidth)}{Pad(items[i].About, aboutWidth)}");
+                Console.Write($"{(i == cursor ? ">" : " ")} [{(selected[i] ? "✓" : " ")}] {Pad(items[i].Name, nameWidth)}{Pad(items[i].About, aboutWidth)}");
                 Console.ForegroundColor = items[i].State.Contains("installed") ? ConsoleColor.DarkGreen : ConsoleColor.DarkGray;
                 Console.WriteLine(Pad(items[i].State, 24));
             }
             Console.ResetColor();
             Console.WriteLine("\n[\u2191/\u2193] move   [Space] toggle   [A] all/none   [Enter] install selected                    ");
-            Console.WriteLine("[U] uninstall all   [Delete] uninstall selected patch only   [Esc] quit                  ");
+            Console.WriteLine("[U] uninstall all   [Delete] uninstall the highlighted patch   [Esc] quit                  ");
             Console.WriteLine("Unchecked patches are skipped (left as they are if already installed).                   ");
 
             switch (Console.ReadKey(true).Key)
