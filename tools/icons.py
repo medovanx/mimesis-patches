@@ -52,7 +52,7 @@ def biggerlobby(d, cx, cy):
 
 def pscontroller(d, cx, cy):
     w = 34
-    d.polygon([(cx, cy - 215), (cx - 70, cy - 95), (cx + 70, cy - 95)], outline=WHITE, width=w)            # triangle
+    d.polygon([(cx, cy - 268), (cx - 106, cy - 76), (cx + 106, cy - 76)], outline=WHITE, width=w - 4)            # triangle
     d.ellipse([cx + 95, cy - 70, cx + 235, cy + 70], outline=WHITE, width=w)                               # circle
     d.line([(cx - 65, cy + 95), (cx + 65, cy + 225)], fill=WHITE, width=w)                                 # cross
     d.line([(cx + 65, cy + 95), (cx - 65, cy + 225)], fill=WHITE, width=w)
