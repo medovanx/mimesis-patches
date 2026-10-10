@@ -43,8 +43,25 @@ namespace MimesisPatches
         }
 
         // Usage: <exe> [install|uninstall] [path to Assembly-CSharp.dll]
+        /// <summary>Closes MIMESIS if it's running, since its files are locked while it runs. Safe to call repeatedly.</summary>
+        public static void CloseGame()
+        {
+            foreach (var p in System.Diagnostics.Process.GetProcessesByName("MIMESIS"))
+            {
+                try
+                {
+                    Console.WriteLine("MIMESIS is running; closing it so the patch can be installed...");
+                    p.Kill();
+                    p.WaitForExit(15000);
+                }
+                catch (Exception e) { Console.WriteLine($"Couldn't close MIMESIS ({e.Message}). Close it yourself and try again."); }
+                finally { p.Dispose(); }
+            }
+        }
+
         public static void Run(string[] args, string title, string plugin, string runtimeDll)
         {
+            CloseGame();
             var here = AppContext.BaseDirectory;
             var dll = args.Length > 1 ? args[1] : new[] {
                 Path.Combine(here, "Assembly-CSharp.dll"),

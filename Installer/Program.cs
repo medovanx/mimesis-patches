@@ -72,6 +72,7 @@ try
     else
     {
         var managed = Path.GetDirectoryName(dll);
+        PatcherCore.CloseGame();   // its files are locked while it runs
         var items = patches.Select(p =>
         {
             releases.TryGetValue(p.Name, out var r);

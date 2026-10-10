@@ -14,6 +14,7 @@ static class Setup
     /// <summary>Install (and for PSController also uninstall) this patch. Shared with the all-in-one installer.</summary>
     public static void Run(string[] args)
     {
+        MimesisPatches.PatcherCore.CloseGame();
         var here = AppContext.BaseDirectory;
         var dll = args.Length > 0 ? args[0] : new[] {
             Path.Combine(here, "Assembly-CSharp.dll"),
