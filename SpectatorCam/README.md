@@ -3,7 +3,6 @@
 **Version 1.1.0**
 
 A free camera for dead players, limited to the area around the player you're spectating.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.

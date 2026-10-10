@@ -32,6 +32,8 @@ var patches = new List<(string Name, string About, string[] Files, Action<string
     ("HudPercent", "Health / radiation % on the HUD", new[] { "HudPercentRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "HudPercent")),
     ("Inventory", "Host sets 1-8 slots (all players need it)", new[] { "InventoryRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Inventory")),
     ("LateJoin", "Join a game in progress (all players need it)", new[] { "LateJoinRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "LateJoin")),
+    ("Fov", "Field of view setting", new[] { "FovRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Fov")),
+    ("Revive", "Revive dead teammates (host)", new[] { "ReviveRuntime.dll", "0Harmony.dll" }, dll => Core(dll, "Revive")),
 };
 
 // Long timeout: patch files and the installer itself can be slow to download on some connections.

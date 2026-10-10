@@ -7,6 +7,15 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - The checklist redraws in place instead of clearing the screen on every key press, so it no longer flickers.
 - Close button in the Patches window is drawn as a true ✕ (two crossed bars) instead of the letter "X".
 
+## Fov 1.0.0
+- Field of view setting (60-110°) in Patches → Fov.
+
+## Revive 1.0.0
+- Revive dead teammates by standing next to their body (host only).
+
+## Installer 2.2.0
+- Lists Fov and Revive.
+
 ## Installer 2.1.1
 - 3x smaller (12 MB instead of 38 MB) and a 30-minute download timeout, so it works on slow connections.
 

@@ -3,7 +3,6 @@
 **Version 1.4.0**
 
 A minimap in the bottom-left corner with your position and facing.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.

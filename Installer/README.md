@@ -3,7 +3,6 @@
 **Version 2.2.0**
 
 One exe that installs, updates or removes **every patch** at once.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Always up to date
 The installer contains no patch files. It downloads each checked patch's files from that patch's **latest GitHub release**, so the exe you share always installs the newest patches. If the install logic itself was updated, it first downloads and opens the newest installer (`MimesisPatchesInstaller-vX.Y.Z.exe` next to it). It needs an internet connection.

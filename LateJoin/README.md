@@ -3,7 +3,6 @@
 **Version 1.0.0**
 
 Lets friends **join a game that's already running**. If the team is in a level, the new player waits on a message and joins at the tram when the team returns, then plays from the next stage.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.

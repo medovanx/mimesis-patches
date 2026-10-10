@@ -3,7 +3,6 @@
 **Version 1.1.0**
 
 Extra lobby options for the host: **infinite stamina** and **starting money**.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.

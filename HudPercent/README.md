@@ -3,7 +3,6 @@
 **Version 1.1.2**
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.

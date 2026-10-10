@@ -3,7 +3,6 @@
 **Version 1.3.0**
 
 Lets MIMESIS lobbies hold **10 players** and adapts the UI and difficulty to them.
-By Mohamed Darwesh ([@medovanx](https://github.com/medovanx)).
 
 ## Use
 1. Close the game.
