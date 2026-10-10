@@ -4,6 +4,9 @@
 
 Install, update or remove **every patch** from one exe.
 
+<!-- SCREENSHOT TODO: replace screenshots/installer.png with: Installer window with the patch cards (one Installed, one Download) -->
+![Installer window with the patch cards (one Installed, one Download)](screenshots/installer.png)
+
 ## Use
 1. Download `MimesisPatchesInstaller.exe` from the [Releases page](https://github.com/medovanx/mimesis-patches/releases) and run it from anywhere. It finds your game automatically; if not, click **Change game folder**.
 2. Tick the patches you want and click **Install / update selected**.

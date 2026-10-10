@@ -4,6 +4,9 @@
 
 The host sets the inventory size to **1-8 slots**. More than 4 shows as a **2 × 4 grid** (slots 1-4 on the bottom row, 5-8 above).
 
+<!-- SCREENSHOT TODO: replace screenshots/inventory.png with: Inventory bar with 8 slots in a 2x4 grid -->
+![Inventory bar with 8 slots in a 2x4 grid](screenshots/inventory.png)
+
 **Every player needs it.** Without it, a player keeps 4 slots and can run into problems when given items in slots 5-8, so make sure everyone installs it before raising the number.
 
 ## Install

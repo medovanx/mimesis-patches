@@ -4,6 +4,12 @@
 
 A minimap in the bottom-left corner showing your position and facing.
 
+<!-- SCREENSHOT TODO: replace screenshots/graphic.png with: Graphic minimap in the corner with player/monster/item dots -->
+![Graphic minimap in the corner with player/monster/item dots](screenshots/graphic.png)
+
+<!-- SCREENSHOT TODO: replace screenshots/plain.png with: Plain minimap style -->
+![Plain minimap style](screenshots/plain.png)
+
 **Only you need it.**
 
 ## Install

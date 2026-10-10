@@ -4,6 +4,9 @@
 
 Lobbies hold **10 players**, with the UI and difficulty adjusted to match.
 
+<!-- SCREENSHOT TODO: replace screenshots/lobby.png with: Lobby screen with 10 player slots filled -->
+![Lobby screen with 10 player slots filled](screenshots/lobby.png)
+
 **Only the host needs it.**
 
 ## Install

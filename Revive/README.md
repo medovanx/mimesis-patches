@@ -4,6 +4,9 @@
 
 **Revive a dead teammate** during a level: stand next to their body for a few seconds and they come back with low health.
 
+<!-- SCREENSHOT TODO: replace screenshots/revive.png with: Standing next to a dead teammate with the revive progress showing -->
+![Standing next to a dead teammate with the revive progress showing](screenshots/revive.png)
+
 **Only the host needs it.**
 
 ## Install

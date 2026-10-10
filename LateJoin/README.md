@@ -4,6 +4,9 @@
 
 Lets friends **join a game that's already running**. If the team is in a level, you wait on a message and join at the tram when they return, then play from the next stage.
 
+<!-- SCREENSHOT TODO: replace screenshots/joining.png with: A friend joining a run in progress (tram after the team returns) -->
+![A friend joining a run in progress (tram after the team returns)](screenshots/joining.png)
+
 **The host and the joining player both need it.**
 
 ## Install

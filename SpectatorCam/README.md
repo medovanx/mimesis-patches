@@ -4,6 +4,9 @@
 
 A free camera while you're dead, limited to the area around the player you're spectating.
 
+<!-- SCREENSHOT TODO: replace screenshots/spectate.png with: Free camera flying while dead, with the controls hint visible -->
+![Free camera flying while dead, with the controls hint visible](screenshots/spectate.png)
+
 **Only you need it.**
 
 ## Install
