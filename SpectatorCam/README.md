@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.3.1**
+**Version 1.3.2**
 
 A free camera while you're dead, limited to the area around the player you're spectating.
 

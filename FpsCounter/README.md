@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.1.2**
+**Version 1.1.3**
 
 Shows your frame rate in the bottom-right corner: `FPS: 144`. It updates twice a second, in menus and in game.
 

@@ -1,5 +1,8 @@
 # Minimap changelog
 
+## 1.6.3
+- Thunderstore version: no updater code at all (mod managers handle updates). The GitHub / installer version keeps the in-game Update button
+
 ## 1.6.2
 - AI disclosure in the README and the DLL
 - Installed from a mod manager (Gale, r2modman): updates come from the mod manager; no self-updating

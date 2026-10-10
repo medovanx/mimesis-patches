@@ -1,5 +1,8 @@
 # SpectatorCam changelog
 
+## 1.3.2
+- Thunderstore version: no updater code at all (mod managers handle updates). The GitHub / installer version keeps the in-game Update button
+
 ## 1.3.1
 - Installed from a mod manager (r2modman, Gale): updates come from the mod manager; the Patches window no longer checks GitHub or updates itself.
 - AI disclosure added to the README and the DLL.

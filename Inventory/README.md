@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.4.2**
+**Version 1.4.3**
 
 The host sets the inventory size to **1-8 slots**. More than 4 shows as a **2 × 4 grid** (slots 1-4 on the bottom row, 5-8 above).
 
