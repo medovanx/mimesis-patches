@@ -128,6 +128,10 @@ namespace MimesisPatches
 
         RectTransform _confirm;
 
+        static string Eta(double seconds) =>
+            seconds >= 3600 ? $"{(int)(seconds / 3600)}h {(int)(seconds % 3600 / 60)}m" :
+            seconds >= 60 ? $"{(int)(seconds / 60)}m {(int)(seconds % 60)}s" : $"{(int)Math.Ceiling(seconds)}s";
+
         // Asks first: updating closes the game.
         void StartUpdate(string[] names)
         {
@@ -151,12 +155,42 @@ namespace MimesisPatches
 
         IEnumerator RunUpdate(string[] names)
         {
-            PatchUi.Label(_content, _font, "Downloading the update... the game will restart.", 20f, UpdateColor);
+            var status = PatchUi.Label(_content, _font, "Downloading the update... the game will restart.", 20f, UpdateColor);
+            status.transform.SetSiblingIndex(2);
+            var track = PatchUi.Box(_content, "Progress", PatchUi.Off);
+            track.SetSiblingIndex(3);
+            track.gameObject.AddComponent<LayoutElement>().preferredHeight = 8f;
+            var fill = PatchUi.Box(track, "Fill", UpdateColor);
+            fill.anchorMin = Vector2.zero;
+            fill.anchorMax = new Vector2(0f, 1f);
+            fill.offsetMin = fill.offsetMax = Vector2.zero;
+
             var exe = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.exe");
             using (var req = new UnityWebRequest(InstallerUrl, UnityWebRequest.kHttpVerbGET, new DownloadHandlerFile(exe), null))
             {
-                req.timeout = 600;
-                yield return req.SendWebRequest();
+                req.timeout = 1800;
+                req.SendWebRequest();
+                float started = Time.realtimeSinceStartup, lastTime = started;
+                ulong lastBytes = 0;
+                double speed = 0;   // bytes per second, smoothed
+                while (!req.isDone)
+                {
+                    yield return new WaitForSecondsRealtime(0.25f);
+                    float now = Time.realtimeSinceStartup;
+                    ulong got = req.downloadedBytes;
+                    float p = req.downloadProgress;
+                    double instant = (got - lastBytes) / Math.Max(0.001, now - lastTime);
+                    speed = speed <= 0 ? instant : speed * 0.8 + instant * 0.2;
+                    lastBytes = got; lastTime = now;
+                    double total = p > 0.001f ? got / p : 0;
+                    fill.anchorMax = new Vector2(Mathf.Clamp01(p), 1f);
+                    string text = $"Downloading the update: {got / 1048576.0:0.0}" + (total > 0 ? $" / {total / 1048576.0:0.0} MB" : " MB");
+                    if (speed > 0) text += $"  |  {speed / 1048576.0:0.00} MB/s";
+                    if (speed > 0 && total > got) text += $"  |  {Eta((total - got) / speed)} left";
+                    status.text = text;
+                }
+                status.text = "Download done. Closing the game to install...";
+                fill.anchorMax = Vector2.one;
                 if (req.result != UnityWebRequest.Result.Success)
                 {
                     PatchUi.Label(_content, _font, "Couldn't download the update. Check your connection, or use the installer.", 20f, UpdateColor);
