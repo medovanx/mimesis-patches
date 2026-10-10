@@ -8,7 +8,7 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="....CommonPatcherCore.cs" Link="Common%(Filename)%(Extension)" />
+    <Compile Include="..\..\Common\PatcherCore.cs" Link="Common\%(Filename)%(Extension)" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <!-- Runtime DLL and icons are embedded so the exe is a single file. -->
     <EmbeddedResource Include="..\Runtime\bin\Release\netstandard2.1\PSControllerRuntime.dll" LogicalName="PSControllerRuntime.dll" />
