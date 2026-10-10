@@ -148,7 +148,7 @@ namespace MimesisPatches
             var fit = box.gameObject.AddComponent<ContentSizeFitter>();
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             box.gameObject.AddComponent<LayoutElement>();
-            box.sizeDelta = new Vector2(640f, 0f);
+            box.sizeDelta = new Vector2(760f, 0f);
             return box;
         }
 
@@ -184,6 +184,7 @@ namespace MimesisPatches
             var box = Dialog();
             PatchUi.Label(box, _font, names.Length == 1 ? $"Updating {names[0]}" : $"Updating {names.Length} patches", 28f, null, 36f);
             var status = PatchUi.Label(box, _font, "Starting the download...", 20f, PatchUi.Dim);
+            status.enableWordWrapping = false;   // one line: size | speed | time left
             var track = PatchUi.Box(box, "Progress", PatchUi.Off);
             track.gameObject.AddComponent<LayoutElement>().preferredHeight = 8f;
             var fill = PatchUi.Box(track, "Fill", UpdateColor);
@@ -316,7 +317,8 @@ namespace MimesisPatches
             panel.sizeDelta = new Vector2(
                 Mathf.Clamp(PlayerPrefs.GetFloat(SizeKey + ".w", 1100f), MinSize.x, 1900f),
                 Mathf.Clamp(PlayerPrefs.GetFloat(SizeKey + ".h", 760f), MinSize.y, 1060f));
-            ResizeGrip.Add(panel);
+            panel.anchoredPosition = new Vector2(PlayerPrefs.GetFloat(SizeKey + ".x", 0f), PlayerPrefs.GetFloat(SizeKey + ".y", 0f));
+            WindowFrame.AddMove(panel);   // first, so the title bar buttons sit on top of it
 
             // Title bar with close button.
             var title = PatchUi.Label(panel, _font, "Patches", 30f);
@@ -395,6 +397,8 @@ namespace MimesisPatches
             contentLayout.spacing = 14f;
             contentLayout.childControlWidth = contentLayout.childControlHeight = true;
             contentLayout.childForceExpandHeight = false;
+
+            WindowFrame.AddResize(panel);   // last, so the edges are on top
         }
 
         void BuildSidebar()
@@ -527,48 +531,100 @@ namespace MimesisPatches
         }
     }
 
-    /// <summary>Bottom-right corner grip: drag to resize the window. The top-left corner stays put, and the size is remembered.</summary>
-    sealed class ResizeGrip : MonoBehaviour, IDragHandler, IEndDragHandler
+    /// <summary>Moving (drag the title bar) and resizing (drag any edge or corner) the Patches window.
+    /// Size and position are remembered; the cursor changes to a move/resize arrow over those areas.</summary>
+    sealed class WindowFrame : MonoBehaviour, IDragHandler, IEndDragHandler, IBeginDragHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        RectTransform _panel;
+        const float MinW = 900f, MinH = 560f, Edge = 8f, Corner = 22f, TitleBar = 72f;
+        const int IDC_SIZENWSE = 32642, IDC_SIZENESW = 32643, IDC_SIZEWE = 32644, IDC_SIZENS = 32645, IDC_SIZEALL = 32646;
+        [DllImport("user32.dll")] static extern IntPtr LoadCursor(IntPtr instance, int name);
+        [DllImport("user32.dll")] static extern IntPtr SetCursor(IntPtr cursor);
 
-        public static void Add(RectTransform panel)
+        RectTransform _panel;
+        Vector2Int _dir;          // which edges move: x -1 left / 1 right, y -1 top / 1 bottom; (0,0) = move
+        int _cursor;
+        bool _hover, _dragging;
+        IntPtr _handle;
+
+        static WindowFrame Make(RectTransform panel, string name, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, Vector2Int dir, int cursor)
         {
-            var grip = PatchUi.Box(panel, "ResizeGrip", new Color(1f, 1f, 1f, 0.001f));
-            grip.anchorMin = grip.anchorMax = grip.pivot = new Vector2(1f, 0f);
-            grip.anchoredPosition = Vector2.zero;
-            grip.sizeDelta = new Vector2(28f, 28f);
-            // Three short diagonal lines, like a window corner grip.
+            var rt = PatchUi.Box(panel, name, new Color(1f, 1f, 1f, 0.001f));
+            rt.anchorMin = anchorMin; rt.anchorMax = anchorMax;
+            rt.offsetMin = offsetMin; rt.offsetMax = offsetMax;
+            var f = rt.gameObject.AddComponent<WindowFrame>();
+            f._panel = panel; f._dir = dir; f._cursor = cursor;
+            return f;
+        }
+
+        public static void AddMove(RectTransform panel) =>
+            Make(panel, "TitleBar", new Vector2(0f, 1f), Vector2.one, new Vector2(Edge, -TitleBar), new Vector2(-Edge, -Edge), Vector2Int.zero, IDC_SIZEALL);
+
+        public static void AddResize(RectTransform panel)
+        {
+            Make(panel, "Left", Vector2.zero, new Vector2(0f, 1f), new Vector2(0f, Corner), new Vector2(Edge, -Corner), new Vector2Int(-1, 0), IDC_SIZEWE);
+            Make(panel, "Right", new Vector2(1f, 0f), Vector2.one, new Vector2(-Edge, Corner), new Vector2(0f, -Corner), new Vector2Int(1, 0), IDC_SIZEWE);
+            Make(panel, "Top", new Vector2(0f, 1f), Vector2.one, new Vector2(Corner, -Edge), new Vector2(-Corner, 0f), new Vector2Int(0, -1), IDC_SIZENS);
+            Make(panel, "Bottom", Vector2.zero, new Vector2(1f, 0f), new Vector2(Corner, 0f), new Vector2(-Corner, Edge), new Vector2Int(0, 1), IDC_SIZENS);
+            Make(panel, "TopLeft", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -Corner), new Vector2(Corner, 0f), new Vector2Int(-1, -1), IDC_SIZENWSE);
+            Make(panel, "TopRight", Vector2.one, Vector2.one, new Vector2(-Corner, -Corner), Vector2.zero, new Vector2Int(1, -1), IDC_SIZENESW);
+            Make(panel, "BottomLeft", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(Corner, Corner), new Vector2Int(-1, 1), IDC_SIZENESW);
+            var grip = Make(panel, "BottomRight", new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-Corner, 0f), new Vector2(0f, Corner), new Vector2Int(1, 1), IDC_SIZENWSE);
+            // Three short diagonal lines in the bottom-right corner, like a window grip.
             for (int i = 0; i < 3; i++)
             {
-                var line = PatchUi.Box(grip, "Line", new Color(1f, 1f, 1f, 0.35f));
-                float len = 6f + 6f * i;
+                var line = PatchUi.Box(grip.transform, "Line", new Color(1f, 1f, 1f, 0.35f));
+                float len = 5f + 5f * i;
                 line.anchorMin = line.anchorMax = new Vector2(1f, 0f);
-                line.pivot = new Vector2(0.5f, 0.5f);
                 line.sizeDelta = new Vector2(len * 1.414f, 2f);
                 line.anchoredPosition = new Vector2(-4f - len / 2f, 4f + len / 2f);
                 line.localRotation = Quaternion.Euler(0f, 0f, 45f);
                 line.GetComponent<Image>().raycastTarget = false;
             }
-            grip.gameObject.AddComponent<ResizeGrip>()._panel = panel;
+        }
+
+        public void OnPointerEnter(PointerEventData e) => _hover = true;
+        public void OnPointerExit(PointerEventData e) => _hover = false;
+        public void OnBeginDrag(PointerEventData e) => _dragging = true;
+
+        void LateUpdate()
+        {
+            if (!_hover && !_dragging) return;
+            if (_handle == IntPtr.Zero) _handle = LoadCursor(IntPtr.Zero, _cursor);
+            SetCursor(_handle);   // every frame, since Windows resets it on mouse move
         }
 
         public void OnDrag(PointerEventData e)
         {
             var canvas = _panel.GetComponentInParent<Canvas>();
             var d = e.delta / (canvas != null ? canvas.scaleFactor : 1f);
-            var old = _panel.sizeDelta;
-            var size = new Vector2(Mathf.Clamp(old.x + d.x, 900f, 1900f), Mathf.Clamp(old.y - d.y, 560f, 1060f));
-            var change = size - old;
-            _panel.sizeDelta = size;
-            // The panel is centred, so move it by half the change to keep its top-left corner in place.
-            _panel.anchoredPosition += new Vector2(change.x / 2f, -change.y / 2f);
+            if (_dir == Vector2Int.zero)
+            {
+                _panel.anchoredPosition += d;
+            }
+            else
+            {
+                var old = _panel.sizeDelta;
+                var size = new Vector2(
+                    _dir.x == 0 ? old.x : Mathf.Clamp(old.x + _dir.x * d.x, MinW, 1900f),
+                    _dir.y == 0 ? old.y : Mathf.Clamp(old.y - _dir.y * d.y, MinH, 1060f));
+                var change = size - old;
+                _panel.sizeDelta = size;
+                // The panel is centred, so shift it by half the change to keep the opposite edges in place.
+                _panel.anchoredPosition += new Vector2(_dir.x * change.x / 2f, -_dir.y * change.y / 2f);
+            }
+            // Keep at least part of the title bar on screen.
+            var area = ((RectTransform)canvas.transform).rect.size / 2f;
+            var p = _panel.anchoredPosition;
+            _panel.anchoredPosition = new Vector2(Mathf.Clamp(p.x, -area.x, area.x), Mathf.Clamp(p.y, -area.y - _panel.sizeDelta.y / 2f + 80f, area.y - _panel.sizeDelta.y / 2f));
         }
 
         public void OnEndDrag(PointerEventData e)
         {
+            _dragging = false;
             PlayerPrefs.SetFloat("medovanx.patches.window.w", _panel.sizeDelta.x);
             PlayerPrefs.SetFloat("medovanx.patches.window.h", _panel.sizeDelta.y);
+            PlayerPrefs.SetFloat("medovanx.patches.window.x", _panel.anchoredPosition.x);
+            PlayerPrefs.SetFloat("medovanx.patches.window.y", _panel.anchoredPosition.y);
             PlayerPrefs.Save();
         }
     }
