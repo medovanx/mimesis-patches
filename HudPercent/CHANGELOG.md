@@ -1,5 +1,10 @@
 # HudPercent changelog
 
+## 1.3.2
+- AI disclosure in the README and the DLL
+- Installed from a mod manager (Gale, r2modman): updates come from the mod manager; no self-updating
+- README: uninstalling from a mod manager
+
 ## 1.3.1
 - Installed from a mod manager (r2modman, Gale): updates come from the mod manager; the Patches window no longer checks GitHub or updates itself.
 - AI disclosure added to the README and the DLL.
