@@ -19,8 +19,6 @@ namespace Fov
     {
         static bool _initialized;
 
-        public static readonly int[] Choices = { 60, 70, 80, 90, 100, 110 };
-
         /// <summary>Chosen FOV in degrees, or 0 for the game default.</summary>
         public static int Value
         {
@@ -43,15 +41,10 @@ namespace Fov
                     status: () => Value > 0 ? $"Field of view {Value}°" : $"Game default ({FovApplier.DefaultFov:0}°)",
                     build: (page, font) =>
                     {
-                        var options = new (string, Func<bool>, Action)[Choices.Length + 1];
-                        options[0] = ("Default", () => Value == 0, () => Value = 0);
-                        for (int i = 0; i < Choices.Length; i++)
-                        {
-                            int v = Choices[i];
-                            options[i + 1] = (v + "°", () => Value == v, () => Value = v);
-                        }
-                        PatchUi.Options(page, font, "Field of view", options);
-                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, press [ and ] to change it by 5° (50-120°). Only you need this patch.", 20f, PatchUi.Dim);
+                        PatchUi.Slider(page, font, "Field of view", FovApplier.Min, FovApplier.Max,
+                            () => Value > 0 ? Value : Mathf.RoundToInt(FovApplier.DefaultFov), v => Value = v, "°");
+                        PatchUi.Options(page, font, "", ("Reset to default", () => Value == 0, () => Value = 0));
+                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, press [ and ] to change it by 5°. Only you need this patch.", 20f, PatchUi.Dim);
                     });
                 Debug.Log($"[Fov] v{version.ToString(3)}: loaded (fov {(Value > 0 ? Value.ToString() : "default")})");
             }
@@ -66,7 +59,7 @@ namespace Fov
     {
         public static float DefaultFov = 60f;
         static bool _haveDefault;
-        const int Step = 5, Min = 50, Max = 120;
+        public const int Step = 5, Min = 50, Max = 120;
 
         TMP_Text _toast;
         float _toastUntil;

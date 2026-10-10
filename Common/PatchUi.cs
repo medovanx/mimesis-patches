@@ -134,5 +134,55 @@ namespace MimesisPatches
             });
             Refreshers.Add(() => { if (!input.isFocused) input.SetTextWithoutNotify(get().ToString()); });
         }
+
+        /// <summary>A titled whole-number slider with its value shown next to it. Applies while dragging.</summary>
+        public static Slider Slider(Transform parent, TMP_FontAsset font, string title, int min, int max, Func<int> get, Action<int> set, string suffix = "")
+        {
+            var row = Row(parent);
+            Label(row, font, title, 22f).GetComponent<LayoutElement>().preferredWidth = 190f;
+
+            var root = new GameObject("Slider", typeof(RectTransform)).GetComponent<RectTransform>();
+            root.SetParent(row, false);
+            var el = root.gameObject.AddComponent<LayoutElement>();
+            el.preferredWidth = 360f;
+            el.preferredHeight = 28f;
+
+            var track = Box(root, "Track", Off);
+            track.anchorMin = new Vector2(0f, 0.5f);
+            track.anchorMax = new Vector2(1f, 0.5f);
+            track.sizeDelta = new Vector2(0f, 8f);
+
+            var fillArea = new GameObject("Fill Area", typeof(RectTransform)).GetComponent<RectTransform>();
+            fillArea.SetParent(root, false);
+            fillArea.anchorMin = new Vector2(0f, 0.5f);
+            fillArea.anchorMax = new Vector2(1f, 0.5f);
+            fillArea.sizeDelta = new Vector2(-16f, 8f);
+            var fill = Box(fillArea, "Fill", On);
+            fill.sizeDelta = Vector2.zero;
+
+            var handleArea = new GameObject("Handle Area", typeof(RectTransform)).GetComponent<RectTransform>();
+            handleArea.SetParent(root, false);
+            Stretch(handleArea);
+            handleArea.offsetMin = new Vector2(8f, 0f);
+            handleArea.offsetMax = new Vector2(-8f, 0f);
+            var handle = Box(handleArea, "Handle", Text);
+            handle.sizeDelta = new Vector2(16f, 0f);
+
+            var slider = root.gameObject.AddComponent<UnityEngine.UI.Slider>();
+            slider.fillRect = fill;
+            slider.handleRect = handle;
+            slider.targetGraphic = handle.GetComponent<Image>();
+            slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+            slider.minValue = min;
+            slider.maxValue = max;
+            slider.wholeNumbers = true;
+            slider.SetValueWithoutNotify(get());
+
+            var value = Label(row, font, get() + suffix, 22f);
+            value.GetComponent<LayoutElement>().preferredWidth = 80f;
+            slider.onValueChanged.AddListener(v => { set((int)v); value.text = (int)v + suffix; });
+            Refreshers.Add(() => { slider.SetValueWithoutNotify(get()); value.text = get() + suffix; });
+            return slider;
+        }
     }
 }

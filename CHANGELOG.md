@@ -7,8 +7,8 @@ Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 - The checklist redraws in place instead of clearing the screen on every key press, so it no longer flickers.
 - Close button in the Patches window is drawn as a true ✕ (two crossed bars) instead of the letter "X".
 
-## Fov 1.1.0
-- Field of view setting in Patches → Fov; [ and ] change it in game by 5° (50-120°).
+## Fov 1.2.0
+- Field of view slider (50-120°) in Patches → Fov; [ and ] change it in game by 5°.
 
 ## Revive 1.0.0
 - Revive dead teammates by standing next to their body (host only).
