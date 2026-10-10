@@ -1,5 +1,9 @@
 # Installer changelog
 
+## 3.1.0
+- Asks before closing MIMESIS.
+- New command `install:<Patch,...> --relaunch`, used by the in-game Update button: installs those patches and starts the game again.
+
 ## 3.0.0
 - Finds the game automatically (next to the exe, the game's own log, or Steam libraries); runs from anywhere.
 - Windows installer window: tick patches, install/update, uninstall selected or all, progress bar and log, game-folder picker.

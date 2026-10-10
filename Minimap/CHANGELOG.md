@@ -1,5 +1,8 @@
 # Minimap changelog
 
+## 1.4.2
+- Patches window: update patches from inside the game, scrollable options, section headings, roomier layout, resizable from the bottom-right corner.
+
 ## 1.4.1
 - Shorter, clearer option text in the Patches window.
 

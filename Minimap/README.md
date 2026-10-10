@@ -1,6 +1,6 @@
 # Minimap
 
-**Version 1.4.1**
+**Version 1.4.2**
 
 A minimap in the bottom-left corner showing your position and facing.
 

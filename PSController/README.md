@@ -1,6 +1,6 @@
 # PSController
 
-**Version 1.3.1**
+**Version 1.3.2**
 
 Shows PlayStation button icons (✕ ○ □ △, L1/R1/L2/R2, L3/R3) instead of Xbox ones.
 

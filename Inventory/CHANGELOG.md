@@ -1,5 +1,8 @@
 # Inventory changelog
 
+## 1.2.9
+- Patches window: update patches from inside the game, scrollable options, section headings, roomier layout, resizable from the bottom-right corner.
+
 ## 1.2.8
 - Fixed: you could only pick up 4 items even with more slots. The host no longer reports the inventory as full at 4.
 

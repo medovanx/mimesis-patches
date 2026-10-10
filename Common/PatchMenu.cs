@@ -26,6 +26,8 @@ namespace MimesisPatches
     {
         public const string Repo = "medovanx/mimesis-patches";
         public const string RepoUrl = "https://github.com/" + Repo;
+        const string SizeKey = "medovanx.patches.window";
+        static readonly Vector2 MinSize = new Vector2(900f, 560f);
         const string RegistryKey = "medovanx.patches.registry", OwnerKey = "medovanx.patches.owner";
 
         static readonly Color ChipColor = new Color(0f, 0f, 0f, 0.55f);
@@ -252,7 +254,10 @@ namespace MimesisPatches
             dimButton.onClick.AddListener(Close);
 
             var panel = PatchUi.Box(canvas.transform, "Panel", new Color(0.06f, 0.06f, 0.06f, 0.96f));
-            panel.sizeDelta = new Vector2(1100f, 760f);
+            panel.sizeDelta = new Vector2(
+                Mathf.Clamp(PlayerPrefs.GetFloat(SizeKey + ".w", 1100f), MinSize.x, 1900f),
+                Mathf.Clamp(PlayerPrefs.GetFloat(SizeKey + ".h", 760f), MinSize.y, 1060f));
+            ResizeGrip.Add(panel);
 
             // Title bar with close button.
             var title = PatchUi.Label(panel, _font, "Patches", 30f);
@@ -451,6 +456,52 @@ namespace MimesisPatches
             if (_hovered <= 0) return;
             if (_hand == IntPtr.Zero) _hand = LoadCursor(IntPtr.Zero, IDC_HAND);
             SetCursor(_hand);   // every frame, since Windows resets it on mouse move
+        }
+    }
+
+    /// <summary>Bottom-right corner grip: drag to resize the window. The top-left corner stays put, and the size is remembered.</summary>
+    sealed class ResizeGrip : MonoBehaviour, IDragHandler, IEndDragHandler
+    {
+        RectTransform _panel;
+
+        public static void Add(RectTransform panel)
+        {
+            var grip = PatchUi.Box(panel, "ResizeGrip", new Color(1f, 1f, 1f, 0.001f));
+            grip.anchorMin = grip.anchorMax = grip.pivot = new Vector2(1f, 0f);
+            grip.anchoredPosition = Vector2.zero;
+            grip.sizeDelta = new Vector2(28f, 28f);
+            // Three short diagonal lines, like a window corner grip.
+            for (int i = 0; i < 3; i++)
+            {
+                var line = PatchUi.Box(grip, "Line", new Color(1f, 1f, 1f, 0.35f));
+                float len = 6f + 6f * i;
+                line.anchorMin = line.anchorMax = new Vector2(1f, 0f);
+                line.pivot = new Vector2(0.5f, 0.5f);
+                line.sizeDelta = new Vector2(len * 1.414f, 2f);
+                line.anchoredPosition = new Vector2(-4f - len / 2f, 4f + len / 2f);
+                line.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                line.GetComponent<Image>().raycastTarget = false;
+            }
+            grip.gameObject.AddComponent<ResizeGrip>()._panel = panel;
+        }
+
+        public void OnDrag(PointerEventData e)
+        {
+            var canvas = _panel.GetComponentInParent<Canvas>();
+            var d = e.delta / (canvas != null ? canvas.scaleFactor : 1f);
+            var old = _panel.sizeDelta;
+            var size = new Vector2(Mathf.Clamp(old.x + d.x, 900f, 1900f), Mathf.Clamp(old.y - d.y, 560f, 1060f));
+            var change = size - old;
+            _panel.sizeDelta = size;
+            // The panel is centred, so move it by half the change to keep its top-left corner in place.
+            _panel.anchoredPosition += new Vector2(change.x / 2f, -change.y / 2f);
+        }
+
+        public void OnEndDrag(PointerEventData e)
+        {
+            PlayerPrefs.SetFloat("medovanx.patches.window.w", _panel.sizeDelta.x);
+            PlayerPrefs.SetFloat("medovanx.patches.window.h", _panel.sizeDelta.y);
+            PlayerPrefs.Save();
         }
     }
 }

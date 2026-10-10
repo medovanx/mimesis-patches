@@ -1,6 +1,6 @@
 # LateJoin
 
-**Version 1.0.1**
+**Version 1.0.2**
 
 Lets friends **join a game that's already running**. If the team is in a level, you wait on a message and join at the tram when they return, then play from the next stage.
 
