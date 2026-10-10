@@ -1,0 +1,32 @@
+# Minimap changelog
+
+## 1.4.1
+- Shorter, clearer option text in the Patches window.
+
+## 1.3.2
+- Legend lists only enabled categories (no "You"); hidden when none are enabled.
+
+## 1.3.1
+- Bigger dots on the map (12 px instead of 7).
+
+## 1.3.0
+- Colour legend under the map: You, plus Players / Monsters / Items when enabled.
+
+## 1.2.2
+- Graphic style scrolls smoothly: each render covers a larger area and the image slides with you between renders.
+
+## 1.2.1
+- Graphic style: the level is lit evenly for the minimap render only (dark rooms no longer show black); the game's own view is unchanged.
+
+## 1.2.0
+- Show options in the settings window: Players / Monsters / Items (off by default). Enabled ones get coloured dots, and models in Graphic style. Mimics count as monsters.
+
+## 1.1.0
+- Settings window: click the Minimap chip on the main menu to choose Reveal (Explored / Full map) and Style (Plain / Graphic).
+- Graphic style: real top-down view from a camera above your head, with all players, mimics and monsters hidden from it.
+- Moved to the bottom-left corner; works in the tram/lobby too (A* graph fallback).
+- Main menu chips are hidden outside the main menu (all patches).
+
+## 1.0.0
+- Bottom-left floor-plan minimap built from the level's NavMesh: layout and your own arrow only.
+- Explored-only or whole-map mode, switched by clicking the Minimap chip on the main menu. M toggles it in game.

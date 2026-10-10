@@ -1,6 +1,6 @@
 # SpectatorCam
 
-**Version 1.1.0**
+**Version 1.1.1**
 
 A free camera while you're dead, limited to the area around the player you're spectating.
 
