@@ -43,6 +43,7 @@ namespace MimesisInstaller
             new("LateJoin", "Join a game in progress", "Everyone", new[] { "LateJoinRuntime.dll" }),
             new("Fov", "Field of view slider", "Anyone", new[] { "FovRuntime.dll" }),
             new("Revive", "Revive dead teammates", "Host", new[] { "ReviveRuntime.dll" }),
+            new("FpsCounter", "FPS in the bottom-right corner", "Anyone", new[] { "FpsCounterRuntime.dll" }),
         };
 
         // Long timeout: patch files and the installer itself can be slow to download on some connections.

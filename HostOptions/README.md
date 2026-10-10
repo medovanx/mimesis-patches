@@ -1,6 +1,6 @@
 # HostOptions
 
-**Version 1.2.2**
+**Version 1.3.0**
 
 Extra lobby options for the host: **infinite stamina**, **starting money**, and **difficulty and economy** settings.
 
@@ -9,7 +9,7 @@ Extra lobby options for the host: **infinite stamina**, **starting money**, and 
 **Only the host needs it.** Other players don't see the controls.
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `HostOptionsPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `HostOptionsRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
 
 ## Options
 
@@ -38,4 +38,4 @@ These stack with BiggerLobby's scaling for big groups.
 Settings are saved on your PC.
 
 ## Uninstall
-Run `HostOptionsPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `HostOptionsRuntime.dll` from `BepInEx\plugins`.

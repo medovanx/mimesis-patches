@@ -1,6 +1,6 @@
 # Fov
 
-**Version 1.3.4**
+**Version 1.4.0**
 
 Adds a **field of view** setting for your first-person view.
 
@@ -14,7 +14,7 @@ Pressing [ or ] in game:
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `FovPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `FovRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
 
 ## Use
 
@@ -26,4 +26,4 @@ Use the [installer](../Installer/), or: close the game, put `FovPatcher.exe` nex
 Changes apply right away and are saved.
 
 ## Uninstall
-Run `FovPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `FovRuntime.dll` from `BepInEx\plugins`.

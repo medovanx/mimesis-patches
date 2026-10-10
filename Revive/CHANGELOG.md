@@ -1,5 +1,8 @@
 # Revive changelog
 
+## 1.1.0
+- Now a BepInEx 5 plugin: the game files are no longer modified. Installer 4.0 sets up BepInEx and moves existing installs over.
+
 ## 1.0.3
 - Patches window: move it by the title bar and resize it from any edge or corner (remembered). Download progress stays on one line.
 

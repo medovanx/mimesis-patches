@@ -3,6 +3,7 @@
 Each patch has its own changelog:
 
 - [BiggerLobby](BiggerLobby/CHANGELOG.md)
+- [FpsCounter](FpsCounter/CHANGELOG.md)
 - [Fov](Fov/CHANGELOG.md)
 - [HostOptions](HostOptions/CHANGELOG.md)
 - [HudPercent](HudPercent/CHANGELOG.md)

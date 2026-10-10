@@ -2,7 +2,7 @@
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
 // No arguments: opens the installer window.
-// Command line: MimesisPatchesInstaller install|install:<A,B>|uninstall|uninstall:<Patch> [path to Assembly-CSharp.dll] [--no-update] [--relaunch]
+// Command line: MimesisPatchesInstaller install|install:<A,B>|uninstall|uninstall:<Patch> [game folder] [--no-update] [--relaunch]
 //   install installs/updates every released patch; uninstall removes everything; uninstall:<Patch> removes one.
 
 using System;
@@ -54,10 +54,11 @@ namespace MimesisInstaller
                 }
                 bool relaunch = args.Contains("--relaunch");
                 args = args.Where(a => a != "--no-update" && a != "--relaunch").ToArray();
-                var dll = args.Length > 1 ? args[1] : Engine.DetectDll();
+                // Game folder (or, from older in-game updaters, the path to Assembly-CSharp.dll).
+                var dll = args.Length > 1 ? (args[1].EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ? args[1] : Engine.FindDll(args[1])) : Engine.DetectDll();
                 if (dll == null)
                 {
-                    Log.Fail("Assembly-CSharp.dll not found. Put this exe next to MIMESIS.exe, or pass the DLL path.");
+                    Log.Fail("MIMESIS not found. Put this exe next to MIMESIS.exe, or pass the game folder.");
                     return 1;
                 }
 

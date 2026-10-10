@@ -1,6 +1,6 @@
 # PSController
 
-**Version 1.3.4**
+**Version 1.4.0**
 
 Shows PlayStation button icons (✕ ○ □ △, L1/R1/L2/R2, L3/R3) instead of Xbox ones.
 
@@ -13,7 +13,7 @@ The full icon set:
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `PSControllerPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `PSControllerRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`. Also unzip `PSIcons.zip` into a `PSIcons` folder next to the DLL.
 
 ## Controller setup
 Use **DS4Windows** so your PS4/PS5 controller is read reliably:
@@ -41,7 +41,7 @@ You can replace the icons in `MIMESIS_Data/PSIcons/` (74×74 PNGs) with your own
 `Player.log` has a `[PSController] Gamepads: ...` line showing which pad the game uses. To log every button press, create an empty `MIMESIS_Data/PSIcons/debug.txt`; delete it when done.
 
 ## Uninstall
-Run `PSControllerPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `PSControllerRuntime.dll` from `BepInEx\plugins`.
 
 ## Build
-Build `Runtime` (`dotnet build -c Release`), then `dotnet publish -c Release` in `Patcher`.
+`dotnet build -c Release` in `Runtime`.

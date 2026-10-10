@@ -1,13 +1,13 @@
 # SpectatorCam
 
-**Version 1.1.4**
+**Version 1.2.0**
 
 A free camera while you're dead, limited to the area around the player you're spectating.
 
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `SpectatorCamPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `SpectatorCamRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
 
 ## Controls (while spectating)
 | | Keyboard / mouse | Controller |
@@ -31,4 +31,4 @@ Switching to another player returns you to the normal camera.
 **Patches > SpectatorCam** on the main menu: turn it on/off.
 
 ## Uninstall
-Run `SpectatorCamPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `SpectatorCamRuntime.dll` from `BepInEx\plugins`.

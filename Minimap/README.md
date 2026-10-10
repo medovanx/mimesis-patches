@@ -1,6 +1,6 @@
 # Minimap
 
-**Version 1.4.4**
+**Version 1.5.0**
 
 A minimap in the bottom-left corner showing your position and facing.
 
@@ -11,7 +11,7 @@ A minimap in the bottom-left corner showing your position and facing.
 **Only you need it.**
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `MinimapPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `MinimapRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
 
 ## Controls
 **M** shows or hides the minimap. It's hidden while you're dead or in menus.
@@ -33,4 +33,4 @@ Settings combine: Graphic + Explored shows the real view with unvisited areas da
 By default you only see the level and your own arrow, so a "teammate" can still be a mimic. Mimics count as **monsters**: with Players on and Monsters off, a "player" without a dot is a mimic. That changes how the game plays, so it's off unless you turn it on.
 
 ## Uninstall
-Run `MinimapPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `MinimapRuntime.dll` from `BepInEx\plugins`.

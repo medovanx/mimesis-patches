@@ -1,13 +1,13 @@
 # LateJoin
 
-**Version 1.0.4**
+**Version 1.1.0**
 
 Lets friends **join a game that's already running**. If the team is in a level, you wait on a message and join at the tram when they return, then play from the next stage.
 
 **The host and the joining player both need it.**
 
 ## Install
-Use the [installer](../Installer/), or: close the game, put `LateJoinPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
+Use the [installer](../Installer/), or install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) (x64) into the game folder, run the game once, then copy `LateJoinRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into `BepInEx\plugins`.
 
 ## Options
 
@@ -18,4 +18,4 @@ Use the [installer](../Installer/), or: close the game, put `LateJoinPatcher.exe
 You can't drop straight into a level in progress; you join at the tram.
 
 ## Uninstall
-Run `LateJoinPatcher.exe` and choose `u`, or use the installer.
+Use the installer's **Uninstall selected**, or delete `LateJoinRuntime.dll` from `BepInEx\plugins`.

@@ -224,10 +224,10 @@ namespace MimesisPatches
                     yield break;
                 }
             }
-            var dll = System.IO.Path.Combine(Application.dataPath, "Managed", "Assembly-CSharp.dll");
+            var game = System.IO.Path.GetDirectoryName(Application.dataPath);   // the folder with MIMESIS.exe
             try
             {
-                System.Diagnostics.Process.Start(exe, $"install:{string.Join(",", names)} \"{dll}\" --relaunch");
+                System.Diagnostics.Process.Start(exe, $"install:{string.Join(",", names)} \"{game}\" --relaunch");
             }
             catch (Exception ex)
             {

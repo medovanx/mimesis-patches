@@ -1,5 +1,9 @@
 # Installer changelog
 
+## 4.0.0
+- Patches are BepInEx 5 plugins now. The installer sets up BepInEx in the game folder and installs patches into BepInEx\plugins\MimesisPatches; the game files stay untouched.
+- Existing installs are moved over automatically: the original Assembly-CSharp.dll is restored and every installed patch is reinstalled as a plugin.
+
 ## 3.1.1
 - Fixed: updating from inside the game could hang on a hidden "press any key" prompt. The installer never waits for input now.
 - Writes a log to `%TEMP%\MimesisPatchesInstaller.log`.
