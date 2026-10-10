@@ -189,7 +189,7 @@ namespace MimesisPatches
             fillArea.SetParent(root, false);
             fillArea.anchorMin = new Vector2(0f, 0.5f);
             fillArea.anchorMax = new Vector2(1f, 0.5f);
-            fillArea.sizeDelta = new Vector2(-16f, 8f);
+            fillArea.sizeDelta = new Vector2(0f, 8f);   // full width: the fill starts at the very left of the track; the handle covers its end
             var fill = Box(fillArea, "Fill", On);
             fill.sizeDelta = Vector2.zero;
 
