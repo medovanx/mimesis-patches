@@ -4,10 +4,14 @@
 // The game has no FOV option: the player camera (CameraManager.playerCamera, a Cinemachine camera) keeps the
 // prefab's value. This keeps that camera at the chosen FOV every frame, except while the game's own
 // "zoom to face" effect runs (it animates FOV and restores it afterwards). Client-side only.
+// In game, [ and ] change it by 5 degrees (50-120) with a short on-screen message.
 
 using System;
 using MimesisPatches;
+using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Fov
 {
@@ -47,7 +51,7 @@ namespace Fov
                             options[i + 1] = (v + "°", () => Value == v, () => Value = v);
                         }
                         PatchUi.Options(page, font, "Field of view", options);
-                        PatchUi.Label(page, font, "Applies to your first-person view right away. Only you need this patch.", 20f, PatchUi.Dim);
+                        PatchUi.Label(page, font, "Applies to your first-person view right away. In game, press [ and ] to change it by 5° (50-120°). Only you need this patch.", 20f, PatchUi.Dim);
                     });
                 Debug.Log($"[Fov] v{version.ToString(3)}: loaded (fov {(Value > 0 ? Value.ToString() : "default")})");
             }
@@ -62,9 +66,55 @@ namespace Fov
     {
         public static float DefaultFov = 60f;
         static bool _haveDefault;
+        const int Step = 5, Min = 50, Max = 120;
+
+        TMP_Text _toast;
+        float _toastUntil;
+
+        void Update()
+        {
+            var kb = Keyboard.current;
+            var cm = Hub.s != null ? Hub.s.cameraman : null;
+            if (kb == null || cm == null || cm.playerCamera == null) return;
+            if (Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen) return;
+            int delta = kb.rightBracketKey.wasPressedThisFrame ? Step : kb.leftBracketKey.wasPressedThisFrame ? -Step : 0;
+            if (delta == 0) return;
+            int current = Plugin.Value > 0 ? Plugin.Value : Mathf.RoundToInt(DefaultFov / Step) * Step;
+            Plugin.Value = Mathf.Clamp(current + delta, Min, Max);
+            Toast($"FOV {Plugin.Value}°");
+        }
+
+        void Toast(string text)
+        {
+            if (_toast == null)
+            {
+                var canvas = new GameObject("FovToast", typeof(Canvas), typeof(CanvasScaler)).GetComponent<Canvas>();
+                canvas.transform.SetParent(transform, false);
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvas.sortingOrder = 120;
+                var scaler = canvas.GetComponent<CanvasScaler>();
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(1920f, 1080f);
+                _toast = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+                _toast.transform.SetParent(canvas.transform, false);
+                var rt = _toast.rectTransform;
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.75f);
+                rt.sizeDelta = new Vector2(400f, 60f);
+                var font = FindAnyObjectByType<TMP_Text>()?.font;
+                if (font != null) _toast.font = font;
+                _toast.fontSize = 34f;
+                _toast.alignment = TextAlignmentOptions.Center;
+                _toast.color = new Color(0.95f, 0.95f, 0.9f, 1f);
+                _toast.raycastTarget = false;
+            }
+            _toast.text = text;
+            _toast.gameObject.SetActive(true);
+            _toastUntil = Time.unscaledTime + 1.5f;
+        }
 
         void LateUpdate()
         {
+            if (_toast != null && _toast.gameObject.activeSelf && Time.unscaledTime > _toastUntil) _toast.gameObject.SetActive(false);
             var cm = Hub.s != null ? Hub.s.cameraman : null;
             var cam = cm != null ? cm.playerCamera : null;
             if (cam == null || cm.IsZoomToTargetActive) return;
