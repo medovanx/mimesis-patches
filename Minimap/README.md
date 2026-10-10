@@ -1,6 +1,6 @@
-<img src="icon.png" width="128" align="right">
-
 # Minimap
+
+<p align="center"><img src="icon.png" width="160"></p>
 
 **Version 1.5.0**
 
