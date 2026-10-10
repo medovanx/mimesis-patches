@@ -15,7 +15,7 @@ Use the [installer](../Installer/) and tick **FpsCounter**. Or install [MelonLoa
 **Patches > FpsCounter** on the main menu: turn it on or off.
 
 ## Uninstall
-Use the installer, or delete `FpsCounterRuntime.dll` from the game's `Mods` folder.
+Use the installer, or delete `FpsCounterRuntime.dll` from the game's `Mods` folder. Installed with Gale or r2modman? Remove or disable it there instead.
 
 ## AI disclosure
 This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

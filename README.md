@@ -43,7 +43,7 @@ To install by hand instead: install [MelonLoader](https://github.com/LavaGang/Me
 </table>
 
 ## Uninstall
-Run the installer and click **Uninstall selected** or **Uninstall all**, or delete the patch's DLL from the game's `Mods` folder. MelonLoader stays installed.
+Run the installer and click **Uninstall selected** or **Uninstall all**, or delete the patch's DLL from the game's `Mods` folder. MelonLoader stays installed. Installed with Gale or r2modman? Remove or disable it there instead.
 
 ## Build
 Use the .NET 10 SDK. Clone the repo into the game folder as `Patches` (next to `MIMESIS.exe`) and run `dotnet build -c Release` in `<Patch>/Runtime`. The builds find the game on their own; to build from elsewhere, pass `-p:GameDir="<path to the MIMESIS folder>\"`. The MelonLoader reference comes from NuGet (`LavaGang.MelonLoader`). `Common/` holds code shared by all patches.

@@ -35,7 +35,7 @@ Settings combine: Graphic + Explored shows the real view with unvisited areas da
 By default you only see the level and your own arrow, so a "teammate" can still be a mimic. Mimics count as **monsters**: with Players on and Monsters off, a "player" without a dot is a mimic. That changes how the game plays, so it's off unless you turn it on.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `MinimapRuntime.dll` from the game's `Mods` folder.
+Use the installer's **Uninstall selected**, or delete `MinimapRuntime.dll` from the game's `Mods` folder. Installed with Gale or r2modman? Remove or disable it there instead.
 
 ## AI disclosure
 This mod was made with the help of an AI coding assistant (Claude, by Anthropic): code, documentation and icons.

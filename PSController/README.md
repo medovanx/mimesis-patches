@@ -41,7 +41,7 @@ Use **DS4Windows** so your PS4/PS5 controller is read reliably:
 `Player.log` has a `[PSController] Gamepads: ...` line showing which pad the game uses. To log every button press, create an empty `PSController-debug.txt` in the `Mods` folder; delete it when done.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `PSControllerRuntime.dll` from the game's `Mods` folder.
+Use the installer's **Uninstall selected**, or delete `PSControllerRuntime.dll` from the game's `Mods` folder. Installed with Gale or r2modman? Remove or disable it there instead.
 
 ## Build
 `dotnet build -c Release` in `Runtime`.

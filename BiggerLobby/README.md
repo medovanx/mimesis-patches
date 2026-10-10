@@ -34,7 +34,7 @@ With 4 players or fewer, nothing changes. Loot isn't scaled. Saves stay correct 
 **Patches > BiggerLobby** on the main menu: turn difficulty scaling on/off.
 
 ## Uninstall
-Use the installer's **Uninstall selected**, or delete `BiggerLobbyRuntime.dll` from the game's `Mods` folder.
+Use the installer's **Uninstall selected**, or delete `BiggerLobbyRuntime.dll` from the game's `Mods` folder. Installed with Gale or r2modman? Remove or disable it there instead.
 
 ## Build
 `dotnet build -c Release` in `Runtime`.
