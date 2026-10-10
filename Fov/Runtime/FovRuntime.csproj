@@ -6,7 +6,6 @@
     <AssemblyName>FovRuntime</AssemblyName>
     <Authors>Mohamed Darwesh</Authors>
     <Copyright>Mohamed Darwesh (github.com/medovanx)</Copyright>
-    <Managed>O:\Games\MIMESIS v0.3.1\MIMESIS_Data\Managed</Managed>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Unity.Cinemachine"><HintPath>$(Managed)\Unity.Cinemachine.dll</HintPath><Private>false</Private></Reference>
