@@ -4,9 +4,6 @@
 
 A free camera while you're dead, limited to the area around the player you're spectating.
 
-<!-- SCREENSHOT TODO: replace screenshots/spectate.png with: Free camera flying while dead, with the controls hint visible -->
-![Free camera flying while dead, with the controls hint visible](screenshots/spectate.png)
-
 **Only you need it.**
 
 ## Install
@@ -28,6 +25,9 @@ Switching to another player returns you to the normal camera.
 - It can't pass through walls, so you can't scout other rooms.
 
 ## Options
+
+![Patches > SpectatorCam settings](screenshots/settings.png)
+
 **Patches > SpectatorCam** on the main menu: turn it on/off.
 
 ## Uninstall

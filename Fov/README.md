@@ -4,8 +4,6 @@
 
 Adds a **field of view** setting for your first-person view.
 
-![Patches > Fov page with the slider](screenshots/slider.png)
-
 Pressing [ or ] in game:
 
 <p>
@@ -19,6 +17,9 @@ Pressing [ or ] in game:
 Use the [installer](../Installer/), or: close the game, put `FovPatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
 
 ## Use
+
+![Patches > Fov settings](screenshots/settings.png)
+
 - **Patches > Fov** on the main menu: slider (50°-120°) or **Reset to default**.
 - In game: tap **[** / **]** for 5° steps, or hold them to change it smoothly.
 

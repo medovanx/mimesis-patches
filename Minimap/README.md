@@ -17,6 +17,9 @@ Use the [installer](../Installer/), or: close the game, put `MinimapPatcher.exe`
 **M** shows or hides the minimap. It's hidden while you're dead or in menus.
 
 ## Options
+
+![Patches > Minimap settings](screenshots/settings.png)
+
 **Patches > Minimap** on the main menu. Settings are remembered.
 
 | Setting | Options |

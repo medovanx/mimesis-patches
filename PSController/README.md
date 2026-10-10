@@ -32,6 +32,9 @@ Use **DS4Windows** so your PS4/PS5 controller is read reliably:
 You can replace the icons in `MIMESIS_Data/PSIcons/` (74×74 PNGs) with your own.
 
 ## Options
+
+![Patches > PSController settings](screenshots/settings.png)
+
 **Patches > PSController** on the main menu: turn it on/off.
 
 ## Troubleshooting

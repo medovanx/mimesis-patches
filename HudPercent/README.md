@@ -16,6 +16,9 @@ Use the [installer](../Installer/), or: close the game, put `HudPercentPatcher.e
 - **Radiation**: how contaminated you are (100% = full bar).
 
 ## Options
+
+![Patches > HudPercent settings](screenshots/settings.png)
+
 **Patches > HudPercent** on the main menu: turn it on/off.
 
 ## Uninstall

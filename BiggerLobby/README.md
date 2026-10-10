@@ -26,6 +26,9 @@ Use the [installer](../Installer/), or: close the game, put `MorePlayersPatcher.
 With 4 players or fewer, nothing changes. Loot isn't scaled. Saves stay correct if you load them with a different group size.
 
 ## Options
+
+![Patches > BiggerLobby settings](screenshots/settings.png)
+
 **Patches > BiggerLobby** on the main menu: turn difficulty scaling on/off.
 
 ## Uninstall

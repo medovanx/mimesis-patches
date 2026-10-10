@@ -4,15 +4,15 @@
 
 **Revive a dead teammate** during a level: stand next to their body for a few seconds and they come back with low health.
 
-<!-- SCREENSHOT TODO: replace screenshots/revive.png with: Standing next to a dead teammate with the revive progress showing -->
-![Standing next to a dead teammate with the revive progress showing](screenshots/revive.png)
-
 **Only the host needs it.**
 
 ## Install
 Use the [installer](../Installer/), or: close the game, put `RevivePatcher.exe` next to `MIMESIS.exe`, run it and choose install (`i`).
 
 ## Options
+
+![Patches > Revive settings](screenshots/settings.png)
+
 **Patches > Revive** on the main menu:
 - On/off
 - Hold time: 3 / 5 / 10 s (default 5 s)
