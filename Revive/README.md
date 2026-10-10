@@ -1,6 +1,6 @@
 # Revive
 
-**Version 1.0.2**
+**Version 1.0.3**
 
 **Revive a dead teammate** during a level: stand next to their body for a few seconds and they come back with low health.
 

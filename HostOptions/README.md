@@ -1,6 +1,6 @@
 # HostOptions
 
-**Version 1.2.1**
+**Version 1.2.2**
 
 Extra lobby options for the host: **infinite stamina**, **starting money**, and **difficulty and economy** settings.
 

@@ -1,5 +1,8 @@
 # Fov changelog
 
+## 1.3.4
+- Patches window: move it by the title bar and resize it from any edge or corner (remembered). Download progress stays on one line.
+
 ## 1.3.3
 - Test release for the in-game updater (no changes).
 

@@ -1,6 +1,6 @@
 # BiggerLobby
 
-**Version 1.3.3**
+**Version 1.3.4**
 
 Lobbies hold **10 players**, with the UI and difficulty adjusted to match.
 

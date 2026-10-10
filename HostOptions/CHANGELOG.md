@@ -1,5 +1,8 @@
 # HostOptions changelog
 
+## 1.2.2
+- Patches window: move it by the title bar and resize it from any edge or corner (remembered). Download progress stays on one line.
+
 ## 1.2.1
 - Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
 

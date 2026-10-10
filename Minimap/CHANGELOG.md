@@ -1,5 +1,8 @@
 # Minimap changelog
 
+## 1.4.4
+- Patches window: move it by the title bar and resize it from any edge or corner (remembered). Download progress stays on one line.
+
 ## 1.4.3
 - Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
 

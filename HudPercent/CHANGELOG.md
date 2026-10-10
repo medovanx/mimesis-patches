@@ -1,5 +1,8 @@
 # HudPercent changelog
 
+## 1.1.6
+- Patches window: move it by the title bar and resize it from any edge or corner (remembered). Download progress stays on one line.
+
 ## 1.1.5
 - Patches window: Update all in the title bar; updates ask in a popup and show download progress, speed and time left.
 

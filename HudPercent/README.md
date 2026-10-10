@@ -1,6 +1,6 @@
 # HudPercent
 
-**Version 1.1.5**
+**Version 1.1.6**
 
 Shows your **health** and **radiation** as percentages next to the bars in the top-left HUD.
 
