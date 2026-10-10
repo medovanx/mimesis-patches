@@ -38,6 +38,9 @@ namespace HostOptions
                     MimesisPatches.PatchUi.Slider(page, font, "Shop prices", Difficulty.Min, Difficulty.Max, () => Difficulty.Prices, v => Difficulty.Prices = v, "%", "Cost of items in the shop.");
                     MimesisPatches.PatchUi.Slider(page, font, "Sell value", Difficulty.Min, Difficulty.Max, () => Difficulty.SellValue, v => Difficulty.SellValue = v, "%", "Money you get for each item you sell.");
                     MimesisPatches.PatchUi.Slider(page, font, "Monsters", Difficulty.Min, Difficulty.Max, () => Difficulty.Monsters, v => Difficulty.Monsters = v, "%", "How many monsters and mimics spawn in a level.");
+                    MimesisPatches.PatchUi.Options(page, font, "Apply to", 200f,
+                        ("All games", () => Difficulty.AffectSaves, () => Difficulty.AffectSaves = true),
+                        ("New games only", () => !Difficulty.AffectSaves, () => Difficulty.AffectSaves = false));
                     MimesisPatches.PatchUi.Label(page, font,
                         "Host only. Stamina and money are also in the lobby menu (Esc). Starting money applies to new runs, and to current funds before the first departure.",
                         16f, MimesisPatches.PatchUi.Dim);

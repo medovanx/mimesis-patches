@@ -2,6 +2,7 @@
 
 ## 1.2.0
 - Difficulty presets (Easy, Normal, Hard) and sliders for quota/repair cost, shop prices, sell value and monsters.
+- Choose whether they also apply to loaded saves or only to new games.
 
 ## 1.1.1
 - Shorter, clearer option text in the Patches window.

@@ -25,6 +25,7 @@ In **Patches > HostOptions** only:
 - **Shop prices**: cost of shop items.
 - **Sell value**: money you get for selling items.
 - **Monsters**: how many monsters and mimics spawn in a level.
+- **Apply to**: *All games* (default) also uses these on runs you continue from a save; *New games only* leaves loaded saves at normal values.
 
 | Preset | Quota | Prices | Sell | Monsters |
 |---|---|---|---|---|
