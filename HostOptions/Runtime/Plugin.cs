@@ -2,6 +2,7 @@
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 
 using System;
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
@@ -27,12 +28,19 @@ namespace HostOptions
                         () => HostOptionsPatch.StartMoney >= 0 ? HostOptionsPatch.StartMoney : HostOptionsPatch.DefaultMoney,
                         v => { HostOptionsPatch.StartMoney = v == HostOptionsPatch.DefaultMoney ? -1 : v; HostOptionsPatch.ApplyNow(v); },
                         HostOptionsPatch.DefaultMoney);
+                    MimesisPatches.PatchUi.Options(page, font, "Difficulty",
+                        Difficulty.Presets.Select(p => (p.name, (Func<bool>)(() => Difficulty.Current == p.name), (Action)(() => Difficulty.Apply(p)))).ToArray());
+                    MimesisPatches.PatchUi.Slider(page, font, "Quota / repair", Difficulty.Min, Difficulty.Max, () => Difficulty.Quota, v => Difficulty.Quota = v, "%");
+                    MimesisPatches.PatchUi.Slider(page, font, "Shop prices", Difficulty.Min, Difficulty.Max, () => Difficulty.Prices, v => Difficulty.Prices = v, "%");
+                    MimesisPatches.PatchUi.Slider(page, font, "Sell value", Difficulty.Min, Difficulty.Max, () => Difficulty.SellValue, v => Difficulty.SellValue = v, "%");
+                    MimesisPatches.PatchUi.Slider(page, font, "Monsters", Difficulty.Min, Difficulty.Max, () => Difficulty.Monsters, v => Difficulty.Monsters = v, "%");
                     MimesisPatches.PatchUi.Label(page, font,
                         "Host only. Also in the lobby menu (Esc). Starting money applies to new runs, and to current funds before the first departure.",
                         20f, MimesisPatches.PatchUi.Dim);
                 }, status: () =>
                     (HostOptionsPatch.InfiniteStamina ? "Infinite stamina" : "Normal stamina") +
-                    (HostOptionsPatch.StartMoney >= 0 ? ", $" + HostOptionsPatch.StartMoney : ""));
+                    (HostOptionsPatch.StartMoney >= 0 ? ", $" + HostOptionsPatch.StartMoney : "") +
+                    ", " + Difficulty.Current);
                 Debug.Log($"[HostOptions] v{version.ToString(3)}: patches applied");
             }
             catch (Exception e)

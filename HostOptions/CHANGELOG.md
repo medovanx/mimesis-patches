@@ -1,5 +1,8 @@
 # HostOptions changelog
 
+## 1.2.0
+- Difficulty presets (Easy, Normal, Hard) and sliders for quota/repair cost, shop prices, sell value and monsters.
+
 ## 1.1.1
 - Shorter, clearer option text in the Patches window.
 
