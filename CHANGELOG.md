@@ -2,6 +2,9 @@
 
 Each patch is versioned separately and released with a tag `<Patch>-v<version>`.
 
+## Inventory 1.2.8
+- Fixed: you could only pick up 4 items even with more slots. The host no longer reports the inventory as full at 4.
+
 ## Installer 2.2.0
 - Checklist: [Delete]/[Backspace] uninstalls just the selected patch, without touching the others.
 - The checklist redraws in place instead of clearing the screen on every key press, so it no longer flickers.

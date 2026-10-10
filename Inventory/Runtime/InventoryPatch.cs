@@ -68,6 +68,15 @@ namespace Inventory
                     : x;
         }
 
+        // The "inventory full" check is also hard-coded to 4 items; compare against the real slot count.
+        [HarmonyPrefix, HarmonyPatch(typeof(InventoryController), nameof(InventoryController.InvenFull))]
+        static bool ServerFull(InventoryController __instance, ref bool __result)
+        {
+            var slots = __instance._inventorySlots;
+            __result = slots.Count(x => x.Value != null) >= slots.Count;
+            return false;
+        }
+
         // ---------------- Every player: client-side slots ----------------
 
         // The client inventory sizes itself from the game config; set it to this session's count first.
