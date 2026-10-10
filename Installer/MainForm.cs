@@ -239,11 +239,13 @@ namespace MimesisInstaller
     /// <summary>"MIMESIS" in wide white capitals with a few horizontally shifted slices, like the game's logo.</summary>
     sealed class GlitchTitle : Control
     {
+        float _wordEnd;
+
         public GlitchTitle()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.Transparent;
-            Size = new Size(520, 86);
+            Size = new Size(700, 72);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -263,6 +265,7 @@ namespace MimesisInstaller
                     bg.DrawString(ch.ToString(), font, Brushes.White, x, 0);
                     x += bg.MeasureString(ch.ToString(), font).Width * 0.92f + 10;   // wide letter spacing
                 }
+                _wordEnd = x;
             }
             // Glitch: copy the logo in horizontal strips, nudging a few sideways.
             int[] shifts = { 0, 0, 7, 0, -5, 0, 0, 9, 0, -3, 0, 0, 4, 0 };
@@ -273,8 +276,9 @@ namespace MimesisInstaller
                 g.DrawImage(bmp, new Rectangle(shifts[i], i * strip, bmp.Width, strip), src, GraphicsUnit.Pixel);
             }
             using var gold = new SolidBrush(Theme.Accent);
-            using var small = new Font("Segoe UI Semibold", 10.5f);
-            g.DrawString("P A T C H E S", small, gold, 4, 66);
+            using var small = new Font("Segoe UI Black", 18f);
+            // On the same line, right after MIMESIS, sitting on its baseline.
+            g.DrawString("P A T C H E S", small, gold, _wordEnd + 12, 30);
         }
     }
 
@@ -299,7 +303,7 @@ namespace MimesisInstaller
         public MainForm()
         {
             Text = $"MIMESIS Patches Installer v{Engine.Version}";
-            ClientSize = new Size(900, 770);
+            ClientSize = new Size(900, 756);
             MinimumSize = new Size(760, 600);
             BackColor = Theme.Bg;
             ForeColor = Theme.Fg;
@@ -312,33 +316,32 @@ namespace MimesisInstaller
             var sub = new LinkLabel
             {
                 Text = $"v{Engine.Version}  ·  by Mohamed Darwesh (@medovanx)  ·  GitHub",
-                AutoSize = true, Location = new Point(31, 104), LinkColor = Theme.Dim, ActiveLinkColor = Theme.Accent,
+                AutoSize = true, Location = new Point(31, 92), LinkColor = Theme.Dim, ActiveLinkColor = Theme.Accent,
                 LinkBehavior = LinkBehavior.HoverUnderline, ForeColor = Theme.Dim, BackColor = Color.Transparent,
             };
             sub.LinkClicked += (s, e) => Open($"https://github.com/{Engine.Repo}");
 
-            _game.SetBounds(30, 132, 700, 22);
+            _game.SetBounds(30, 120, 700, 22);
             _game.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             Link(_browse, "Change game folder");
             _browse.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _browse.Location = new Point(ClientSize.Width - 160, 134);
+            _browse.Location = new Point(ClientSize.Width - 160, 122);
             _browse.LinkClicked += (s, e) => Browse();
 
-            var heading = new Label { Text = "Choose patches", Font = Theme.Bold, AutoSize = true, Location = new Point(28, 166), ForeColor = Theme.Fg, BackColor = Color.Transparent };
             Link(_selectAll, "Select all");
-            _selectAll.Location = new Point(160, 170);
+            _selectAll.Location = new Point(30, 158);
             _selectAll.LinkClicked += (s, e) => SelectAll();
 
-            _cards.SetBounds(22, 196, ClientSize.Width - 44, 440);
+            _cards.SetBounds(22, 182, ClientSize.Width - 44, 440);
             _cards.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             _cards.AutoScroll = true;
             _cards.BackColor = Color.Transparent;
             _cards.Padding = new Padding(4);
             _cards.Resize += (s, e) => LayoutCards();
 
-            _install.SetBounds(28, 650, 240, 42);
-            _uninstall.SetBounds(280, 650, 190, 42);
-            _uninstallAll.SetBounds(482, 650, 150, 42);
+            _install.SetBounds(28, 636, 240, 42);
+            _uninstall.SetBounds(280, 636, 190, 42);
+            _uninstallAll.SetBounds(482, 636, 150, 42);
             foreach (var b in new Control[] { _install, _uninstall, _uninstallAll }) b.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             _install.Click += async (s, e) => await Run("Installing", dll => Engine.Install(dll, Checked(), _releases, Progress));
             _uninstall.Click += async (s, e) => await Run("Removing", dll => Engine.Uninstall(dll, Checked(), _releases, Progress));
@@ -348,14 +351,14 @@ namespace MimesisInstaller
                     await Run("Removing all", dll => Engine.Uninstall(dll, Engine.Patches, _releases, Progress));
             };
 
-            _progress.SetBounds(28, 706, ClientSize.Width - 56, 4);
+            _progress.SetBounds(28, 692, ClientSize.Width - 56, 4);
             _progress.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
-            _status.SetBounds(28, 720, ClientSize.Width - 56, 40);
+            _status.SetBounds(28, 706, ClientSize.Width - 56, 40);
             _status.ForeColor = Theme.Dim;
             _status.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
-            Controls.AddRange(new Control[] { title, sub, _game, _browse, heading, _selectAll, _cards, _install, _uninstall, _uninstallAll, _progress, _status });
+            Controls.AddRange(new Control[] { title, sub, _game, _browse, _selectAll, _cards, _install, _uninstall, _uninstallAll, _progress, _status });
 
             Console.SetOut(new LogWriter(this));   // install logic output -> status line
             Shown += async (s, e) => await Startup();
