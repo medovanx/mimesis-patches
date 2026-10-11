@@ -1,5 +1,8 @@
 # Minimap changelog
 
+## 1.6.4
+- Items a player is holding no longer get their own dot on top of the player: only the player shows
+
 ## 1.6.3
 - Thunderstore version: no updater code at all (mod managers handle updates). The GitHub / installer version keeps the in-game Update button
 

@@ -438,14 +438,35 @@ namespace Minimap
             }
         }
 
+        // An item someone is holding moves with them, so its dot would sit on top of theirs. Skip items that are
+        // attached to a character or right where a player stands (held in hand): only the player's dot shows.
+        const float HeldRadius = 1f;
+        readonly List<Vector3> _playerSpots = new List<Vector3>();
+
+        bool Held(Transform item, Vector3 me)
+        {
+            if (item.GetComponentInParent<ProtoActor>() != null) return true;
+            var p = item.position;
+            if (Near(p, me)) return true;
+            foreach (var spot in _playerSpots) if (Near(p, spot)) return true;
+            return false;
+        }
+
+        static bool Near(Vector3 a, Vector3 b) =>
+            Mathf.Abs(a.y - b.y) < 2.2f && new Vector2(a.x - b.x, a.z - b.z).sqrMagnitude < HeldRadius * HeldRadius;
+
         // Coloured dots for enabled categories, on your floor and inside the minimap's view.
         void Dots(Vector3 me)
         {
             int used = 0;
             float scale = _frame.rect.width / ViewMeters;
+            _playerSpots.Clear();
+            foreach (var (t, color, _) in _things)
+                if (color == PlayerDot && t != null && t.gameObject.activeInHierarchy) _playerSpots.Add(t.position);
             foreach (var (t, color, shown) in _things)
             {
                 if (!shown || t == null || !t.gameObject.activeInHierarchy) continue;
+                if (color == ItemDot && Held(t, me)) continue;
                 var d = t.position - me;
                 if (Mathf.Abs(d.y) > FloorTolerance) continue;
                 var p = new Vector2(d.x, d.z) * scale;
