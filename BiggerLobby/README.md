@@ -8,7 +8,7 @@ Lobbies hold **10 players**, with the UI and difficulty adjusted to match.
 
 ![Lobby screen with 10 player slots filled](screenshots/lobby.png)
 
-**Only the host needs it.**
+**Only the host needs it** for 10-player lobbies and the difficulty scaling. Other players who want the 10-player UI (lobby menu, result screen, spectator list while dead) need it installed too; without it they can still join and play, but those screens only show 4 players.
 
 ## Install
 Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `BiggerLobbyRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.

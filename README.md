@@ -19,7 +19,7 @@ To install by hand instead: install [MelonLoader](https://github.com/LavaGang/Me
 
 | Patch | Version | Host | Player | What it does |
 |---|---|---|---|---|
-| [BiggerLobby](BiggerLobby/) | 1.5.6 | Yes | No | 10-player lobbies, with UI for 10 and difficulty that scales with player count |
+| [BiggerLobby](BiggerLobby/) | 1.5.6 | Yes | For the 10-player UI | 10-player lobbies, with UI for 10 and difficulty that scales with player count |
 | [PSController](PSController/) | 1.5.4 | Optional | Optional | PlayStation button icons instead of Xbox ones |
 | [SpectatorCam](SpectatorCam/) | 1.3.3 | Optional | Optional | Free spectator camera, limited to the area around the player you're watching |
 | [Minimap](Minimap/) | 1.6.5 | Optional | Optional | Minimap: explored or full map, plain or graphic, optional players/monsters/items |

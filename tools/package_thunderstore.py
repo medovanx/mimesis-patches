@@ -12,7 +12,7 @@ REPO = "https://github.com/medovanx/mimesis-patches"
 MELONLOADER = "LavaGang-MelonLoader-0.7.3"
 
 DESCRIPTIONS = {
-    "BiggerLobby": "10-player lobbies with UI for 10 and difficulty that scales with the group size. Host only.",
+    "BiggerLobby": "10-player lobbies with UI for 10 and difficulty that scales with the group size. Host needs it; other players need it too for the 10-player UI.",
     "PSController": "PlayStation button icons instead of Xbox ones, and prefers the DS4Windows pad when both are connected.",
     "SpectatorCam": "Free spectator camera while dead, limited to the area around the player you're watching.",
     "Minimap": "Minimap of the level: explored or full map, plain or graphic style, optional player, monster and item dots.",
