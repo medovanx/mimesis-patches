@@ -91,7 +91,13 @@ def upload_thunderstore(zip_path, token):
         parts = []
         for part in start["upload_urls"]:
             chunk = data[part["offset"]:part["offset"] + part["length"]]
-            headers, _ = call("PUT", part["url"], data=chunk, auth=False)   # presigned storage URL: no token
+            for attempt in range(3):   # storage uploads sometimes time out on slow connections: retry
+                try:
+                    headers, _ = call("PUT", part["url"], data=chunk, auth=False)   # presigned storage URL: no token
+                    break
+                except urllib.error.URLError:
+                    if attempt == 2:
+                        raise
             parts.append({"ETag": headers["ETag"], "PartNumber": part["part_number"]})
         call("POST", f"{api}/usermedia/{uuid}/finish-upload/", {"parts": parts})
         _, result = call("POST", f"{api}/submission/submit/", {
@@ -100,6 +106,8 @@ def upload_thunderstore(zip_path, token):
         return 200, str(result)[:200]
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode(errors="replace")[:500]
+    except urllib.error.URLError as e:
+        return 0, f"connection failed: {e.reason}"
 
 
 def main():

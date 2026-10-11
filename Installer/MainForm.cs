@@ -477,7 +477,7 @@ namespace MimesisInstaller
                     Version = r != null ? "v" + r.Version.ToString(3) : "",
                     Installed = installed,
                     Available = r != null,
-                    Checked = r != null,
+                    Checked = r != null && installed,   // start with only your installed patches ticked (ready to update)
                     Margin = new Padding(6),
                 };
                 card.Toggled += UpdateButtons;

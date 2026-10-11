@@ -1,5 +1,8 @@
 # BiggerLobby changelog
 
+## 1.5.6
+- In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
+
 ## 1.5.5
 - Spectator list: extra rows placed reliably below the first four; logs the row layout once to help diagnose
 

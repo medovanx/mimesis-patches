@@ -207,6 +207,19 @@ namespace MimesisPatches
             _updating = false;
         }
 
+        static string ExistingInstaller(string game)
+        {
+            try
+            {
+                return System.IO.Directory.GetFiles(game, "MimesisPatchesInstaller*.exe")
+                    .Concat(new[] { System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.exe") })
+                    .Where(System.IO.File.Exists)
+                    .OrderByDescending(System.IO.File.GetLastWriteTimeUtc)
+                    .FirstOrDefault();
+            }
+            catch { return null; }
+        }
+
         IEnumerator RunUpdate(string[] names)
         {
             var box = Dialog();
@@ -220,7 +233,13 @@ namespace MimesisPatches
             fill.anchorMax = new Vector2(0f, 1f);
             fill.offsetMin = fill.offsetMax = Vector2.zero;
 
-            var exe = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.exe");
+            var game = System.IO.Path.GetDirectoryName(Application.dataPath);   // the folder with MIMESIS.exe
+            // Reuse an installer that's already here (game folder or a previous update): it updates itself when a newer
+            // one exists, so only the small patch files get downloaded. Download the full installer (~50 MB) only if none.
+            var exe = ExistingInstaller(game);
+            if (exe != null) { status.text = "Starting the installer..."; fill.anchorMax = Vector2.one; }
+            else exe = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "MimesisPatchesInstaller.exe");
+            if (!System.IO.File.Exists(exe))
             using (var req = new UnityWebRequest(InstallerUrl, UnityWebRequest.kHttpVerbGET, new DownloadHandlerFile(exe), null))
             {
                 req.timeout = 1800;
@@ -252,7 +271,6 @@ namespace MimesisPatches
                     yield break;
                 }
             }
-            var game = System.IO.Path.GetDirectoryName(Application.dataPath);   // the folder with MIMESIS.exe
             try
             {
                 System.Diagnostics.Process.Start(exe, $"install:{string.Join(",", names)} \"{game}\" --relaunch");

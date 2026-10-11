@@ -1,5 +1,8 @@
 # HudPercent changelog
 
+## 1.3.4
+- In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
+
 ## 1.3.3
 - Thunderstore version: no updater code at all (mod managers handle updates). The GitHub / installer version keeps the in-game Update button
 

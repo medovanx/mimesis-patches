@@ -1,5 +1,8 @@
 # Minimap changelog
 
+## 1.6.5
+- In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
+
 ## 1.6.4
 - Items a player is holding no longer get their own dot on top of the player: only the player shows
 
