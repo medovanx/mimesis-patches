@@ -1,6 +1,6 @@
 # MIMESIS Patches Installer
 
-**Version 5.0.0**
+**Version 5.1.0**
 
 Install, update or remove **every patch** from one exe.
 

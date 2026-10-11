@@ -1,5 +1,8 @@
 # Installer changelog
 
+## 5.1.0
+- Starts with only your installed patches ticked, and keeps them that way after installing (it used to tick everything).
+
 ## 5.0.0
 - Mods are MelonLoader mods now (the loader MIMESIS mods on Thunderstore use). The installer sets up MelonLoader and installs mods into the game's Mods folder.
 - BepInEx installs from installer 4 are moved over automatically; BepInEx is removed if nothing else uses it.
