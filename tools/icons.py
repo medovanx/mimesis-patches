@@ -45,9 +45,11 @@ def person(d, x, y, s, fill):
 
 
 def biggerlobby(d, cx, cy):
-    for i, (dx, s) in enumerate([(-170, 150), (170, 150), (-85, 175), (85, 175), (0, 210)]):
-        person(d, cx + dx, cy + (30 if s < 160 else 10 if s < 200 else 0), s, WHITE if s == 210 else (190, 196, 196))
-    d.text((cx + 175, cy - 175), "10", font=font("seguibl.ttf", 150), fill=GOLD, anchor="mm")
+    # 10 players: a back row of 5 (smaller, dimmer) behind a front row of 5.
+    for i in range(5):
+        person(d, cx - 216 + i * 108, cy - 60, 125, (150, 158, 160))
+    for i in range(5):
+        person(d, cx - 236 + i * 118, cy + 75, 150, WHITE)
 
 
 def pscontroller(d, cx, cy):

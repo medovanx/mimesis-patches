@@ -1,5 +1,8 @@
 # BiggerLobby changelog
 
+## 1.5.7
+- New icon: 10 players
+
 ## 1.5.6
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 

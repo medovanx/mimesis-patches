@@ -2,7 +2,7 @@
 
 <p align="center"><img src="icon.png" width="160"></p>
 
-**Version 1.5.6**
+**Version 1.5.7**
 
 Lobbies hold **10 players**, with the UI and difficulty adjusted to match.
 
