@@ -23,7 +23,7 @@ TEAM = "medovanx"
 COMMUNITY = "mimesis"
 CATEGORIES = ["mods"]
 # Patches published on Thunderstore (tested in multiplayer). Others are GitHub only for now.
-THUNDERSTORE = {"BiggerLobby", "Fov", "FpsCounter", "HostOptions", "HudPercent", "Inventory", "Minimap", "PSController"}
+THUNDERSTORE = {"BiggerLobby", "Fov", "FpsCounter", "HostOptions", "HudPercent", "Inventory", "Minimap", "PSController", "SpectatorCam"}
 
 
 def run(*cmd, cwd=ROOT, dry=False):
