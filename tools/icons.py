@@ -13,10 +13,19 @@ WHITE = (236, 238, 232)
 DIM = (150, 160, 165)
 
 
+# Segoe UI Black is a Windows font; elsewhere (Linux) a similar heavy sans, else Pillow's default at the right size.
+FALLBACK_FONTS = ["NotoSans-Black.ttf", "DejaVuSans-Bold.ttf", "LiberationSans-Bold.ttf", "NotoSans-Bold.ttf"]
+
+
 def font(name, size):
+    for n in [name] + FALLBACK_FONTS:
+        try:
+            return ImageFont.truetype(n, size)
+        except OSError:
+            pass
     try:
-        return ImageFont.truetype(name, size)
-    except OSError:
+        return ImageFont.load_default(size)   # Pillow 10.1+
+    except TypeError:
         return ImageFont.load_default()
 
 
