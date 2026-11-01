@@ -7,6 +7,7 @@
 //
 // The window: left sidebar = installed patches (orange dot = update available); right = the selected
 // patch's version, status, update link and options. Updates are checked once per launch on GitHub releases.
+// On Linux (Proton) the update buttons show the linux/mimesis-patches.py command instead of running the Windows installer.
 // Thunderstore builds (-p:Thunderstore=1, define THUNDERSTORE) contain none of the update code: Thunderstore doesn't
 // allow mods that update themselves, and the mod manager serves updates there.
 
@@ -74,6 +75,7 @@ namespace MimesisPatches
         TMP_Text _chipText;
         Image _chipBg;
         TMP_FontAsset _font;
+        bool _noVersionText;
 
 #if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
         /// <summary>True when the mods were installed by MimesisPatchesInstaller (directly in the game's Mods folder).
@@ -104,16 +106,24 @@ namespace MimesisPatches
             {
                 // Spawned UI prefabs are usually named "<prefab>(Clone)".
                 var menu = GameObject.Find("UIPrefab_MainMenu(Clone)") ?? GameObject.Find("UIPrefab_MainMenu");
-                var version = menu != null ? menu.transform.Find("VersionTextRect/versionText")?.GetComponent<TMP_Text>() : null;
+                // The version text gives the chip its font: UI_Text_Version since EA 0.4.0, versionText before.
+                var version = menu != null ? (menu.transform.Find("VersionTextRect/UI_Text_Version") ?? menu.transform.Find("VersionTextRect/versionText"))?.GetComponent<TMP_Text>() : null;
+                // EA 0.4.0 always hides VersionTextRect, and a hidden text has no canvas: take the menu's.
+                var canvas = version != null ? menu.GetComponentInParent<Canvas>(true) : null;
                 if (version == null)
                 {
                     if (_row != null) _row.gameObject.SetActive(false);   // menu gone: hide
                     _hovered = 0;
+                    if (menu != null && !_noVersionText)
+                    {
+                        _noVersionText = true;
+                        Debug.LogWarning("[Patches] The main menu has no version text (VersionTextRect/UI_Text_Version), so the Patches chip can't be added. A game update may have changed the menu.");
+                    }
                 }
-                else if (version.canvas != null)
+                else if (canvas != null)
                 {
                     _font = version.font;
-                    if (_row == null) BuildChip(version.canvas.rootCanvas.transform, version);
+                    if (_row == null) BuildChip(canvas.rootCanvas.transform, version);
                     var entries = Entries;
                     int updates = entries.Count(HasUpdate);
                     _chipText.text = $"Patches ({entries.Count})" + (updates > 0 ? $", {updates} update{(updates > 1 ? "s" : "")}" : "");
@@ -130,7 +140,7 @@ namespace MimesisPatches
 #if !THUNDERSTORE   // the updater is not in the Thunderstore build (mod managers handle updates)
         IEnumerator CheckForUpdates()
         {
-            using (var req = UnityWebRequest.Get($"https://api.github.com/repos/{Repo}/releases?per_page=100"))
+            using (var req = UnityWebRequest.Get($"https://api.github.com/repos/{UpdateRepo()}/releases?per_page=100"))
             {
                 req.SetRequestHeader("User-Agent", "mimesis-patches");
                 req.timeout = 10;
@@ -186,6 +196,7 @@ namespace MimesisPatches
         void StartUpdate(string[] names)
         {
             if (_updating) return;
+            if (LinuxTool) { LinuxUpdate(names); return; }   // never the Windows installer under Proton
             var box = Dialog();
             PatchUi.Label(box, _font, names.Length == 1 ? $"Update {names[0]}?" : $"Update {names.Length} patches?", 28f, null, 36f);
             PatchUi.Label(box, _font, "The game will close, install the update and start again.", 20f, PatchUi.Dim);
@@ -196,6 +207,136 @@ namespace MimesisPatches
                 StartCoroutine(RunUpdate(names));
             }, 200f).GetComponent<Image>().color = UpdateColor;
             PatchUi.Button(row, _font, "Not now", CloseDialog, 160f);
+        }
+
+        // ---------------- Linux (Steam with Proton) ----------------
+        // MIMESIS only ships for Windows, so on Linux Steam runs it with Proton (Wine). The installer .exe would run inside
+        // the game's Wine prefix there and put the GitHub release DLLs over what linux/mimesis-patches.py installed (maybe
+        // built for this very game version), so under Proton the update buttons show the Linux command instead.
+        // Other Wine setups (CrossOver or Whisky on macOS) keep the installer: the Linux tool doesn't support them.
+
+        static bool? _linuxTool;
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern IntPtr GetModuleHandle(string module);
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)] static extern IntPtr GetProcAddress(IntPtr module, string name);
+
+        /// <summary>True when updates come from linux/mimesis-patches.py: under Wine (its ntdll exports wine_get_version,
+        /// Windows' doesn't; WINEPREFIX in case a Wine build hides that export), started by Steam's Proton
+        /// (STEAM_COMPAT_DATA_PATH) or installed with that tool (its marker file). Never throws.</summary>
+        static bool LinuxTool
+        {
+            get
+            {
+                if (_linuxTool == null)
+                {
+                    bool wine = false, linux = false;
+                    try
+                    {
+                        var ntdll = GetModuleHandle("ntdll.dll");
+                        wine = ntdll != IntPtr.Zero && GetProcAddress(ntdll, "wine_get_version") != IntPtr.Zero;
+                    }
+                    catch { }
+                    try { wine |= !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WINEPREFIX")); } catch { }
+                    try { linux = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STEAM_COMPAT_DATA_PATH")) || System.IO.File.Exists(MarkerFile); } catch { }
+                    _linuxTool = wine && linux;
+                    if (wine) Debug.Log(linux ? "[Patches] Running under Proton: updates are installed with linux/mimesis-patches.py"
+                                              : "[Patches] Running under Wine, not Proton: updates use the Windows installer");
+                }
+                return _linuxTool.Value;
+            }
+        }
+
+        // Written by mimesis-patches.py on every install: how the patches were installed (see linux/README.md).
+        static string MarkerFile => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), "UserData", "mimesis-patches-linux.json");
+
+        /// <summary>The marker file's top-level string values (null for null or missing), or null without the file.</summary>
+        static Func<string, string> ReadMarker()
+        {
+            try
+            {
+                if (!System.IO.File.Exists(MarkerFile)) return null;
+                var json = System.IO.File.ReadAllText(MarkerFile, System.Text.Encoding.UTF8);
+                return key =>
+                {
+                    var m = Regex.Match(json, "\"" + key + "\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
+                    try { return m.Success ? Regex.Unescape(m.Groups[1].Value) : null; } catch { return null; }
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[Patches] Couldn't read mimesis-patches-linux.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        static bool IsRepoName(string s) => s != null && Regex.IsMatch(s, "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$");
+
+        // Where updates are looked for: the repo the Linux update command installs from (--source github --repo), else ours.
+        static string UpdateRepo()
+        {
+            var marker = LinuxTool ? ReadMarker() : null;
+            var repo = marker?.Invoke("repo");
+            return marker != null && marker("source") == "github" && IsRepoName(repo) ? repo : Repo;
+        }
+
+        /// <summary>The shell command that updates these patches, from the marker file, or null without it.
+        /// repoDir: the checkout it builds from.</summary>
+        static string LinuxCommand(string[] names, out string repoDir)
+        {
+            repoDir = null;
+            var marker = ReadMarker();
+            var script = marker?.Invoke("script");
+            if (string.IsNullOrEmpty(script)) return null;
+            var cmd = $"python3 {Quote(script)} install {string.Join(" ", names)}";
+            if (marker("source") == "github")
+            {
+                var repo = marker("repo") ?? Repo;
+                cmd += " --source github --repo " + (IsRepoName(repo) ? repo : Quote(repo));
+            }
+            else
+            {
+                // Named, so the tool builds from that checkout or says why it can't, instead of taking the GitHub releases.
+                repoDir = marker("repo_dir");
+                cmd += " --source local" + (string.IsNullOrEmpty(repoDir) ? "" : " --repo-dir " + Quote(repoDir));
+            }
+            return cmd;
+        }
+
+        // For a POSIX shell: in single quotes, a ' inside becomes '\''.
+        static string Quote(string s) => "'" + s.Replace("'", "'\\''") + "'";
+
+        // Under Proton: how to update with the Linux tool. Downloads and starts nothing.
+        void LinuxUpdate(string[] names)
+        {
+            var cmd = LinuxCommand(names, out var repoDir);
+            var how = "MIMESIS runs with Proton here, so updates come from the Linux tool (linux/mimesis-patches.py), not the Windows installer. ";
+            if (cmd == null)   // not installed with it (or an older version of it): the generic way
+            {
+                cmd = $"python3 linux/mimesis-patches.py install {string.Join(" ", names)}";
+                how += "Quit the game, then run this in a terminal, in your copy of the mimesis-patches repo (see linux/README.md there):";
+            }
+            else if (!string.IsNullOrEmpty(repoDir))
+                how += $"It builds the patches from your copy of the repo ({repoDir}), so get the new version there first, for example with git pull. Then quit the game and run this in a terminal:";
+            else
+                how += "Quit the game, then run this in a terminal:";
+            Debug.Log("[Patches] To update on Linux, run: " + cmd);
+
+            var box = Dialog();
+            PatchUi.Label(box, _font, names.Length == 1 ? $"Update {names[0]}" : $"Update {names.Length} patches", 28f, null, 36f);
+            PatchUi.Label(box, _font, how, 20f, PatchUi.Dim).richText = false;   // paths may contain '<'
+            var code = PatchUi.Box(box, "Command", new Color(1f, 1f, 1f, 0.06f));
+            var pad = code.gameObject.AddComponent<VerticalLayoutGroup>();
+            pad.padding = new RectOffset(16, 16, 12, 12);
+            pad.childControlWidth = pad.childControlHeight = true;
+            pad.childForceExpandHeight = false;
+            PatchUi.Label(code, _font, cmd, 20f).richText = false;
+            var row = PatchUi.Row(box, 44f);
+            TMP_Text copied = null;
+            copied = PatchUi.Button(row, _font, "Copy command", () =>
+            {
+                GUIUtility.systemCopyBuffer = cmd;
+                copied.text = "Copied";
+            }, 220f).GetComponentInChildren<TMP_Text>();
+            PatchUi.Button(row, _font, "OK", CloseDialog, 160f);
         }
 
         void Failed(string message)
@@ -225,7 +366,7 @@ namespace MimesisPatches
             var box = Dialog();
             PatchUi.Label(box, _font, names.Length == 1 ? $"Updating {names[0]}" : $"Updating {names.Length} patches", 28f, null, 36f);
             var status = PatchUi.Label(box, _font, "Starting the download...", 20f, PatchUi.Dim);
-            status.enableWordWrapping = false;   // one line: size | speed | time left
+            status.textWrappingMode = TextWrappingModes.NoWrap;   // one line: size | speed | time left
             var track = PatchUi.Box(box, "Progress", PatchUi.Off);
             track.gameObject.AddComponent<LayoutElement>().preferredHeight = 8f;
             var fill = PatchUi.Box(track, "Fill", UpdateColor);
