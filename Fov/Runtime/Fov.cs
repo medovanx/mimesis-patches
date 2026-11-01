@@ -10,6 +10,7 @@ using System;
 using MimesisPatches;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ namespace Fov
             set { PlayerPrefs.SetInt("medovanx.Fov.Value", value); PlayerPrefs.Save(); }
         }
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;
@@ -70,6 +71,9 @@ namespace Fov
             var cm = Hub.s != null ? Hub.s.cameraman : null;
             if (kb == null || cm == null || cm.playerCamera == null) return;
             if (Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen) return;
+            // Text fields outside the game menu (the lobby's TRAM Settings since EA 0.4.0, the feedback form) don't set
+            // isGameMenuOpen, so [ / ] typed into them would change the FOV.
+            if (TypingInField()) return;
             // Tap: one 5-degree step. Hold: after a short delay it keeps changing smoothly (RepeatSpeed degrees/second).
             int dir = kb.rightBracketKey.isPressed ? 1 : kb.leftBracketKey.isPressed ? -1 : 0;
             if (dir == 0) { _held = 0f; return; }
@@ -93,6 +97,12 @@ namespace Fov
 
         const float RepeatDelay = 0.35f, RepeatSpeed = 40f;
         float _held, _exact;
+
+        static bool TypingInField()
+        {
+            var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+            return selected != null && selected.TryGetComponent<TMP_InputField>(out var field) && field.isFocused;
+        }
 
         void Toast(string text)
         {

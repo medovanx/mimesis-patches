@@ -21,6 +21,7 @@ Use the [installer](../Installer/), or install [MelonLoader](https://github.com/
 | Faster | Shift | L3 |
 
 Switching to another player returns you to the normal camera.
+While the free camera is on, its keys only move it (E doesn't possess a mimic): press F to go back first.
 
 ## Limits
 - The camera stays within **8 m** of the player you're watching.

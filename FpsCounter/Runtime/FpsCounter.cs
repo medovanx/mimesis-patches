@@ -20,7 +20,7 @@ namespace FpsCounter
             set { PlayerPrefs.SetInt("medovanx.FpsCounter.Enabled", value ? 1 : 0); PlayerPrefs.Save(); }
         }
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;

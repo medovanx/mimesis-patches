@@ -40,7 +40,7 @@ namespace Revive
             set { PlayerPrefs.SetInt("medovanx.Revive.PerLevel", value); PlayerPrefs.Save(); }
         }
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;
@@ -86,11 +86,17 @@ namespace Revive
 
         static void Postfix(DungeonRoom __instance, long delta)
         {
-            if (!Plugin.Enabled) { Progress.Clear(); return; }
+            // OnUpdate keeps ticking after the level is decided (result screen, then drain/shutdown), but a revive then
+            // would undo a death already reported and drained. Same check as vanilla's own (admin) revive.
+            if (!Plugin.Enabled || !__instance.CanReviveCheat()) { Progress.Clear(); return; }
             var players = __instance._vPlayerDict.Values;
+            // Players who joined mid-level are killed after 3 s to spectate until it ends (IVroom.ScheduleBargeInKill,
+            // EA 0.4.0); leave them dead. Same test: not the host and not one of the players who started the level.
+            var started = __instance.RoomManager.GetGameSessionInfo().FixedPlayerSteamIDs;
             foreach (var dead in players)
             {
                 if (dead.LifeCycle != VCreatureLifeCycle.Dead) { Progress.Remove(dead.UID); continue; }
+                if (!dead.IsHost && !started.ContainsKey(dead.SteamID)) { Progress.Remove(dead.UID); continue; }
                 Used.TryGetValue((__instance.RoomID, dead.UID), out var used);
                 if (Plugin.PerLevel > 0 && used >= Plugin.PerLevel) continue;
 

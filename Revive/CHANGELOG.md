@@ -1,5 +1,11 @@
 # Revive changelog
 
+## Unreleased
+- No revives once the level is decided (result screen and after), so a death already reported can't be undone
+- Game EA 0.4.0: players who join mid-level spectate until it ends, as the game intends; standing near the start point no longer revives them
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.2.3
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 

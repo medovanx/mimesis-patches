@@ -6,7 +6,7 @@
 //   player's game only displays the synced value. With "Infinite Stamina" on, players never drain.
 // - Money: the lobby room (MaintenanceRoom) sets its funds from C_InitialMoney when it's created and when
 //   a new run starts, then sends the amount to everyone. "Starting money" replaces that value.
-// The controls sit in the host's lobby menu under "Use Entry Password"; other players never see them.
+// The controls sit in the host's lobby TRAM Settings popup under "Use Entry Password"; other players never see them.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -77,72 +77,93 @@ namespace HostOptions
 
         // ---------------- Lobby menu controls (host only) ----------------
 
-        [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_InGameMenu), "OnEnable")]
-        static void AddControls(UIPrefab_InGameMenu __instance)
+        // EA 0.4.0 moved "Allow Public Match" and "Use Entry Password" out of the Esc menu (UIPrefab_InGameMenu is
+        // no longer created) into the host's TRAM Settings popup in the lobby, so the controls are added to its list.
+        [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_TramSettingPopup), "OnEnable")]
+        static void AddControls(UIPrefab_TramSettingPopup __instance)
         {
-            var publicRoom = __instance.UE_PublicRoom as RectTransform;
-            var password = __instance.UE_RoomPassword as RectTransform;
-            if (publicRoom == null || password == null) return;
-            var menu = publicRoom.parent;
-            float step = publicRoom.anchoredPosition.y - password.anchoredPosition.y;   // "Allow Public Match" -> "Use Entry Password"
+            var publicItem = __instance.UE_UIPrefab_TramSettingListItemPublicToggle;
+            var titleItem = __instance.UE_UIPrefab_TramSettingListItemPublicToggle_Sub;
+            if (publicItem == null || titleItem == null) { Warn("TRAM Settings list not found; lobby controls not added"); return; }
+            var list = publicItem.parent;
 
-            var stamina = menu.Find(StaminaRow) ?? BuildStaminaRow(publicRoom, password.anchoredPosition - new Vector2(0f, step * 0.95f));
-            // Same position as the stamina block: its "STARTING MONEY: [field]" row then sits under the checkbox,
-            // like "TITLE:" sits under "Allow Public Match".
-            var money = menu.Find(MoneyRow) ?? BuildMoneyRow(publicRoom, ((RectTransform)stamina).anchoredPosition);
+            // Appended below "Use Entry Password" (the list stacks its items): "Infinite Stamina [ON/OFF]", then a
+            // "STARTING MONEY: [field]" row, like the "TITLE:" row under "Allow Public Match".
+            var stamina = list.Find(StaminaRow) ?? BuildStaminaRow(publicItem);
+            var money = list.Find(MoneyRow) ?? BuildMoneyRow(titleItem);
 
             stamina.gameObject.SetActive(IsHost);
             money.gameObject.SetActive(IsHost);
-            stamina.GetComponentInChildren<Toggle>(true)?.SetIsOnWithoutNotify(InfiniteStamina);
+            var toggle = stamina.GetComponentInChildren<Toggle>(true);
+            if (toggle != null) { toggle.SetIsOnWithoutNotify(InfiniteStamina); ShowOnOff(toggle); }
             var input = money.GetComponentInChildren<TMP_InputField>(true);
             if (input != null) input.SetTextWithoutNotify((StartMoney >= 0 ? StartMoney : DefaultMoney).ToString());
         }
 
-        // Copies the whole "Allow Public Match" block (its label lives on the block, not the checkbox).
-        static RectTransform CloneBlock(RectTransform publicRoom, string name, Vector2 position)
+        static bool _warned;
+        static void Warn(string message)
         {
-            var block = (RectTransform)Object.Instantiate(publicRoom.gameObject, publicRoom.parent, false).transform;
+            if (_warned) return;
+            _warned = true;
+            Debug.LogWarning("[HostOptions] " + message);
+        }
+
+        // Copies one of the popup's list items. Its localized labels would put the game's text back (on a language
+        // change, or when a copy of a hidden item is first shown), so the copy's texts are plain.
+        static Transform CloneItem(Transform item, string name)
+        {
+            var block = Object.Instantiate(item.gameObject, item.parent, false).transform;
             block.name = name;
-            block.anchoredPosition = position;
+            foreach (var l10n in block.GetComponentsInChildren<UIApplyL10N>(true)) Object.DestroyImmediate(l10n);
+            block.gameObject.SetActive(true);
             return block;
         }
 
-        static RectTransform BuildStaminaRow(RectTransform publicRoom, Vector2 position)
+        static void SetLabel(Transform block, string path, string text)
         {
-            var block = CloneBlock(publicRoom, StaminaRow, position);
-            // In the game's block, "title" is the checkbox's label and "RoomName" is the "TITLE: [field]" row.
-            if (block.Find("RoomName") != null) Object.Destroy(block.Find("RoomName").gameObject);
-            var label = block.Find("title")?.GetComponent<TMP_Text>();
-            if (label != null) label.text = "Infinite Stamina";
+            var label = block.Find(path)?.GetComponent<TMP_Text>();
+            if (label != null) label.text = text;
+            else Warn($"{block.name}: label '{path}' not found");
+        }
+
+        // Same as the game's ON/OFF text on its TRAM Settings toggles.
+        static void ShowOnOff(Toggle toggle)
+        {
+            var text = toggle.GetComponentInChildren<TMP_Text>(true);
+            if (text != null) text.text = Hub.GetL10NText(toggle.isOn ? "UI_COMMON_BUTTON_ON" : "UI_COMMON_BUTTON_OFF");
+        }
+
+        // Copies the "Allow Public Match [ON/OFF]" item.
+        static Transform BuildStaminaRow(Transform publicItem)
+        {
+            var block = CloneItem(publicItem, StaminaRow);
+            SetLabel(block, "InfoText", "Infinite Stamina");
 
             var toggle = block.GetComponentInChildren<Toggle>(true);
+            if (toggle == null) { Warn("Infinite Stamina: toggle not found"); return block; }
             toggle.onValueChanged.RemoveAllListeners();
             toggle.SetIsOnWithoutNotify(InfiniteStamina);
+            ShowOnOff(toggle);
             toggle.onValueChanged.AddListener(on =>
             {
                 InfiniteStamina = on;
+                ShowOnOff(toggle);
                 Debug.Log($"[HostOptions] Infinite stamina {(on ? "enabled" : "disabled")}");
             });
             return block;
         }
 
-        // Copies the block's "TITLE: [field]" row as "STARTING MONEY: [amount]".
-        static RectTransform BuildMoneyRow(RectTransform publicRoom, Vector2 position)
+        // Copies the "TITLE: [field] [Apply]" row as "STARTING MONEY: [amount]".
+        static Transform BuildMoneyRow(Transform titleItem)
         {
-            var block = CloneBlock(publicRoom, MoneyRow, position);
-            // Keep only the "TITLE: [field]" row (RoomName) and relabel it.
-            var toggle = block.GetComponentInChildren<Toggle>(true);
-            if (toggle != null) Object.Destroy(toggle.gameObject);
-            if (block.Find("title") != null) Object.Destroy(block.Find("title").gameObject);
-            var row = block.Find("RoomName");
-            var rowLabel = row != null ? row.GetComponentsInChildren<TMP_Text>(true)
-                .FirstOrDefault(t => t.GetComponentInParent<TMP_InputField>() == null && t.GetComponentInParent<Button>() == null) : null;
-            if (rowLabel != null) rowLabel.text = "STARTING MONEY:";
+            var block = CloneItem(titleItem, MoneyRow);
+            SetLabel(block, "Layout/InfoText", "STARTING MONEY:");
 
-            // The game's "Apply" button next to the room title isn't needed: the amount applies when you finish typing.
+            // The game's "Apply" and clear buttons for the room title aren't needed: the amount applies when you finish typing.
             foreach (var b in block.GetComponentsInChildren<Button>(true)) b.gameObject.SetActive(false);
 
             var input = block.GetComponentInChildren<TMP_InputField>(true);
+            if (input == null) { Warn("Starting money: input field not found"); return block; }
             input.onValueChanged.RemoveAllListeners();
             input.onEndEdit.RemoveAllListeners();
             input.onSubmit.RemoveAllListeners();

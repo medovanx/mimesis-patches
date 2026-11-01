@@ -3,14 +3,46 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PSController
 {
-    // Called from a prefix on KeyImageData.GetKeyImage(string) (GamePatches). Returns a PS icon for gamepad keys, or null to use the game's own.
+    // Called from patches on KeyImageData.GetKeyImage(string) and UIPrefab_GamePadKeyIcon.SetKey (GamePatches).
+    // Get returns a PS icon for gamepad keys, or null to use the game's own.
     public static class PSIcons
     {
         static Dictionary<string, Sprite> _sprites;
+
+        // The game's own sprite of each pad icon's A/B/X/Y image, put back for keys without a PS icon (or icons off).
+        sealed class GameLook { public Sprite Sprite; public bool PreserveAspect; }
+        static readonly ConditionalWeakTable<Image, GameLook> GameLooks = new ConditionalWeakTable<Image, GameLook>();
+        static bool _warned;
+
+        // After the game's SetKey: show the PS icon on the A/B/X/Y image (letter cleared, other Xbox parts hidden).
+        public static void Apply(UIPrefab_GamePadKeyIcon icon, string keyName)
+        {
+            var image = icon.UE_ABXYButton;
+            if (image == null)
+            {
+                if (!_warned) { _warned = true; Debug.LogWarning("[PSController] Gamepad key icon has no ABXYButton image; keeping the game's icons there"); }
+                return;
+            }
+            var look = GameLooks.GetValue(image, i => new GameLook { Sprite = i.sprite, PreserveAspect = i.preserveAspect });
+            var sprite = Get(keyName);
+            if (sprite == null)
+            {
+                image.sprite = look.Sprite;
+                image.preserveAspect = look.PreserveAspect;
+                return;
+            }
+            icon.ResetIcons();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            if (icon.UE_UI_ABXYText != null) icon.UE_UI_ABXYText.text = "";
+            image.gameObject.SetActive(true);
+        }
 
         // Game key id -> icon file (several ids share a physical button).
         static readonly Dictionary<string, string> Files = new Dictionary<string, string>
