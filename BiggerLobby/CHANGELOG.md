@@ -1,5 +1,15 @@
 # BiggerLobby changelog
 
+## Unreleased
+- Updated for MIMESIS EA 0.4.0, whose new pause menu, result screens and spectator list had broken the patch
+- Pause/lobby menu: works with the game's new menu, with a row for every player (up to 10): volume, mute, profile, kick and ping. Like the game's own list, it only lists joined players (no "Empty slot" rows)
+- Result screens: end of level, death match and the new session report show every player, in rows of up to 5
+- Spectator list (while dead) works with the game's new list
+- Public room lists (main menu and tram terminal) keep listing rooms with 4 or more players and show their real limit (for players who have BiggerLobby too)
+- If a game update breaks one patch, the others (above all the lobby size) still apply. Each result screen is patched on its own, so one broken screen doesn't take the other two with it
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.5.7
 - New icon: 10 players
 
