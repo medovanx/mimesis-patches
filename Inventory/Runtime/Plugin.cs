@@ -11,7 +11,7 @@ namespace Inventory
     {
         static bool _initialized;
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;
@@ -38,7 +38,7 @@ namespace Inventory
                             }
                         }
                         MimesisPatches.PatchUi.Label(page, font,
-                            "Your number applies to everyone in your lobby. More than 4 shows as a 2 × 4 grid.\n" +
+                            "Your number applies to everyone in your lobby. Slots 5-8 are the game's bag slots; bags add more, up to 8 in all.\n" +
                             "Every player needs this patch. Applies when characters spawn (next level, or reload the lobby).",
                             20f, MimesisPatches.PatchUi.Dim);
                     });

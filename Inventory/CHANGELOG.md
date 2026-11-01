@@ -1,5 +1,11 @@
 # Inventory changelog
 
+## Unreleased
+- Works with the game's new inventory (cosmetic and equipment slots, bags): slots 5-8 are now the game's own bag slots instead of a copied second row, bags still add slots (up to 8 in all), and fewer than 4 locks and hides the rest
+- A player who joined without a Steam lobby (by address) sees all 4 basic slots instead of hiding slots by their own "Slots when hosting" number
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.4.4
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 

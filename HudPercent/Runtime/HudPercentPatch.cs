@@ -2,7 +2,7 @@
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
 //
 // The HUD (UIPrefab_InGame) updates its bars through OnHpChanged and OnContaChanged; these postfixes write
-// the same values as a percentage into a small label right of each bar, styled like the HUD's money text.
+// the same values as a percentage into a small label right of each bar, styled like the HUD's own text.
 // Health is how much you have left; radiation is how contaminated you are (100% = full bar).
 
 using HarmonyLib;
@@ -22,24 +22,27 @@ namespace HudPercent
             get => PlayerPrefs.GetInt("medovanx.HudPercent.Enabled", 1) == 1;
             set { PlayerPrefs.SetInt("medovanx.HudPercent.Enabled", value ? 1 : 0); PlayerPrefs.Save(); }
         }
-        const float Gap = 24f;
+        const float Gap = 12f;
+        // EA 0.4 HUD is amber (the gauge icons' color), no longer green.
+        static readonly Color HudColor = new Color(1f, 0.78f, 0.37f);
+        static bool _warned;
 
+        // While dead the game sends OnHpChanged(1, 1) only to play the flatline, so that is 0%, not 100%.
         [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGame.OnHpChanged))]
         static void Health(UIPrefab_InGame __instance, long curr, long maxHP) =>
-            Set(__instance, __instance.UE_HP_bg != null ? __instance.UE_HP_bg.rectTransform : null, curr, maxHP, new Color(0.45f, 0.95f, 0.45f));
+            Set(__instance, Frame(__instance.UE_HPGraph, "HPGraph"), __instance.isDead ? 0 : curr, maxHP, HudColor);
 
         [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGame.OnContaChanged))]
         static void Radiation(UIPrefab_InGame __instance, long curr, long maxContaVal) =>
-            Set(__instance, __instance.oxyGauge != null ? WidestImage(__instance.oxyGauge.transform) : null, curr, maxContaVal, new Color(0.55f, 0.9f, 0.3f));
+            Set(__instance, Frame(__instance.UE_OxyGaugeSlider != null ? __instance.UE_OxyGaugeSlider.transform : null, "OxyGaugeSlider"), curr, maxContaVal, HudColor);
 
-        // The radiation gauge's own rect is small (around its icon); the bar is its widest image.
-        static RectTransform WidestImage(Transform gauge)
+        // EA 0.4: each gauge is HPGauge|OxyGauge/rootNode (280 wide) holding icon + bar. The label goes on that
+        // rootNode, not on the bar: HPGraph is a RectMask2D and would clip it. Same width, so both labels line up.
+        static RectTransform Frame(Transform bar, string what)
         {
-            RectTransform best = null;
-            foreach (var img in gauge.GetComponentsInChildren<UnityEngine.UI.Image>(true))
-                if (best == null || img.rectTransform.rect.width * img.rectTransform.lossyScale.x > best.rect.width * best.lossyScale.x)
-                    best = img.rectTransform;
-            return best != null ? best : gauge as RectTransform;
+            var frame = bar != null ? bar.parent as RectTransform : null;
+            if (frame == null && !_warned) { _warned = true; Debug.LogWarning($"[HudPercent] HUD {what} not found, its percentage is not shown"); }
+            return frame;
         }
 
         static void Set(UIPrefab_InGame hud, RectTransform bar, long curr, long max, Color color)
@@ -53,7 +56,7 @@ namespace HudPercent
             label.text = percent + "%";
         }
 
-        // Child of the bar, anchored to its right edge so it follows the bar wherever the HUD puts it.
+        // Child of the gauge, anchored to its right edge so it follows the gauge wherever the HUD puts it.
         static TMP_Text Create(UIPrefab_InGame hud, RectTransform bar, Color color)
         {
             var label = new GameObject(LabelName, typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
@@ -63,11 +66,12 @@ namespace HudPercent
             rt.pivot = new Vector2(0f, 0.5f);
             rt.anchoredPosition = new Vector2(Gap, 0f);
             rt.sizeDelta = new Vector2(80f, 30f);
-            // Same look as the HUD's own text; scaled back if the bar itself is scaled.
-            var style = hud.UE_Currency;
+            // Same look as the HUD's own text (pixel font + glow; the money text is gone, the version text is always there);
+            // scaled back if the bar itself is scaled.
+            var style = hud.UE_UI_TextVersionText;
             if (style != null) { label.font = style.font; label.fontSharedMaterial = style.fontSharedMaterial; }
-            label.fontSize = 20f;
-            label.enableWordWrapping = false;
+            label.fontSize = 24f;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
             label.alignment = TextAlignmentOptions.MidlineLeft;
             label.color = color;
             label.raycastTarget = false;
