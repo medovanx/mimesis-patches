@@ -2,8 +2,8 @@
 
     python tools/release.py Fov HostOptions --note "Fixed the slider" --token tss_... [--minor] [--no-thunderstore] [--dry-run]
 
-For each patch: bump the version (patch number, or minor with --minor), add the note to its CHANGELOG, update the
-version in its README and the root table, build it twice (the normal DLL with the in-game updater, for GitHub;
+For each patch: bump the version (patch number, or minor with --minor), add the note to its CHANGELOG (followed by
+what's under "## Unreleased" there), update the version in its README and the root table, build it twice (the normal DLL with the in-game updater, for GitHub;
 and -p:Thunderstore=1 without any updater code, for the Thunderstore package) and package it. Then commit and push, create the
 GitHub release (installer users and the in-game Update button get it from there) and upload the package to
 Thunderstore (Gale / r2modman users get it from there).
@@ -49,7 +49,13 @@ def bump(patch, minor):
 def changelog(patch, version, note):
     path = ROOT / patch / "CHANGELOG.md"
     text = path.read_text(encoding="utf-8")
-    entry = f"## {version}\n" + "".join(f"- {line.strip()}\n" for line in note.split("\n") if line.strip()) + "\n"
+    # What's already listed under "## Unreleased" ships in this version too, after the note.
+    unreleased = re.search(r"^## Unreleased\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    pending = ""
+    if unreleased:
+        pending = "".join(line + "\n" for line in unreleased.group(1).split("\n") if line.strip())
+        text = text[:unreleased.start()] + text[unreleased.end():]
+    entry = f"## {version}\n" + "".join(f"- {line.strip()}\n" for line in note.split("\n") if line.strip()) + pending + "\n"
     head = f"# {patch} changelog\n\n"
     path.write_text(text.replace(head, head + entry, 1) if text.startswith(head) else head + entry + text, encoding="utf-8")
     return entry

@@ -52,6 +52,8 @@ namespace SpectatorCam
                 return true;
             }
             if (Hub.s.uiman != null && Hub.s.uiman.isGameMenuOpen) return !_free;
+            // The game also ignores spectator input while its F9 feedback form (text fields) is open.
+            if (Hub.s.feedbackMan != null && Hub.s.feedbackMan.feedbackUI != null && Hub.s.feedbackMan.feedbackUI.IsOpen) return !_free;
 
             var kb = Keyboard.current;
             var pad = Gamepad.current;
@@ -63,6 +65,19 @@ namespace SpectatorCam
 
             Move(cam.transform, target.FpvCameraRoot, target.transform, kb, pad);
             return false;
+        }
+
+        // CameraManager.Update now also reads Interact (E by default) while spectating, to possess a mimic or end it.
+        // While free the keyboard flies the camera (E = up), so its keys don't do that; F back to orbit first.
+        static readonly Key[] FreeKeys = { Key.W, Key.A, Key.S, Key.D, Key.E, Key.Q, Key.Space, Key.LeftCtrl, Key.LeftShift };
+
+        [HarmonyPrefix, HarmonyPatch("UpdateMimicPossession")]
+        static bool BeforePossession()
+        {
+            var kb = Keyboard.current;
+            if (!_free || kb == null) return true;
+            foreach (var k in FreeKeys) if (kb[k].wasPressedThisFrame) return false;
+            return true;
         }
 
         // Switching targets (or the game resetting the camera) returns to orbit mode first.

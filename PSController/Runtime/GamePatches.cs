@@ -11,6 +11,7 @@ namespace PSController
     static class GamePatches
     {
         // Button prompts: a PS icon for gamepad keys, or the game's own icon when there's none (or icons are off).
+        // In the current game only the old key-bind screen (UIPrefab_KeyBind) still uses this.
         [HarmonyPrefix, HarmonyPatch(typeof(KeyImageData), nameof(KeyImageData.GetKeyImage), typeof(string))]
         static bool KeyImage(string __0, ref Sprite __result)
         {
@@ -19,6 +20,11 @@ namespace PSController
             __result = icon;
             return false;
         }
+
+        // The game now draws its gamepad prompts (crosshair, HUD and spectator tips, mimic possession, Controls settings)
+        // with UIPrefab_GamePadKeyIcon, built from Xbox parts, instead of KeyImageData.
+        [HarmonyPostfix, HarmonyPatch(typeof(UIPrefab_GamePadKeyIcon), nameof(UIPrefab_GamePadKeyIcon.SetKey), typeof(string))]
+        static void PadKeyIcon(UIPrefab_GamePadKeyIcon __instance, string __0) => PSIcons.Apply(__instance, __0);
 
         // Every Gamepad.current read prefers the DS4Windows Xbox pad (see Pads). Pads itself reads Gamepad.current,
         // so the original getter runs while it does.

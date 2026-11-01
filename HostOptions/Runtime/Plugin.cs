@@ -12,7 +12,7 @@ namespace HostOptions
     {
         static bool _initialized;
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;
@@ -42,7 +42,7 @@ namespace HostOptions
                         ("All games", () => Difficulty.AffectSaves, () => Difficulty.AffectSaves = true),
                         ("New games only", () => !Difficulty.AffectSaves, () => Difficulty.AffectSaves = false));
                     MimesisPatches.PatchUi.Label(page, font,
-                        "Host only. Stamina and money are also in the lobby menu (Esc). Starting money applies to new runs, and to current funds before the first departure.",
+                        "Host only. Stamina and money are also in the lobby's TRAM Settings (F1). Starting money applies to new runs, and to current funds before the first departure.",
                         16f, MimesisPatches.PatchUi.Dim);
                 }, status: () =>
                     (HostOptionsPatch.InfiniteStamina ? "Infinite stamina" : "Normal stamina") +

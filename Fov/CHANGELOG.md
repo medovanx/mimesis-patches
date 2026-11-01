@@ -1,5 +1,10 @@
 # Fov changelog
 
+## Unreleased
+- [ and ] no longer change the FOV while you type in a text field outside the Esc menu, like the lobby's TRAM Settings window added in EA 0.4.0
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.5.4
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 

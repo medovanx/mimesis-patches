@@ -4,11 +4,11 @@
 
 **Version 1.4.4**
 
-The host sets the inventory size to **1-8 slots**. More than 4 shows as a **2 × 4 grid** (slots 1-4 on the bottom row, 5-8 above).
+The host sets the inventory size to **1-8 slots**. Slots 5-8 are the game's own **bag slots** (the row a bag opens); bags still add slots on top, up to 8 in all. Fewer than 4 leaves the rest locked and hidden.
 
-![Inventory bar with 8 slots in a 2x4 grid](screenshots/inventory.png)
+![Inventory bar with 8 slots, on EA 0.3.1 (on EA 0.4.0, slots 5-8 are the bag row)](screenshots/inventory.png)
 
-**Every player needs it.** Without it, a player keeps 4 slots and can run into problems when given items in slots 5-8, so make sure everyone installs it before raising the number.
+**Every player needs it.** The host's game decides the slots and everyone sees slots 5-8, but below 4 a player without it still sees the locked slots (they stay empty), so make sure everyone installs it.
 
 ## Install
 Use the [installer](../Installer/), or install [MelonLoader](https://github.com/LavaGang/MelonLoader/releases) (x64, 0.7.x) into the game folder, run the game once, then copy `InventoryRuntime.dll` from this patch's [release](https://github.com/medovanx/mimesis-patches/releases) into the game's `Mods` folder.

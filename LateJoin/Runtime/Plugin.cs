@@ -11,7 +11,7 @@ namespace LateJoin
     {
         static bool _initialized;
 
-        // Called once at the start of Hub.Awake (see Common/BepInExPlugin.cs).
+        // Called once at the start of Hub.Awake (see Common/MelonEntry.cs).
         public static void Init()
         {
             if (_initialized) return;
@@ -24,12 +24,14 @@ namespace LateJoin
                 UnityEngine.Object.DontDestroyOnLoad(go);
                 go.AddComponent<Ticker>();
                 MimesisPatches.PatchMenu.Register("LateJoin", version,
-                    status: () => LateJoinPatch.Enabled ? "Players can join a run in progress" : "Off (join in lobby only)",
+                    status: () => LateJoinPatch.Enabled ? "Players can join a run in progress" : "Off (game default)",
                     build: (page, font) =>
                     {
                         MimesisPatches.PatchUi.OnOff(page, font, "Allow late join", () => LateJoinPatch.Enabled, v => LateJoinPatch.Enabled = v);
+                        // EA 0.4.0 lets players join mid-run itself; this only covers joiners who end up at the tram.
                         MimesisPatches.PatchUi.Label(page, font,
-                            "When you host, friends can join mid-run. They wait, then join at the tram when the team returns.\n" +
+                            "The game lets friends join mid-run (in a level they spectate until it ends).\n" +
+                            "If one reaches the tram while the team is away, they wait there instead of being sent back.\n" +
                             "You and the joining player both need this patch.", 20f, MimesisPatches.PatchUi.Dim);
                     });
                 Debug.Log($"[LateJoin] v{version.ToString(3)}: patches applied");

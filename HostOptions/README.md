@@ -6,7 +6,7 @@
 
 Extra lobby options for the host: **infinite stamina**, **starting money**, and **difficulty and economy** settings.
 
-![Patches > HostOptions page: infinite stamina and starting money](screenshots/options.png)
+![Infinite Stamina and Starting money in the lobby menu, on EA 0.3.1 (on EA 0.4.0 they're in TRAM Settings)](screenshots/options.png)
 
 **Only the host needs it.** Other players don't see the controls.
 
@@ -17,7 +17,7 @@ Use the [installer](../Installer/), or install [MelonLoader](https://github.com/
 
 ![Patches > HostOptions settings](screenshots/settings.png)
 
-In the lobby menu (Esc), under "Use Entry Password", or in **Patches > HostOptions** on the main menu:
+In the lobby's **TRAM Settings** window (F1 by default; the game's public match and password settings), under "Use Entry Password", or in **Patches > HostOptions** on the main menu:
 - **Infinite Stamina**: nobody's stamina drains. Monsters are unaffected.
 - **STARTING MONEY**: the funds a run starts with (game default $15). Type a value and press Enter or click away. Empty or invalid resets to the default. Changing it before the first departure also sets your current funds.
 

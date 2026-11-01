@@ -1,211 +1,101 @@
-// MIMESIS BiggerLobby - pause/lobby menu player list with 10 rows and empty-slot placeholders
+// MIMESIS BiggerLobby - pause/lobby menu player list with a row for each of up to 10 players
 // Author: Mohamed Darwesh (@medovanx) - https://github.com/medovanx
+//
+// The menu (UIPrefab_InGameMenu_new) has 4 player rows. Everything else in it already goes by the length of its row
+// list: filling the rows, volume, mute, profile, kick and ping. So rows 5-10 are copies of the 4th, wired the way the
+// game wires its own, and the list is handed over. The game shows a row per joined player and hides the rest.
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
+using System.Linq;
 using HarmonyLib;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Row = UIPrefab_InGameMenu.PlayerUIElement;
 
 namespace BiggerLobby
 {
-    [HarmonyPatch(typeof(UIPrefab_InGameMenu))]
+    [HarmonyPatch(typeof(UIPrefab_InGameMenu_new))]
     static class InGameMenuPatch
     {
-        // Rows are 100px in a vertical layout; shrink them so 10 fit where 4 used to.
-        const float RowScale = 0.62f;   // 10 rows x 62 + spacing fit the panel's 650 height
-        static readonly Color PlaceholderColor = new Color(1f, 1f, 1f, 0.35f);
-        static readonly Dictionary<TMP_Text, (Color, TextAlignmentOptions, Vector2)> NameStyles = new Dictionary<TMP_Text, (Color, TextAlignmentOptions, Vector2)>();
-        const float SlotCenterX = -75f;   // centre of the slot background
+        const float Gap = 24f;          // between the last row, the divider line and the menu buttons
+        const float TightSpacing = 6f;  // row spacing once the rows no longer fit with the game's
 
-        static readonly Dictionary<GameObject, List<GameObject>> Hidden = new Dictionary<GameObject, List<GameObject>>();
-        static readonly Color SlotBackground = new Color(0f, 0f, 0f, 0.45f);
-        static readonly Dictionary<TMP_Text, TMP_Text> Numbers = new Dictionary<TMP_Text, TMP_Text>();
-
-        // OnEnable fills the list and Start wires per-row listeners, so the rows must exist before either.
-        [HarmonyPrefix, HarmonyPatch("OnEnable")]
-        static void AddRowsOnEnable(UIPrefab_InGameMenu __instance) => AddRows(__instance);
-
-        [HarmonyPrefix, HarmonyPatch("Start")]
-        static void AddRowsOnStart(UIPrefab_InGameMenu __instance) => AddRows(__instance);
-
-        static void AddRows(UIPrefab_InGameMenu menu)
+        // Awake builds the row list and wires each row's volume and kick buttons to its index.
+        [HarmonyPostfix, HarmonyPatch("Awake")]
+        static void AddRows(UIPrefab_InGameMenu_new __instance)
         {
-            var rows = menu.playerUIElements;
-            if (rows.Count < 2 || rows.Count >= Plugin.MaxPlayers) return;
-            var parent = (RectTransform)rows[0].container.transform.parent;
-
-            var group = parent.GetComponent<HorizontalOrVerticalLayoutGroup>();
-            LogLayout("before", parent, group);
-
-            var template = rows[rows.Count - 1];
-            while (rows.Count < Plugin.MaxPlayers)
+            try
             {
-                var go = Object.Instantiate(template.container, parent);
-                go.name = "Player" + (rows.Count + 1);
-                go.transform.SetSiblingIndex(rows[rows.Count - 1].container.transform.GetSiblingIndex() + 1);
-                Transform from = template.container.transform, to = go.transform;
-                rows.Add(new Row
+                var rows = __instance.playerItems;
+                if (rows == null || rows.Length == 0 || rows.Length >= Plugin.MaxPlayers) return;
+                var all = UiUtil.Extend(rows, Plugin.MaxPlayers, "UI_PlayerList");
+                if (all == null) { UiUtil.WarnOnce("Menu player list: rows not found, showing 4 players"); return; }
+                for (int i = rows.Length; i < all.Length; i++)
                 {
-                    container = go,
-                    nickNameText = UiUtil.Map(from, to, template.nickNameText),
-                    avatarButton = UiUtil.Map(from, to, template.avatarButton),
-                    volumeSlider = UiUtil.Map(from, to, template.volumeSlider),
-                    speakButton = UiUtil.Map(from, to, template.speakButton),
-                    infoButton = UiUtil.Map(from, to, template.infoButton),
-                    kickButton = UiUtil.Map(from, to, template.kickButton),
-                    pingImage = UiUtil.Map(from, to, template.pingImage),
-                });
+                    int index = i;
+                    all[i].OnUI_Button_Icon_volume = _ => __instance.OnClickSpeakButton(index);
+                    all[i].OnUI_Button_IconBox_kick = _ => __instance.OpenKickPlayerPopup(index);
+                }
+                __instance.playerItems = all;
             }
-
-            // Keep the game's vertical layout, but pack rows at their scaled height instead of stretching them.
-            if (group != null)
+            catch (Exception e)
             {
-                group.childForceExpandHeight = false;
-                group.childControlHeight = false;
-                group.childScaleHeight = true;
-                group.spacing = 2f;   // was 50, sized for 4 rows
-            }
-            for (int i = 0; i < rows.Count; i++)
-            {
-                var rt = (RectTransform)rows[i].container.transform;
-                rt.localScale = Vector3.one * RowScale;
-                AddNumber(rows[i], i + 1);
-                AddBackground(rows[i]);
-                CenterNameAndSlider(rows[i]);
-            }
-            // The invite button sits outside the layout at a fixed spot that the 10 rows now cover; move it below the panel.
-            var invite = parent.Find("InviteRinkCopy") as RectTransform;
-            // Centred under the slot backgrounds (rows are centred in the panel, their boxes sit SlotCenterX off-centre).
-            if (invite != null) invite.anchoredPosition = new Vector2(parent.rect.width / 2f + SlotCenterX * RowScale, -parent.rect.height - 40f);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(parent);
-            LogLayout("after", parent, group);
-        }
-
-        static void LogLayout(string when, RectTransform parent, HorizontalOrVerticalLayoutGroup g)
-        {
-            var sb = new System.Text.StringBuilder($"[BiggerLobby] menu layout {when}: parent {parent.name} rect={parent.rect} ");
-            sb.Append(g == null ? "no layout group" : $"{g.GetType().Name} spacing={g.spacing} align={g.childAlignment} pad={g.padding} ctrlH={g.childControlHeight} expandH={g.childForceExpandHeight} scaleH={g.childScaleHeight}");
-            foreach (RectTransform c in parent)
-                sb.Append($"\n  {c.name} active={c.gameObject.activeSelf} pos={c.anchoredPosition} size={c.sizeDelta} anchors={c.anchorMin}-{c.anchorMax} pivot={c.pivot} scale={c.localScale.x}");
-            Debug.Log(sb.ToString());
-        }
-
-        // The name sat at the top of the avatar and the slider near its bottom; pull both toward the
-        // avatar's centre so name + slider read as one block next to the picture.
-        static void CenterNameAndSlider(Row row)
-        {
-            void SetY(Component c, float y)
-            {
-                if (c == null) return;
-                var rt = (RectTransform)c.transform;
-                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, y);
-            }
-            SetY(row.nickNameText, 20f);
-            SetY(row.infoButton, 20f);
-            SetY(row.volumeSlider, -18f);
-            SetY(row.speakButton, -18f);
-            SetY(row.pingImage, -18f);
-        }
-
-        // Dark, slightly transparent box behind the whole slot (number to ping icon), drawn under the row's parts.
-        static void AddBackground(Row row)
-        {
-            var t = row.container.transform;
-            if (t.Find("SlotBackground") != null) return;
-            var bg = new GameObject("SlotBackground", typeof(RectTransform), typeof(Image));
-            var rt = (RectTransform)bg.transform;
-            rt.SetParent(t, false);
-            rt.SetAsFirstSibling();
-            rt.anchoredPosition = new Vector2(SlotCenterX, 0f);
-            rt.sizeDelta = new Vector2(720f, 96f);   // spans x -435..285 around the row's centre
-            var img = bg.GetComponent<Image>();
-            img.color = SlotBackground;
-            img.raycastTarget = false;
-        }
-
-        // Slot number in its own label left of the row (the name already has the info icon next to it).
-        static void AddNumber(Row row, int n)
-        {
-            var name = row.nickNameText;
-            if (name == null || Numbers.ContainsKey(name)) return;
-            var label = Object.Instantiate(name.gameObject, row.container.transform).GetComponent<TMP_Text>();
-            label.name = "SlotNumber";
-            label.text = n.ToString();
-            label.alignment = TextAlignmentOptions.MidlineRight;
-            var rt = label.rectTransform;
-            rt.sizeDelta = new Vector2(60f, rt.sizeDelta.y);
-            rt.anchoredPosition = new Vector2(-400f, 0f);   // left of the kick button (-340) and avatar (-250)
-            Numbers[name] = label;
-        }
-
-        // tempVolumeList is padded/trimmed to 4 and ping icons stop at 4: use 10.
-        [HarmonyTranspiler, HarmonyPatch("OnEnable"), HarmonyPatch("SetPingImage")]
-        static IEnumerable<CodeInstruction> FourToTen(IEnumerable<CodeInstruction> code)
-        {
-            foreach (var x in code)
-                yield return x.opcode == OpCodes.Ldc_I4_4 ? new CodeInstruction(OpCodes.Ldc_I4_S, (sbyte)Plugin.MaxPlayers).MoveLabelsFrom(x) : x;
-        }
-
-        [HarmonyPrefix, HarmonyPatch(nameof(UIPrefab_InGameMenu.SetRemoteVolumeController_v2))]
-        static void ClearPlaceholders(UIPrefab_InGameMenu __instance)
-        {
-            foreach (var row in __instance.playerUIElements) SetPlaceholder(row, false);
-        }
-
-        // Rows past the joined players become dimmed "Empty slot" boxes.
-        [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGameMenu.SetRemoteVolumeController_v2))]
-        static void ShowPlaceholders(UIPrefab_InGameMenu __instance)
-        {
-            var joined = Traverse.Create(__instance).Field("playerInfos").GetValue<IList>()?.Count ?? 0;
-            var rows = __instance.playerUIElements;
-            for (int i = 0; i < rows.Count; i++)
-            {
-                if (i >= joined) { SetPlaceholder(rows[i], true); continue; }
-                // Rows with a player always show these (info/kick stay under the game's control).
-                foreach (var part in new Component[] { rows[i].avatarButton, rows[i].volumeSlider, rows[i].speakButton, rows[i].pingImage })
-                    if (part != null) part.gameObject.SetActive(true);
+                UiUtil.WarnOnce("Menu player list: could not add rows 5+", e);
             }
         }
 
-        static void SetPlaceholder(Row row, bool on)
-        {
-            if (row?.container == null) return;
-            // Only restore what the placeholder hid, so per-row game state (e.g. no info button on your own row) is kept.
-            if (!Hidden.TryGetValue(row.container, out var hidden)) Hidden[row.container] = hidden = new List<GameObject>();
-            if (on)
-            {
-                foreach (var part in new Component[] { row.avatarButton, row.volumeSlider, row.speakButton, row.infoButton, row.kickButton, row.pingImage })
-                    if (part != null && part.gameObject.activeSelf) { part.gameObject.SetActive(false); hidden.Add(part.gameObject); }
-            }
-            else
-            {
-                foreach (var go in hidden) if (go != null) go.SetActive(true);
-                hidden.Clear();
-            }
+        // The game's spacing and divider position, to put back when 4 or fewer players are shown again.
+        static readonly Dictionary<int, (float spacing, Vector2 divider)> Original = new Dictionary<int, (float, Vector2)>();
 
-            var name = row.nickNameText;
-            if (name == null) return;
-            if (!NameStyles.ContainsKey(name)) NameStyles[name] = (name.color, name.alignment, name.rectTransform.anchoredPosition);
-            var (color, align, pos) = NameStyles[name];
-            if (on)
+        // The list has room for 4 rows above the divider line and the menu buttons below it. With more players, use the
+        // space down to the buttons, tighten the spacing and if needed shrink the rows; the divider follows the list.
+        [HarmonyPostfix, HarmonyPatch(nameof(UIPrefab_InGameMenu_new.SetRemoteVolumeController_v2))]
+        static void FitRows(UIPrefab_InGameMenu_new __instance)
+        {
+            try
             {
-                // Centred in the slot box, on the same line as the slot number.
-                row.container.SetActive(true);
-                name.text = "Empty slot";
-                name.color = PlaceholderColor;
-                name.alignment = TextAlignmentOptions.Center;
-                name.rectTransform.anchoredPosition = new Vector2(SlotCenterX, 0f);
+                var rows = __instance.playerItems;
+                if (rows == null || rows.Length <= 4 || rows[0] == null) return;
+                var list = (RectTransform)rows[0].transform.parent;   // PlayerGroup
+                var group = list.GetComponent<VerticalLayoutGroup>();
+                var divider = list.parent.Find("UI_Deco_DivideLine_Horizon") as RectTransform;
+                var buttons = list.parent.Find("MenuGroup");
+                if (group == null || buttons == null) { UiUtil.WarnOnce("Menu player list: layout not found, rows not fitted"); return; }
+                int id = __instance.GetInstanceID();
+                if (!Original.TryGetValue(id, out var original))
+                    Original[id] = original = (group.spacing, divider != null ? divider.anchoredPosition : Vector2.zero);
+
+                int shown = rows.Count(r => r != null && r.gameObject.activeSelf);
+                float rowH = ((RectTransform)rows[0].transform).rect.height, spacing = original.spacing, scale = 1f;
+                float room = list.rect.height - StackHeight(buttons) - 2 * Gap - (divider != null ? divider.rect.height : 0f);
+                if (shown > 4 && shown * rowH + (shown - 1) * spacing > room)
+                {
+                    spacing = TightSpacing;
+                    scale = Mathf.Clamp((room - (shown - 1) * spacing) / (shown * rowH), 0.5f, 1f);
+                }
+                group.spacing = spacing;
+                group.childScaleHeight = true;   // pack the rows at their scaled height
+                foreach (var row in rows)
+                    if (row != null) row.transform.localScale = new Vector3(scale, scale, 1f);
+
+                // The divider is anchored to the top like the list: put it under the last row.
+                if (divider != null && Mathf.Approximately(divider.anchorMin.y, 1f) && Mathf.Approximately(divider.anchorMax.y, 1f))
+                    divider.anchoredPosition = shown <= 4 ? original.divider
+                        : new Vector2(original.divider.x, list.offsetMax.y - (shown * rowH * scale + (shown - 1) * spacing) - Gap);
             }
-            else
+            catch (Exception e)
             {
-                name.color = color;
-                name.alignment = align;
-                name.rectTransform.anchoredPosition = pos;
+                UiUtil.WarnOnce("Menu player list: could not fit the rows", e);
             }
+        }
+
+        // Height of a vertical layout whose rows keep their own height (the menu buttons).
+        static float StackHeight(Transform t)
+        {
+            var g = t.GetComponent<VerticalLayoutGroup>();
+            var shown = t.Cast<RectTransform>().Where(c => c.gameObject.activeSelf).ToList();
+            if (shown.Count == 0) return 0f;
+            return shown.Sum(c => c.rect.height) + (g != null ? g.padding.vertical + g.spacing * (shown.Count - 1) : 0f);
         }
     }
 }

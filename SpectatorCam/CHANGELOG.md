@@ -1,5 +1,11 @@
 # SpectatorCam changelog
 
+## Unreleased
+- Free camera: its keys (E = up) no longer possess a mimic or end the possession by accident; press F to return to the normal camera first. The controller is unaffected
+- Free camera: ignores input while the F9 feedback form is open, like the game's spectator camera
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.3.3
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 

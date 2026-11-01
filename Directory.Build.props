@@ -1,12 +1,30 @@
 <Project>
-  <!-- The repo lives inside the game folder (<game>\Patches), so the game's DLLs are found relative to it.
-       Building from somewhere else: dotnet build -p:GameDir="D:\SteamLibrary\steamapps\common\MIMESIS\" -->
+  <!-- Where the game is (GameDir). The first of these that has MIMESIS_Data/Managed/Assembly-CSharp.dll:
+       1. the folder this repo is cloned into, as <game>\Patches (the usual setup on Windows);
+       2. the MIMESIS_DIR environment variable (used as given);
+       3. the default Steam library on Linux: native, Flatpak or Snap Steam (the game runs there with Proton).
+       Building from somewhere else: dotnet build -p:GameDir="D:\SteamLibrary\steamapps\common\MIMESIS"
+       (or /path/to/MIMESIS on Linux). linux/mimesis-patches.py build finds the game in every Steam library and passes it.
+       Directory.Build.targets stops the build with a clear error when the game isn't found. -->
   <PropertyGroup>
-    <GameDir Condition="'$(GameDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))\</GameDir>
-    <Managed Condition="'$(Managed)' == ''">$(GameDir)MIMESIS_Data\Managed</Managed>
+    <_RepoParent>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</_RepoParent>
+    <_GameCheck>MIMESIS_Data/Managed/Assembly-CSharp.dll</_GameCheck>
+    <GameDir Condition="'$(GameDir)' == '' And Exists('$(_RepoParent)/$(_GameCheck)')">$(_RepoParent)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">$(MIMESIS_DIR)</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(XDG_DATA_HOME)' != '' And Exists('$(XDG_DATA_HOME)/Steam/steamapps/common/MIMESIS/$(_GameCheck)')">$(XDG_DATA_HOME)/Steam/steamapps/common/MIMESIS</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOME)' != '' And Exists('$(HOME)/.local/share/Steam/steamapps/common/MIMESIS/$(_GameCheck)')">$(HOME)/.local/share/Steam/steamapps/common/MIMESIS</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOME)' != '' And Exists('$(HOME)/.steam/steam/steamapps/common/MIMESIS/$(_GameCheck)')">$(HOME)/.steam/steam/steamapps/common/MIMESIS</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOME)' != '' And Exists('$(HOME)/.steam/root/steamapps/common/MIMESIS/$(_GameCheck)')">$(HOME)/.steam/root/steamapps/common/MIMESIS</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOME)' != '' And Exists('$(HOME)/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/MIMESIS/$(_GameCheck)')">$(HOME)/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/MIMESIS</GameDir>
+    <GameDir Condition="'$(GameDir)' == '' And '$(HOME)' != '' And Exists('$(HOME)/snap/steam/common/.local/share/Steam/steamapps/common/MIMESIS/$(_GameCheck)')">$(HOME)/snap/steam/common/.local/share/Steam/steamapps/common/MIMESIS</GameDir>
+    <!-- Not found: the old default, so the error names the expected place. -->
+    <GameDir Condition="'$(GameDir)' == ''">$(_RepoParent)</GameDir>
+    <!-- Always one trailing slash; a GameDir from the command line can't be changed here, so Managed adds it as well. -->
+    <GameDir>$([MSBuild]::EnsureTrailingSlash('$(GameDir)'))</GameDir>
+    <Managed Condition="'$(Managed)' == ''">$([MSBuild]::EnsureTrailingSlash('$(GameDir)'))MIMESIS_Data/Managed</Managed>
     <!-- The game's code. A .bak is the original left by the old (pre-BepInEx) patches; prefer it if it's still there. -->
-    <GameDll Condition="'$(GameDll)' == '' And Exists('$(Managed)\Assembly-CSharp.dll.bak')">$(Managed)\Assembly-CSharp.dll.bak</GameDll>
-    <GameDll Condition="'$(GameDll)' == ''">$(Managed)\Assembly-CSharp.dll</GameDll>
+    <GameDll Condition="'$(GameDll)' == '' And Exists('$(Managed)/Assembly-CSharp.dll.bak')">$(Managed)/Assembly-CSharp.dll.bak</GameDll>
+    <GameDll Condition="'$(GameDll)' == ''">$(Managed)/Assembly-CSharp.dll</GameDll>
   </PropertyGroup>
   <!-- Thunderstore build (dotnet build -p:Thunderstore=1): no updater code, own obj/bin so it never mixes with the
        normal build that GitHub releases and the installer use. -->

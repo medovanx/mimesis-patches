@@ -11,6 +11,9 @@
     <PackageReference Remove="Lib.Harmony" />
     <PackageReference Include="LavaGang.MelonLoader" Version="0.7.3" PrivateAssets="all" ExcludeAssets="runtime" />
     <Reference Include="UnityEngine"><HintPath>$(Managed)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <!-- GUIUtility.systemCopyBuffer: Common/PatchMenu.cs copies the Linux update command. Once, also where the project has it. -->
+    <Reference Remove="UnityEngine.IMGUIModule" />
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(Managed)\UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
     <Compile Include="$(MSBuildThisFileDirectory)Common\MelonEntry.cs" Link="Common\MelonEntry.cs" />
     <AssemblyAttribute Include="MelonLoader.MelonInfoAttribute">
       <_Parameter1>typeof(MimesisPatches.MelonEntry)</_Parameter1>
@@ -30,4 +33,8 @@
     <!-- Each patch applies its Harmony patches itself, in Plugin.Init at Hub.Awake; don't let MelonLoader do it too. -->
     <AssemblyAttribute Include="MelonLoader.HarmonyDontPatchAllAttribute" />
   </ItemGroup>
+  <!-- The game wasn't found (see Directory.Build.props): one clear message instead of a missing reference error per file. -->
+  <Target Name="CheckGameDir" BeforeTargets="ResolveAssemblyReferences" Condition="$(AssemblyName.EndsWith('Runtime')) And !Exists('$(GameDll)')">
+    <Error Text="MIMESIS wasn't found: $(GameDll) doesn't exist. Looked in the folder this repo is in, MIMESIS_DIR and the default Steam, Flatpak and Snap Steam libraries. Pass the game folder (the one with MIMESIS.exe) with -p:GameDir=&quot;path/to/MIMESIS&quot;, or set the MIMESIS_DIR environment variable to it. On Linux, python3 linux/mimesis-patches.py build finds the game in every Steam library." />
+  </Target>
 </Project>

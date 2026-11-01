@@ -33,7 +33,7 @@ namespace MimesisPatches
             t.color = color ?? Text;
             t.text = text;
             t.raycastTarget = false;
-            t.enableWordWrapping = true;
+            t.textWrappingMode = TextWrappingModes.Normal;
             var el = t.gameObject.AddComponent<LayoutElement>();
             if (height > 0f) el.preferredHeight = height;
             return t;

@@ -1,5 +1,11 @@
 # LateJoin changelog
 
+## Unreleased
+- Game EA 0.4.0: the game itself now lets players join mid-run, so the unused lobby-only override is gone. A player who reaches the tram while the team is away waits there again instead of being sent back to the menu
+- The "team is in a level" message no longer stays on screen for good if you leave the tram while waiting (e.g. the host quits)
+- Patches chip: shows on the EA 0.4.0 main menu again (the game renamed and hid the version text it looked for)
+- Patches window on Linux (Proton): Update shows the linux/mimesis-patches.py command to run, with a Copy button, instead of starting the Windows installer
+
 ## 1.2.3
 - In-game Update reuses the installer already on your PC, so updating only downloads the small patch files (much faster)
 
